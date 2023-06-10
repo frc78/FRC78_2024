@@ -5,16 +5,28 @@
 package frc.robot.Systems.Chassis;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.RobotConstants;
 
 public class Chassis extends SubsystemBase {
-  public SwerveModule module1;
+  public SwerveModule[] modules;
 
   public Chassis() {
-    module1 = new FalconModule();
+    modules = new SwerveModule[] {
+      new FalconModule(RobotConstants.MOD_0_CONFIG),
+      new FalconModule(RobotConstants.MOD_0_CONFIG),
+      new FalconModule(RobotConstants.MOD_0_CONFIG),
+      new FalconModule(RobotConstants.MOD_0_CONFIG)
+    };
+    modules = new SwerveModule[] {
+      new NeoModule(RobotConstants.MOD_0_CONFIG),
+      new NeoModule(RobotConstants.MOD_0_CONFIG),
+      new NeoModule(RobotConstants.MOD_0_CONFIG),
+      new NeoModule(RobotConstants.MOD_0_CONFIG)
+    };
   }
 
   @Override
   public void periodic() {
-    module1.setVelocity(1);
+    modules[0].setVelocity(1);
   }
 }
