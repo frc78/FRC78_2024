@@ -18,9 +18,9 @@ public class NeoModule extends SwerveModule {
         drive = new Spark(this.config.driveID);
         steer = new Spark(this.config.steerID);
     }
-    
-    @Override
-    public void setVelocity (double velocity) {
+
+    // @Override
+    public void initialize() {
 
     }
 }

@@ -27,7 +27,7 @@ public class Chassis extends SubsystemBase {
 
   public void initializeModules() {
     for (SwerveModule module:modules) {
-      module.intialize();
+      module.initialize();
     }
   }
 
