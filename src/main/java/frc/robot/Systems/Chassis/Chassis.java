@@ -25,6 +25,12 @@ public class Chassis extends SubsystemBase {
     };
   }
 
+  public void initializeModules() {
+    for (SwerveModule module:modules) {
+      module.intialize();
+    }
+  }
+
   @Override
   public void periodic() {
     modules[0].setVelocity(1);
