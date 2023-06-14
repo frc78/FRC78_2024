@@ -5,8 +5,8 @@
 package frc.robot.Systems.Chassis;
 
 /** Add your docs here. */
-public class SwerveModule {
-    public void setVelocity (double velocity) {}
-    public void SetRotation (double rotation) {}
-    public void initialize () {}
+public interface SwerveModule {
+    public void setVelocity (double velocity);
+    public void SetRotation (double rotation);
+    public void initialize ();
 }

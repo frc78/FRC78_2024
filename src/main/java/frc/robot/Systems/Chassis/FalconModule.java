@@ -9,7 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import frc.robot.Classes.ModuleConfig;
 
 /** Add your docs here. */
-public class FalconModule extends SwerveModule {
+public class FalconModule implements SwerveModule {
     protected ModuleConfig config;
     protected TalonFX drive;
     protected TalonFX steer;
@@ -23,5 +23,17 @@ public class FalconModule extends SwerveModule {
     @Override
     public void setVelocity (double velocity) {
         // Falcon.SetSpeed(velocity);
+    }
+
+    @Override
+    public void SetRotation(double rotation) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void initialize() {
+        // TODO Auto-generated method stub
+        
     }
 }

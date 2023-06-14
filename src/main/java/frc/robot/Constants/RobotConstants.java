@@ -9,7 +9,7 @@ import frc.robot.Classes.ModuleConfig;
 
 /** Add your docs here. */
 public class RobotConstants {
-    public static enum ROBOT_TYPE {WASP, ANTMAN};
+    public static enum ROBOT_TYPE {WASP, NEO};
     public static final ROBOT_TYPE ROBOT = ROBOT_TYPE.WASP;
 
     public static final double WHEEL_WIDTH = Units.inchesToMeters(18.75); //Make sure this is from the wheel's center of rotation

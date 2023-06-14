@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.Classes.ModuleConfig;
 
 /** Add your docs here. */
-public class NeoModule extends SwerveModule {
+public class NeoModule implements SwerveModule {
     protected ModuleConfig config;
     protected Spark drive;
     protected Spark steer;
@@ -22,5 +22,17 @@ public class NeoModule extends SwerveModule {
     // @Override
     public void initialize() {
 
+    }
+
+    @Override
+    public void setVelocity(double velocity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void SetRotation(double rotation) {
+        // TODO Auto-generated method stub
+        
     }
 }
