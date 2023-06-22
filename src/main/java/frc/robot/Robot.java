@@ -24,6 +24,7 @@ public class Robot extends LoggedRobot {
     //#region AdvantageKit init
     Logger logger = Logger.getInstance();
 
+    /* TODO COMMENT OUT FROM HERE */
     logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
     logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
@@ -40,6 +41,7 @@ public class Robot extends LoggedRobot {
         logger.recordMetadata("GitDirty", "Unknown");
         break;
     }
+    /* TO HERE */
 
     if (isReal()) {
       logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
