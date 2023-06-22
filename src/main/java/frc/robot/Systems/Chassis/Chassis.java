@@ -6,7 +6,6 @@ package frc.robot.Systems.Chassis;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.RobotConstants.ROBOT_TYPE;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
@@ -33,6 +32,7 @@ public class Chassis extends SubsystemBase {
   }
 
   public void initializeModules() {
+    // This is an example of how we will perform operations on all modules
     for (SwerveModule module:modules) {
       module.initialize();
     }
@@ -40,6 +40,6 @@ public class Chassis extends SubsystemBase {
 
   @Override
   public void periodic() {
-    modules[0].setVelocity(1);
+    // This method will be called once per scheduler run
   }
 }

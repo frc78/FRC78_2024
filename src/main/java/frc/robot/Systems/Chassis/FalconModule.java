@@ -6,6 +6,9 @@ package frc.robot.Systems.Chassis;
 
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Classes.ModuleConfig;
 
 /** Add your docs here. */
@@ -21,18 +24,61 @@ public class FalconModule implements SwerveModule {
     }
 
     @Override
-    public void setVelocity (double velocity) {
-        // Falcon.SetSpeed(velocity);
-    }
-
-    @Override
-    public void SetRotation(double rotation) {
+    public void initialize() {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void initialize() {
+    public void resetToAbsolute() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public double getVelocity() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Rotation2d getRelEncoderPosition() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Rotation2d getAbsEncoderPosition() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public SwerveModulePosition getPosition() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setVelocity(double velocity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setRotation(Rotation2d rotation) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setState(SwerveModuleState state) {
         // TODO Auto-generated method stub
         
     }

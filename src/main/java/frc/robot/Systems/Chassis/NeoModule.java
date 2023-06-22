@@ -4,6 +4,9 @@
 
 package frc.robot.Systems.Chassis;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import frc.robot.Classes.ModuleConfig;
 
@@ -19,9 +22,46 @@ public class NeoModule implements SwerveModule {
         steer = new Spark(this.config.steerID);
     }
 
-    // @Override
+    @Override
     public void initialize() {
+        // TODO Auto-generated method stub
+        
+    }
 
+    @Override
+    public void resetToAbsolute() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public double getVelocity() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Rotation2d getRelEncoderPosition() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Rotation2d getAbsEncoderPosition() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public SwerveModuleState getState() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public SwerveModulePosition getPosition() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -31,7 +71,13 @@ public class NeoModule implements SwerveModule {
     }
 
     @Override
-    public void SetRotation(double rotation) {
+    public void setRotation(Rotation2d rotation) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setState(SwerveModuleState state) {
         // TODO Auto-generated method stub
         
     }
