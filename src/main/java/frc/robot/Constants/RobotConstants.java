@@ -6,17 +6,36 @@ package frc.robot.Constants;
 
 import edu.wpi.first.math.util.Units;
 import frc.robot.Classes.ModuleConfig;
+import frc.robot.Constants.Constants.ROBOT_TYPE;
 
-/** Add your docs here. */
+//Switch between the WASP and NEO by commenting out the other one
+
+/** This is the constants for the WASP */
 public class RobotConstants {
-    public static enum ROBOT_TYPE {WASP, NEO};
     public static final ROBOT_TYPE ROBOT = ROBOT_TYPE.WASP;
 
     public static final double WHEEL_WIDTH = Units.inchesToMeters(18.75); //Make sure this is from the wheel's center of rotation
     public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4); //TODO
-
-    public static final ModuleConfig MOD_0_CONFIG = new ModuleConfig(1, 2, 9, 0.0);
-    public static final ModuleConfig MOD_1_CONFIG = new ModuleConfig(3, 4, 10, 0.0);
-    public static final ModuleConfig MOD_2_CONFIG = new ModuleConfig(5, 6, 11, 0.0);
-    public static final ModuleConfig MOD_3_CONFIG = new ModuleConfig(7, 8, 12, 0.0);
+    
+    public static final ModuleConfig[] MOD_CONFIGS = {
+        new ModuleConfig(1, 2, 9, 0.0),
+        new ModuleConfig(3, 4, 10, 0.0),
+        new ModuleConfig(5, 6, 11, 0.0),
+        new ModuleConfig(7, 8, 12, 0.0)
+    };
 }
+
+/** This is the constants for the NEO */
+// public class RobotConstants {
+//     public static final ROBOT_TYPE ROBOT = ROBOT_TYPE.NEO;
+
+//     public static final double WHEEL_WIDTH = Units.inchesToMeters(18.75); //Make sure this is from the wheel's center of rotation
+//     public static final double WHEEL_CIRCUMFERENCE = Units.inchesToMeters(4); //TODO
+    
+//     public static final ModuleConfig[] MOD_CONFIGS = {
+//         new ModuleConfig(1, 2, 9, 0.0),
+//         new ModuleConfig(3, 4, 10, 0.0),
+//         new ModuleConfig(5, 6, 11, 0.0),
+//         new ModuleConfig(7, 8, 12, 0.0)
+//     };
+// }

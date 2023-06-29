@@ -7,9 +7,8 @@ package frc.robot.Classes;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-/** Add your docs here. */
+/** A class for the math related to swerve drive */
 public final class SwerveMath {
-     // This was directly copy pasted from here
     // https://github.com/Team364/BaseFalconSwerve/blob/cf71e7ca7636d0b1b875855ff3ba51393c3b2078/src/main/java/frc/lib/util/CTREModuleState.java#L16
     public static SwerveModuleState optimize(SwerveModuleState desiredState, Rotation2d currentAngle) {
         double targetAngle = placeInAppropriate0To360Scope(currentAngle.getDegrees(), desiredState.angle.getDegrees());

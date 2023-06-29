@@ -4,5 +4,22 @@
 
 package frc.robot.Commands;
 
-/** Add your docs here. */
-public class Drive {}
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Systems.Chassis.Chassis;
+
+/** TODO this is a stub for the driving command */
+public class Drive extends CommandBase{
+    private Chassis chassis;
+    private XboxController controller;
+
+    public Drive(Chassis chassis, XboxController controller) {
+        this.chassis = chassis;
+        this.controller = controller;
+    }
+
+    @Override
+    public void execute () {
+        //drive
+    }
+}

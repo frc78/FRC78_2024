@@ -10,23 +10,21 @@ import frc.robot.Constants.RobotConstants;
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
 
+  // private double[] inputs;
+  // private double[] weights;
+
   public Chassis() {
-    switch (RobotConstants.ROBOT) {
-      case WASP: {
-        modules = new SwerveModule[] {
-          new FalconModule(RobotConstants.MOD_0_CONFIG),
-          new FalconModule(RobotConstants.MOD_1_CONFIG),
-          new FalconModule(RobotConstants.MOD_2_CONFIG),
-          new FalconModule(RobotConstants.MOD_3_CONFIG)
-        };
-      }
-      case NEO: {
-        modules = new SwerveModule[] {
-          new NeoModule(RobotConstants.MOD_0_CONFIG),
-          new NeoModule(RobotConstants.MOD_1_CONFIG),
-          new NeoModule(RobotConstants.MOD_2_CONFIG),
-          new NeoModule(RobotConstants.MOD_3_CONFIG)
-        };
+    modules = new SwerveModule[RobotConstants.MOD_CONFIGS.length];
+    for (int i = 0; i < RobotConstants.MOD_CONFIGS.length; i++) {
+      switch (RobotConstants.ROBOT) {
+        case WASP: {
+          modules[i] = new FalconModule(RobotConstants.MOD_CONFIGS[i]);
+          break;
+        }
+        case NEO: {
+          modules[i] = new NeoModule(RobotConstants.MOD_CONFIGS[i]);
+          break;
+        }
       }
     }
   }
@@ -37,6 +35,8 @@ public class Chassis extends SubsystemBase {
       module.initialize();
     }
   }
+
+  // public void addInput(double input, double weight) {}
 
   @Override
   public void periodic() {
