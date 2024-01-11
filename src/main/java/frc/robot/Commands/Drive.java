@@ -5,11 +5,11 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Systems.Chassis.Chassis;
 
 /** TODO this is a stub for the driving command */
-public class Drive extends CommandBase{
+public class Drive extends Command{
     private Chassis chassis;
     private XboxController controller;
 
