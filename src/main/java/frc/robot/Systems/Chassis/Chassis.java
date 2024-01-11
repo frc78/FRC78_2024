@@ -4,16 +4,33 @@
 
 package frc.robot.Systems.Chassis;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
+import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
-
-  // private double[] inputs;
-  // private double[] weights;
+  public ChassisSpeeds chassisSpeed;
+  public SwerveModuleState[] states;
+  
+  private SwerveDriveKinematics kinematics;
+  private SwerveDrivePoseEstimator poseEstimator;
+  private Pigeon2 pigeon;
 
   public Chassis() {
+    // It reads the number of modules from the RobotConstants
     modules = new SwerveModule[RobotConstants.MOD_CONFIGS.length];
     for (int i = 0; i < RobotConstants.MOD_CONFIGS.length; i++) {
       switch (RobotConstants.ROBOT) {
@@ -27,6 +44,10 @@ public class Chassis extends SubsystemBase {
         }
       }
     }
+
+    pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
+    kinematics = Constants.SWERVE_KINEMATICS;
+    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
   }
 
   public void initializeModules() {
@@ -36,10 +57,35 @@ public class Chassis extends SubsystemBase {
     }
   }
 
-  // public void addInput(double input, double weight) {}
+  public Pose2d getFusedPose() {
+    return poseEstimator.getEstimatedPosition();
+  }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions());
+  }
+
+  public double getGyroRot() {
+    return pigeon.getYaw().getValueAsDouble();
+  }
+
+  public SwerveModulePosition[] getPositions () {
+    SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
+    for (int i = 0; i < modules.length; i++) {
+      positions[i] = modules[i].getPosition();
+    }
+    return positions;
+  }
+
+  public void convertToStates() {
+     states = kinematics.toSwerveModuleStates(chassisSpeed);
+  }
+
+  public void drive() {
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].setState(states[i]);
+      SmartDashboard.putNumber(i +" Rot", states[i].angle.getRadians());
+    }
   }
 }

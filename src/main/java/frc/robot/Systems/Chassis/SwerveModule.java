@@ -8,13 +8,16 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-/** This is the parent interface for a SwerveModule. */
+/** This is the parent interface for a SwerveModule. 
+ * It is used to define the methods that all SwerveModules must implement.
+ * Recourse for this can be found in the repository wiki, https://github.com/AquidneckIslandRobotics/78Offseason2023/wiki/Concepts
+*/
 public interface SwerveModule {
     public void initialize ();
-    public void resetToAbsolute ();
-    public double getVelocity (); // Get current drive velocity from  (m/s)
-    public Rotation2d getRelEncoderPosition (); // Get the relative position of the angle motor's encoder
-    public Rotation2d getAbsEncoderPosition (); // Get the absolute position of the magnetic encoder
+    public void resetEncoders ();
+    public double getDriveVelocity (); // Get current drive velocity from  (m/s)
+    public double getDrivePosition (); // Get the relative position of the angle motor's encoder
+    public Rotation2d getSteerPosition (); // Get the absolute position of the magnetic encoder
     public SwerveModuleState getState ();
     public SwerveModulePosition getPosition ();
     public void setVelocity (double velocity); // Set goal drive velocity (m/s)
