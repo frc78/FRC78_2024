@@ -67,15 +67,16 @@ public class RobotConstants {
 
     // WHEELS
 
-    // public static final double DRIVE_GEAR_RATIO = (150.0 / 7.0); //TODO
+    public static final double STEER_GEAR_RATIO = (150.0 / 7.0); //TODO
     public static final double DRIVE_GEAR_RATIO = (6.75); //TODO
-    public static final double STEER_GEAR_RATIO = 1.0; //TODO
+    // public static final double STEER_GEAR_RATIO = 1.0; //TODO
 
     public static final double DRIVE_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
     public static final double DRIVE_VEL_TO_METERS = ((WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO) / 60;
 
     public static final double STEER_ENC_POS_TO_METERS = (2 * Math.PI); //factor of steer encoder to meters(conversion factor)
     public static final double STEER_ENC_VEL_TO_METERS = (2 * Math.PI) / 60;//factor of vel to meters
+    // public static final double STEER_ENC_VEL_TO_METERS = 1;
 
     public static final boolean STEER_ENC_INVERTED = false;
     public static final boolean DRIVE_INVERTED = false;
@@ -118,7 +119,4 @@ public class RobotConstants {
     public static final double FLYWHEEL_KS = 1; //TODO
     public static final double FLYWHEEL_KV = 0; //TODO
     public static final double FLYWHEEL_KA = 0; //TODO
-
-    /** Hood's angle of elevation in degrees */
-    public static final double HOOD_ANGLE = 45.0; //TODO
 }

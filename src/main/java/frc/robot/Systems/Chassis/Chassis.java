@@ -4,6 +4,8 @@
 
 package frc.robot.Systems.Chassis;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -14,6 +16,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -28,6 +33,8 @@ public class Chassis extends SubsystemBase {
   private SwerveDriveKinematics kinematics;
   private SwerveDrivePoseEstimator poseEstimator;
   private Pigeon2 pigeon;
+
+  // StructArrayPublisher<SwerveModuleState> publisher;
 
   public Chassis() {
     // It reads the number of modules from the RobotConstants
@@ -48,6 +55,9 @@ public class Chassis extends SubsystemBase {
     pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     kinematics = Constants.SWERVE_KINEMATICS;
     poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
+
+    // publisher = NetworkTableInstance.getDefault()
+    // .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
   }
 
   public void initializeModules() {
@@ -64,6 +74,8 @@ public class Chassis extends SubsystemBase {
   @Override
   public void periodic() {
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions());
+
+    // publisher.set(states);
   }
 
   public double getGyroRot() {

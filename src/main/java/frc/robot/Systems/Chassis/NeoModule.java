@@ -7,9 +7,9 @@ package frc.robot.Systems.Chassis;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -25,8 +25,8 @@ public class NeoModule implements SwerveModule {
     protected CANSparkMax drive;
     protected CANSparkMax steer;
 
-    protected SparkMaxPIDController drivePID;
-    protected SparkMaxPIDController steerPID;
+    protected SparkPIDController drivePID;
+    protected SparkPIDController steerPID;
     private RelativeEncoder driveEnc;
     private AbsoluteEncoder steerEnc;
 
