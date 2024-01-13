@@ -71,10 +71,10 @@ public class Drive extends Command{
     //thetaPID.setSetpoint(dir * -1);
 
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-      triggerAdjust(modifyJoystick(xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+      triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
       triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-      triggerAdjust(modifyJoystick(rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY,
-      Rotation2d.fromDegrees(-chassis.getGyroRot()) //TODO will have to change to be fused pose instead of gyro
+      triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY,
+      chassis.getFusedPose().getRotation() //TODO will have to change to be fused pose instead of gyro
       );
 
    // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
@@ -85,6 +85,7 @@ public class Drive extends Command{
      // xLimiter.calculate(speeds.vxMetersPerSecond),
       //yLimiter.calculate(speeds.vyMetersPerSecond),
      // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
+     
     chassis.chassisSpeed = speeds;
     chassis.convertToStates(); 
     chassis.drive();

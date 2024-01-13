@@ -7,6 +7,10 @@ package frc.robot.Systems.Chassis;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,10 +22,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Robot;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
 
@@ -54,10 +59,37 @@ public class Chassis extends SubsystemBase {
 
     pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     kinematics = Constants.SWERVE_KINEMATICS;
-    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
+    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot() + 90), getPositions(), new Pose2d());
+    chassisSpeed = new ChassisSpeeds();
 
     // publisher = NetworkTableInstance.getDefault()
     // .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+
+    AutoBuilder.configureHolonomic(
+                this::getFusedPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(1.0, 0.0, 0.0), // Rotation PID constants
+                        RobotConstants.MAX_SPEED, // Max module speed, in m/s
+                        Constants.ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
+                        new ReplanningConfig() // Default path replanning config. See the API for the options here
+                ),
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );
   }
 
   public void initializeModules() {
@@ -71,11 +103,16 @@ public class Chassis extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  public void resetPose(Pose2d pose) {
+    poseEstimator.resetPosition(Rotation2d.fromDegrees(getGyroRot()), getPositions(), pose);
+  }
+
   @Override
   public void periodic() {
-    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions());
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
+    Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
   public double getGyroRot() {
@@ -94,8 +131,19 @@ public class Chassis extends SubsystemBase {
     return positions;
   }
 
+  // There is probably a better way to feed this into the AutoBuilder, but this is simpler for now
+  public ChassisSpeeds getChassisSpeeds() {
+    return chassisSpeed;
+  }
+
   public void convertToStates() {
      states = kinematics.toSwerveModuleStates(chassisSpeed);
+  }
+
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    chassisSpeed = speeds;
+    convertToStates();
+    drive();
   }
 
   public void drive() {

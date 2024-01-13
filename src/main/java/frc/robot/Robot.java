@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 // import org.littletonrobotics.junction.LogFileUtil;
 // import org.littletonrobotics.junction.LoggedRobot;
@@ -26,8 +31,6 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
     //#region AdvantageKit init
-    // Logger logger = Logger.getInstance();
-
     // /* TODO COMMENT OUT FROM HERE */
     // logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
     // logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
@@ -47,21 +50,21 @@ public class Robot extends LoggedRobot {
     // }
     // /* TO HERE */
 
-    // if (isReal()) {
-    //   logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
-    //   logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    // } else {
-    //   setUseTiming(false); // Run as fast as possible
-    //   String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-    //   logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-    //   logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-    // }
+    if (isReal()) {
+      // Logger.addDataReceiver(new WPILOGWriter("/media/sda1/")); // Log to a USB stick
+      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    } else {
+      setUseTiming(false); // Run as fast as possible
+      String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+      Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    }
 
     // // See http://bit.ly/3YIzFZ6 for more information on timestamps in AdvantageKit.
     // // Logger.getInstance().disableDeterministicTimestamps()
 
     // // Start AdvantageKit logger
-    // logger.start();
+    Logger.start();
     // //#endregion
     m_robotContainer = new RobotContainer();
   }
