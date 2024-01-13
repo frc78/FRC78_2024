@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.Classes.ModuleConfig;
 import frc.robot.Constants.RobotConstants;
 
@@ -65,8 +66,8 @@ public class NeoModule implements SwerveModule {
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
     // but we want meters and meters per second to use with WPILib's swerve APIs.
-    driveEnc.setPositionConversionFactor(RobotConstants.DRIVE_TO_METERS);
-    driveEnc.setVelocityConversionFactor(RobotConstants.DRIVE_VEL_TO_METERS);
+    driveEnc.setPositionConversionFactor(RobotConstants.DRIVE_ENC_TO_METERS);
+    driveEnc.setVelocityConversionFactor(RobotConstants.DRIVE_ENC_VEL_TO_METERS);
 
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
@@ -77,6 +78,8 @@ public class NeoModule implements SwerveModule {
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
     // the steering motor in the MAXSwerve Module.
     steerEnc.setInverted(RobotConstants.STEER_ENC_INVERTED);
+    steer.setInverted(RobotConstants.STEER_INVERTED);
+    drive.setInverted(RobotConstants.DRIVE_INVERTED);
 
     // Enable PID wrap around for the turning motor. This will allow the PID
     // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
@@ -86,26 +89,25 @@ public class NeoModule implements SwerveModule {
     steerPID.setPositionPIDWrappingMinInput(RobotConstants.STEER_ENC_PID_MIN);
     steerPID.setPositionPIDWrappingMaxInput(RobotConstants.STEER_ENC_PID_MAX);
 
-    // Set the PID gains for the driving motor. Note these are example gains, and you
-    // may need to tune them for your own robot!
+    // Set the PID gains for the driving motor
     drivePID.setP(RobotConstants.K_DRIVE_P);
     drivePID.setI(RobotConstants.K_DRIVE_I);
     drivePID.setD(RobotConstants.K_DRIVE_D);
     drivePID.setFF(RobotConstants.K_DRIVE_FF);
     drivePID.setOutputRange(RobotConstants.DRIVE_OUT_MIN, RobotConstants.DRIVE_OUT_MAX);
 
-    // Set the PID gains for the turning motor. Note these are example gains, and you
-    // may need to tune them for your own robot!
+    // Set the PID gains for the turning motor
     steerPID.setP(RobotConstants.K_STEER_P);
     steerPID.setI(RobotConstants.K_STEER_I);
     steerPID.setD(RobotConstants.K_STEER_D);
     steerPID.setFF(RobotConstants.K_STEER_FF);
     steerPID.setOutputRange(RobotConstants.STEER_OUT_MIN, RobotConstants.STEER_OUT_MAX);
 
+    drive.setSmartCurrentLimit(RobotConstants.DRIVE_CURRENT_LIMIT);
+    steer.setSmartCurrentLimit(RobotConstants.STEER_CURRENT_LIMIT);
+
     drive.setIdleMode(RobotConstants.DRIVE_IDLE);
     steer.setIdleMode(RobotConstants.STEER_IDLE);
-    // drive.setSmartCurrentLimit(RobotConstants.kDrivingMotorCurrentLimit); // TODO maybe set this, not required probably
-    // steer.setSmartCurrentLimit(RobotConstants.kTurningMotorCurrentLimit);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.

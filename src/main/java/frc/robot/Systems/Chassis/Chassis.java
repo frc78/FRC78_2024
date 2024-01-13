@@ -75,11 +75,15 @@ public class Chassis extends SubsystemBase {
   public void periodic() {
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions());
 
-    // publisher.set(states);
+    SmartDashboard.putNumber("gyroYaw", getGyroRot());
   }
 
   public double getGyroRot() {
     return pigeon.getYaw().getValueAsDouble();
+  }
+
+  public void setGyroRot(double rot) {
+    pigeon.setYaw(rot);
   }
 
   public SwerveModulePosition[] getPositions () {

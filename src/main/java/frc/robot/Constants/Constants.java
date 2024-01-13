@@ -10,6 +10,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 /** This is the constants file for all of the common constants */
 public final class Constants {
     public static enum ROBOT_TYPE {WASP, NEO};
+    
+    public static final double JOYSTICK_DEADBAND = 0.1;
+    public static final double TRIGGER_DEADBAND = 0.1;
 
     // +X is forward, +Y is left
     public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(

@@ -9,8 +9,10 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Systems.Chassis.Chassis;
 
@@ -69,16 +71,11 @@ public class Drive extends Command{
     //thetaPID.setSetpoint(dir * -1);
 
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-      triggerAdjust(xSupplier.getAsDouble()) * RobotConstants.MAX_SPEED,
-      triggerAdjust(-ySupplier.getAsDouble()) * RobotConstants.MAX_SPEED,
-      triggerAdjust(rotSupplier.getAsDouble()) * RobotConstants.MAX_ANGULAR_VELOCITY,
-      chassis.getFusedPose().getRotation());
-
-      // ChassisSpeeds speeds = new ChassisSpeeds(
-      //   xSupplier.getAsDouble() * RobotConstants.MAX_SPEED,
-      //   -ySupplier.getAsDouble() * RobotConstants.MAX_SPEED,
-      //   -rotSupplier.getAsDouble() * RobotConstants.MAX_ANGULAR_VELOCITY
-      // );
+      triggerAdjust(modifyJoystick(xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+      triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+      triggerAdjust(modifyJoystick(rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY,
+      Rotation2d.fromDegrees(-chassis.getGyroRot()) //TODO will have to change to be fused pose instead of gyro
+      );
 
    // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
   //  double dpadSpeed =
@@ -111,8 +108,8 @@ public class Drive extends Command{
     // Default speed = 1 - upAdjust
     // Full left trigger = 1 - upAdjust - downAdjust
     // Full right trigger = 1
-    double triggers = (1 - upAdjust) + (modifyAxis(rTriggerSupplier.getAsDouble()) * upAdjust)
-        - (modifyAxis(lTriggerSupplier.getAsDouble()) * downAdjust);
+    double triggers = (1 - upAdjust) + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
+        - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
     return in * triggers;
   }
     /**
@@ -134,9 +131,9 @@ public class Drive extends Command{
    * @param value
    * @return
    */
-  private static double modifyAxis(double value) {
+  private static double modifyJoystick(double value) {
     // Deadband
-    value = deadband(value, 0.05);
+    value = deadband(value, Constants.JOYSTICK_DEADBAND);
     // Square the axis
     // value = Math.copySign(value * value, value);
     return value;

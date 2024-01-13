@@ -11,6 +11,8 @@ import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Systems.Chassis.*;
 import frc.robot.Commands.*;
 
@@ -35,9 +37,13 @@ public class RobotContainer {
       m_driveController::getAButton,
       m_driveController::getXButton
       ));
+
+      configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    new Trigger(m_driveController::getStartButton).onTrue(new InstantCommand(() -> m_chassis.setGyroRot(0.0)));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
