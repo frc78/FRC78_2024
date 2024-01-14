@@ -59,7 +59,7 @@ public class Chassis extends SubsystemBase {
 
     pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     kinematics = Constants.SWERVE_KINEMATICS;
-    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot() + 90), getPositions(), new Pose2d());
+    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
     chassisSpeed = new ChassisSpeeds();
 
     // publisher = NetworkTableInstance.getDefault()
@@ -72,7 +72,7 @@ public class Chassis extends SubsystemBase {
                 this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                         new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(1.0, 0.0, 0.0), // Rotation PID constants
+                        new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
                         RobotConstants.MAX_SPEED, // Max module speed, in m/s
                         Constants.ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
                         new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -151,5 +151,7 @@ public class Chassis extends SubsystemBase {
       modules[i].setState(states[i]);
       SmartDashboard.putNumber(i +" Rot", states[i].angle.getRadians());
     }
+
+    Logger.recordOutput("ModuleSet", states);
   }
 }

@@ -77,6 +77,12 @@ public class Drive extends Command{
       chassis.getFusedPose().getRotation() //TODO will have to change to be fused pose instead of gyro
       );
 
+    // ChassisSpeeds speeds = new ChassisSpeeds(
+    //   triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+    //   triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+    //   triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY
+    // );
+
    // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
   //  double dpadSpeed =
      // upSupplier.getAsBoolean() || rightSupplier.getAsBoolean() || downSupplier.getAsBoolean() || leftSupplier.getAsBoolean()
