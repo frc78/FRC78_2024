@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +13,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -22,6 +25,7 @@ import frc.robot.Commands.*;
 public class RobotContainer {
   private Chassis m_chassis;
   private XboxController m_driveController;
+  private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
     m_chassis = new Chassis();
@@ -41,6 +45,10 @@ public class RobotContainer {
       m_driveController::getXButton
       ));
 
+      autoChooser = AutoBuilder.buildAutoChooser();
+
+      SmartDashboard.putData("AutoMode", autoChooser);
+
       configureBindings();
   }
 
@@ -49,6 +57,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new PathPlannerAuto("Test");
+    return autoChooser.getSelected();
   }
 }
