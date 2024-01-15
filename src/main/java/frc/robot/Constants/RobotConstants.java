@@ -61,7 +61,7 @@ public class RobotConstants {
 
     public static final int PIGEON_ID = 0;
 
-    public static final String AT_CAMERA_NAME = "USB Camera"; //TODO
+    public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000"; //TODO
 
     public static final double MAX_SPEED = 4; //TODO
     public static final double MAX_ANGULAR_VELOCITY = 8; //TODO set temporarily, to look into later

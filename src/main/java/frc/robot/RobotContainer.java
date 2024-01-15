@@ -27,11 +27,11 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    m_chassis = new Chassis(m_ATCamera);
-
     m_driveController = new XboxController(0);
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
+
+    m_chassis = new Chassis(m_ATCamera);
 
     m_chassis.setDefaultCommand(new Drive(
       m_chassis,

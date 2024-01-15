@@ -7,6 +7,8 @@ package frc.robot.Systems.Chassis;
 import java.io.IOException;
 import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -75,6 +77,8 @@ public class Chassis extends SubsystemBase {
       }
     }
 
+    this.ATCamera = ATCamera;
+
     getChassisSpeed = new ChassisSpeeds();
     getStates = new SwerveModuleState[4];
     getPositions = new SwerveModulePosition[4];
@@ -136,9 +140,11 @@ public class Chassis extends SubsystemBase {
   @Override
   public void periodic() {
     PhotonPipelineResult result = ATCamera.getLatestResult();
+    Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose(getFusedPose());
 
-    if(result.hasTargets()) {
-      poseEstimator.addVisionMeasurement(getEstimatedGlobalPose(getFusedPose()).get().estimatedPose.toPose2d(), getGyroRot());
+    if(estimatedPose.isPresent()) {
+      poseEstimator.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), getGyroRot());
+      Logger.recordOutput("At Estimate", estimatedPose.get().estimatedPose.toPose2d());
     }
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
 
