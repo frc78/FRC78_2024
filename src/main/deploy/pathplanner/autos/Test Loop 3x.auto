@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.9305072706837534,
+      "y": 5.5410316277334815
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Test Loop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Test Loop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Test Loop"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
