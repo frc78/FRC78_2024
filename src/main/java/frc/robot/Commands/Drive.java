@@ -92,14 +92,14 @@ public class Drive extends Command{
       //yLimiter.calculate(speeds.vyMetersPerSecond),
      // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
      
-    chassis.chassisSpeed = speeds;
+    chassis.setChassisSpeed = speeds;
     chassis.convertToStates(); 
     chassis.drive();
   }
 
   @Override
   public void end(boolean interrupted) {
-    chassis.chassisSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
+    chassis.setChassisSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
   }
 
   /**

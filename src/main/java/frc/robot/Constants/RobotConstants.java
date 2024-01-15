@@ -61,6 +61,8 @@ public class RobotConstants {
 
     public static final int PIGEON_ID = 0;
 
+    public static final String AT_CAMERA_NAME = "USB Camera"; //TODO
+
     public static final double MAX_SPEED = 4; //TODO
     public static final double MAX_ANGULAR_VELOCITY = 8; //TODO set temporarily, to look into later
 
@@ -69,7 +71,7 @@ public class RobotConstants {
     public static final double STEER_GEAR_RATIO = (150.0 / 7.0);
     public static final double DRIVE_GEAR_RATIO = (6.75);
     
-    public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; //Free RPM of NEO to RPS
+    public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676.0 / 60.0; //Free RPM of NEO to RPS
     public static final double DRIVE_WHEEL_FREESPEED = (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI)) / DRIVE_GEAR_RATIO; //Converted for wheel
 
     public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
@@ -98,6 +100,8 @@ public class RobotConstants {
 
     public static final int DRIVE_CURRENT_LIMIT = 50; //amps
     public static final int STEER_CURRENT_LIMIT = 20; //amps
+
+    public static final double NOMINAL_VOLTAGE = 12;
 
     public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
     public static final IdleMode STEER_IDLE = IdleMode.kCoast;

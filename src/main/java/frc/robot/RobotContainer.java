@@ -4,33 +4,34 @@
 
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.DoubleTopic;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.Topic;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Systems.Chassis.*;
 import frc.robot.Commands.*;
+import frc.robot.Constants.RobotConstants;
 
 public class RobotContainer {
   private Chassis m_chassis;
   private XboxController m_driveController;
+  private PhotonCamera m_ATCamera;
+
   private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
-    m_chassis = new Chassis();
+    m_chassis = new Chassis(m_ATCamera);
 
     m_driveController = new XboxController(0);
+
+    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
     m_chassis.setDefaultCommand(new Drive(
       m_chassis,
