@@ -189,8 +189,10 @@ class CompetitionRobotContainer {
 
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
-    m_manipController.a().whileTrue(m_intake.intakeCommand());
-    m_manipController.b().whileTrue(m_intake.outtakeCommand());
+    m_manipController
+        .a()
+        .whileTrue(m_Shooter.startShooter(100))
+        .whileFalse(m_Shooter.stopCommand());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
