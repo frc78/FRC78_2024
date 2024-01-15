@@ -135,13 +135,15 @@ public class Chassis extends SubsystemBase {
 
   @Override
   public void periodic() {
-    PhotonPipelineResult result = ATCamera.getLatestResult();
+    if(ATCamera != null) {
+      PhotonPipelineResult result = ATCamera.getLatestResult();
 
-    if(result.hasTargets()) {
-      poseEstimator.addVisionMeasurement(getEstimatedGlobalPose(getFusedPose()).get().estimatedPose.toPose2d(), getGyroRot());
+      if(result.hasTargets()) {
+        poseEstimator.addVisionMeasurement(getEstimatedGlobalPose(getFusedPose()).get().estimatedPose.toPose2d(), getGyroRot());
+      }
     }
-    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
 
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
