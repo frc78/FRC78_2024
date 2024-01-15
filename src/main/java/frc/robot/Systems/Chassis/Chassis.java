@@ -144,10 +144,9 @@ public class Chassis extends SubsystemBase {
 
     if(estimatedPose.isPresent()) {
       poseEstimator.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), getGyroRot());
-      Logger.recordOutput("At Estimate", estimatedPose.get().estimatedPose.toPose2d());
+      Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
     }
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
-
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
