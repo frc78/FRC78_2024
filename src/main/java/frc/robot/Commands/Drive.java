@@ -24,8 +24,9 @@ public class Drive extends Command{
     private final DoubleSupplier rotSupplier;
     private final DoubleSupplier lTriggerSupplier;
     private final DoubleSupplier rTriggerSupplier;
+    // TODO remove unused
     private final BooleanSupplier upSupplier, rightSupplier, downSupplier, leftSupplier;
-  
+
     private final SlewRateLimiter xLimiter;
     private final SlewRateLimiter yLimiter;
     private final SlewRateLimiter thetaLimiter;
@@ -55,7 +56,7 @@ public class Drive extends Command{
     // thetaPID = new PIDController(5, 0, 0.025); good for 90 turns
     // thetaPID = new PIDController(5, 0, 0);
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
-    
+
     addRequirements(chassis);
   }
 
@@ -91,9 +92,9 @@ public class Drive extends Command{
      // xLimiter.calculate(speeds.vxMetersPerSecond),
       //yLimiter.calculate(speeds.vyMetersPerSecond),
      // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
-     
+
     chassis.chassisSpeed = speeds;
-    chassis.convertToStates(); 
+    chassis.convertToStates();
     chassis.drive();
   }
 
@@ -105,7 +106,7 @@ public class Drive extends Command{
   /**
    * Adjusts the speeds of the given input depending on trigger input, with left
    * trigger decreasing speed and RT increasing
-   * 
+   *
    * @param in
    * @return Adjusted speed
    */
@@ -115,7 +116,8 @@ public class Drive extends Command{
     // Default speed = 1 - upAdjust
     // Full left trigger = 1 - upAdjust - downAdjust
     // Full right trigger = 1
-    double triggers = (1 - upAdjust) + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
+      // TODO what on earth is going on here?
+     double triggers = (1 - upAdjust) + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
         - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
     return in * triggers;
   }

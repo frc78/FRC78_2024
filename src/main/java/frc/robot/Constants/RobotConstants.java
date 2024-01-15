@@ -68,7 +68,8 @@ public class RobotConstants {
 
     public static final double STEER_GEAR_RATIO = (150.0 / 7.0);
     public static final double DRIVE_GEAR_RATIO = (6.75);
-    
+
+    // This will cast to integer. Needs .0 or d or (double)
     public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; //Free RPM of NEO to RPS
     public static final double DRIVE_WHEEL_FREESPEED = (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI)) / DRIVE_GEAR_RATIO; //Converted for wheel
 

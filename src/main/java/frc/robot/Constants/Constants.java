@@ -14,7 +14,8 @@ public final class Constants {
     public static final double JOYSTICK_DEADBAND = 0.1;
     public static final double TRIGGER_DEADBAND = 0.1;
 
-    // +X is forward, +Y is left
+    // +X is forward, +Y is left https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/coordinate-systems.html
+    // extract these to named variables
     public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(
             new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0), //front left
             new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0), //front right 
