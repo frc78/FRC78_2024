@@ -55,6 +55,14 @@ public class RobotContainer {
 
   private void configureBindings() {
     new Trigger(m_driveController::getStartButton).onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
+    new Trigger(m_driveController::getRightBumper).whileTrue(new OrbitalTarget(
+      m_chassis,
+      m_driveController::getLeftY,
+      m_driveController::getLeftX,
+      m_driveController::getRightX,
+      m_driveController::getLeftTriggerAxis,
+      m_driveController::getRightTriggerAxis
+    ));
   }
 
   public Command getAutonomousCommand() {

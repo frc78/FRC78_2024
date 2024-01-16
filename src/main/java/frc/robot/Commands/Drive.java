@@ -12,6 +12,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Classes.Util;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Systems.Chassis.Chassis;
@@ -70,12 +71,18 @@ public class Drive extends Command{
 
     //thetaPID.setSetpoint(dir * -1);
 
+    // Processed inputs
+    double triggerAdjust = Util.triggerAdjust(Util.deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND), Util.deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
+    double x = Util.modifyJoystick(-xSupplier.getAsDouble()) * triggerAdjust;
+    double y = Util.modifyJoystick(-ySupplier.getAsDouble()) * triggerAdjust;
+    double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
+
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-      triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-      triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-      triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY,
-      chassis.getFusedPose().getRotation() //TODO will have to change to be fused pose instead of gyro
-      );
+      x * RobotConstants.MAX_SPEED,
+      y * RobotConstants.MAX_SPEED,
+      rot * RobotConstants.MAX_ANGULAR_VELOCITY,
+      chassis.getFusedPose().getRotation()
+    );
 
     // ChassisSpeeds speeds = new ChassisSpeeds(
     //   triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
@@ -100,49 +107,5 @@ public class Drive extends Command{
   @Override
   public void end(boolean interrupted) {
     chassis.setChassisSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
-  }
-
-  /**
-   * Adjusts the speeds of the given input depending on trigger input, with left
-   * trigger decreasing speed and RT increasing
-   * 
-   * @param in
-   * @return Adjusted speed
-   */
-  public double triggerAdjust(double in) {
-    double upAdjust = 0.5;
-    double downAdjust = 0.25;
-    // Default speed = 1 - upAdjust
-    // Full left trigger = 1 - upAdjust - downAdjust
-    // Full right trigger = 1
-    double triggers = (1 - upAdjust) + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
-        - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
-    return in * triggers;
-  }
-    /**
-   * Applies a deadband to the given joystick axis value
-   * @param value
-   * @param deadband
-   * @return
-   */
-  private static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      return (value > 0.0 ? value - deadband : value + deadband) / (1.0 - deadband);
-    } else {
-      return 0.0;
-    }
-  }
-
-  /**
-   * Processes the given joystick axis value, applying deadband and squaring it
-   * @param value
-   * @return
-   */
-  private static double modifyJoystick(double value) {
-    // Deadband
-    value = deadband(value, Constants.JOYSTICK_DEADBAND);
-    // Square the axis
-    // value = Math.copySign(value * value, value);
-    return value;
   }
 }
