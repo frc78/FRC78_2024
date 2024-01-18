@@ -143,6 +143,6 @@ public class Drive extends Command{
     value = deadband(value, Constants.JOYSTICK_DEADBAND);
     // Square the axis
     // value = Math.copySign(value * value, value);
-    return value;
+    return Math.pow(value, 3);
   }
 }
