@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Classes.ModuleConfig;
 import frc.robot.Constants.RobotConstants;
 
@@ -35,8 +34,6 @@ public class NeoModule implements SwerveModule {
     
     NeoModule(ModuleConfig config) {
         this.config = config;
-        // drive = new Spark(this.config.driveID);
-        // steer = new Spark(this.config.steerID);
 
         drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
         steer = new CANSparkMax(this.config.steerID, MotorType.kBrushless);
@@ -196,7 +193,6 @@ public class NeoModule implements SwerveModule {
      */
     @Override
     public void setState(SwerveModuleState state) {
-        SwerveModuleState correctedRot = new SwerveModuleState();
          //Optimize the reference state to avoid spinning further than 90 degrees.
         SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
