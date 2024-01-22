@@ -4,14 +4,11 @@
 
 package frc.robot.Systems.Chassis;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,12 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
+import org.littletonrobotics.junction.Logger;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
   public ChassisSpeeds chassisSpeed;
   public SwerveModuleState[] states;
-  
+
   private SwerveDriveKinematics kinematics;
   private SwerveDrivePoseEstimator poseEstimator;
   private Pigeon2 pigeon;
@@ -43,39 +41,46 @@ public class Chassis extends SubsystemBase {
 
     pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     kinematics = Constants.SWERVE_KINEMATICS;
-    poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
+    poseEstimator =
+        new SwerveDrivePoseEstimator(
+            kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
     chassisSpeed = new ChassisSpeeds();
 
     AutoBuilder.configureHolonomic(
-                this::getFusedPose, // Robot pose supplier
-                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
-                        RobotConstants.MAX_SPEED, // Max module speed, in m/s
-                        Constants.ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to furthest module.
-                        new ReplanningConfig() // Default path replanning config. See the API for the options here
-                ),
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+        this::getFusedPose, // Robot pose supplier
+        this::resetPose, // Method to reset odometry (will be called if your auto has a starting
+        // pose)
+        this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
+        // ChassisSpeeds
+        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
+            // your Constants class
+            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
+            RobotConstants.MAX_SPEED, // Max module speed, in m/s
+            Constants.ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to
+            // furthest module.
+            new ReplanningConfig() // Default path replanning config. See the API for the options
+            // here
+            ),
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
         );
   }
 
   public void initializeModules() {
     // This is an example of how we will perform operations on all modules
-    for (SwerveModule module:modules) {
+    for (SwerveModule module : modules) {
       module.initialize();
     }
   }
@@ -90,7 +95,9 @@ public class Chassis extends SubsystemBase {
 
   @Override
   public void periodic() {
-    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions()); //TODO this gyro angle might have to be negated
+    poseEstimator.update(
+        Rotation2d.fromDegrees(getGyroRot()),
+        getPositions()); // TODO this gyro angle might have to be negated
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
@@ -104,7 +111,7 @@ public class Chassis extends SubsystemBase {
     pigeon.setYaw(rot);
   }
 
-  public SwerveModulePosition[] getPositions () {
+  public SwerveModulePosition[] getPositions() {
     SwerveModulePosition[] positions = new SwerveModulePosition[modules.length];
     for (int i = 0; i < modules.length; i++) {
       positions[i] = modules[i].getPosition();
@@ -118,7 +125,7 @@ public class Chassis extends SubsystemBase {
   }
 
   public void convertToStates() {
-     states = kinematics.toSwerveModuleStates(chassisSpeed);
+    states = kinematics.toSwerveModuleStates(chassisSpeed);
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
@@ -130,7 +137,7 @@ public class Chassis extends SubsystemBase {
   public void drive() {
     for (int i = 0; i < modules.length; i++) {
       modules[i].setState(states[i]);
-      SmartDashboard.putNumber(i +" Rot", states[i].angle.getRadians());
+      SmartDashboard.putNumber(i + " Rot", states[i].angle.getRadians());
     }
 
     Logger.recordOutput("ModuleSet", states);

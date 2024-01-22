@@ -5,12 +5,11 @@
 package frc.robot.Systems.Chassis;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
-
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -20,39 +19,37 @@ import frc.robot.Constants.RobotConstants;
 
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
-    protected ModuleConfig config;
+  protected ModuleConfig config;
 
-    protected CANSparkMax drive;
-    protected CANSparkMax steer;
+  protected CANSparkMax drive;
+  protected CANSparkMax steer;
 
-    protected SparkPIDController drivePID;
-    protected SparkPIDController steerPID;
-    private RelativeEncoder driveEnc;
-    private AbsoluteEncoder steerEnc;
+  protected SparkPIDController drivePID;
+  protected SparkPIDController steerPID;
+  private RelativeEncoder driveEnc;
+  private AbsoluteEncoder steerEnc;
 
-    private SwerveModuleState desiredState;
-    
-    NeoModule(ModuleConfig config) {
-        this.config = config;
+  private SwerveModuleState desiredState;
 
-        drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
-        steer = new CANSparkMax(this.config.steerID, MotorType.kBrushless);
+  NeoModule(ModuleConfig config) {
+    this.config = config;
 
-        driveEnc = drive.getEncoder();
-        steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
-        drivePID = drive.getPIDController();
-        steerPID = steer.getPIDController();
+    drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
+    steer = new CANSparkMax(this.config.steerID, MotorType.kBrushless);
 
-        desiredState = new SwerveModuleState();
+    driveEnc = drive.getEncoder();
+    steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
+    drivePID = drive.getPIDController();
+    steerPID = steer.getPIDController();
 
-        initialize();
-    }   
+    desiredState = new SwerveModuleState();
 
-    /**
-     * Initializes the NEO module. This should be called in the constructor of the module class.
-     */
-    @Override
-    public void initialize() {
+    initialize();
+  }
+
+  /** Initializes the NEO module. This should be called in the constructor of the module class. */
+  @Override
+  public void initialize() {
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out
     drive.restoreFactoryDefaults();
@@ -69,7 +66,10 @@ public class NeoModule implements SwerveModule {
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
     // APIs.
-    steerEnc.setPositionConversionFactor(RobotConstants.STEER_ENC_POS_TO_METERS); // TODO have to change this to be the encoder without the steering gear ratio
+    steerEnc.setPositionConversionFactor(
+        RobotConstants
+            .STEER_ENC_POS_TO_METERS); // TODO have to change this to be the encoder without the
+    // steering gear ratio
     steerEnc.setVelocityConversionFactor(RobotConstants.STEER_ENC_VEL_TO_METERS);
 
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
@@ -113,97 +113,109 @@ public class NeoModule implements SwerveModule {
 
     desiredState.angle = new Rotation2d(steerEnc.getPosition());
     driveEnc.setPosition(0);
-    }
+  }
 
-    /**
-     * Resets the drive encoder to 0 meters
-     */
-    @Override
-    public void resetEncoders() {
-        driveEnc.setPosition(0);
-    }
+  /** Resets the drive encoder to 0 meters */
+  @Override
+  public void resetEncoders() {
+    driveEnc.setPosition(0);
+  }
 
-    /**
-     * @return The velocity of the drive encoder, in meters per second
-     */
-    @Override
-    public double getDriveVelocity() {
-        return driveEnc.getVelocity();
-    }
+  /**
+   * @return The velocity of the drive encoder, in meters per second
+   */
+  @Override
+  public double getDriveVelocity() {
+    return driveEnc.getVelocity();
+  }
 
-    /**
-     * @return The relative position of the drive encoder, in meters
-     */
-    @Override
-    public double getDrivePosition() {
-        return driveEnc.getPosition();
-    }
+  /**
+   * @return The relative position of the drive encoder, in meters
+   */
+  @Override
+  public double getDrivePosition() {
+    return driveEnc.getPosition();
+  }
 
-    /**
-     * @return The absolute position of the drive encoder, as a {@link Rotation2d#Rotation2d Rotation2d}
-     */
-    @Override
-    public Rotation2d getSteerPosition() {
-        return Rotation2d.fromRadians(steerEnc.getPosition());
-    }
+  /**
+   * @return The absolute position of the drive encoder, as a {@link Rotation2d#Rotation2d
+   *     Rotation2d}
+   */
+  @Override
+  public Rotation2d getSteerPosition() {
+    return Rotation2d.fromRadians(steerEnc.getPosition());
+  }
 
-    /**
-     * @return The state of the module as a {@link SwerveModuleState#SwerveModuleState SwerveModuleState}
-     */
-    @Override
-    public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), getSteerPosition());
-    }
+  /**
+   * @return The state of the module as a {@link SwerveModuleState#SwerveModuleState
+   *     SwerveModuleState}
+   */
+  @Override
+  public SwerveModuleState getState() {
+    return new SwerveModuleState(getDriveVelocity(), getSteerPosition());
+  }
 
-    /**
-     * @return The position of the module as a {@link SwerveModulePosition#SwerveModulePosition SwerveModulePosition}
-     */
-    @Override
-    public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), getSteerPosition());
-    }
+  /**
+   * @return The position of the module as a {@link SwerveModulePosition#SwerveModulePosition
+   *     SwerveModulePosition}
+   */
+  @Override
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(getDrivePosition(), getSteerPosition());
+  }
 
-    /**
-     * Sets the desired velocity of the module. Should only be used if you want to ONLY set the velocity. If not, then use {@link #setDesiredState(SwerveModuleState)}
-     * @param veloctiy The desired velocity of the module, in meters per second
-     */
-    @Override
-    public void setVelocity(double velocity) {
-        drivePID.setReference(velocity, CANSparkMax.ControlType.kVelocity);
+  /**
+   * Sets the desired velocity of the module. Should only be used if you want to ONLY set the
+   * velocity. If not, then use {@link #setDesiredState(SwerveModuleState)}
+   *
+   * @param veloctiy The desired velocity of the module, in meters per second
+   */
+  @Override
+  public void setVelocity(double velocity) {
+    drivePID.setReference(velocity, CANSparkMax.ControlType.kVelocity);
 
-        desiredState.speedMetersPerSecond = velocity;
-    }
+    desiredState.speedMetersPerSecond = velocity;
+  }
 
-    /**
-     * Sets the desired rotation of the module. Should only be used if you want to ONLY set the rotation. If not, then use {@link #setDesiredState(SwerveModuleState)}
-     * @param rotation The desired rotation of the module
-     */
-    @Override
-    public void setRotation(Rotation2d rotation) {
-        Rotation2d correctedRot = rotation.plus(Rotation2d.fromRadians(config.offset));
-        // Optimize the reference state to avoid spinning further than 90 degrees.
-        SwerveModuleState correctedState = SwerveModuleState.optimize(new SwerveModuleState(0, correctedRot), getSteerPosition());
-        steerPID.setReference(correctedState.angle.getRadians(),  CANSparkMax.ControlType.kPosition);
-        desiredState.angle = rotation;
-    }
+  /**
+   * Sets the desired rotation of the module. Should only be used if you want to ONLY set the
+   * rotation. If not, then use {@link #setDesiredState(SwerveModuleState)}
+   *
+   * @param rotation The desired rotation of the module
+   */
+  @Override
+  public void setRotation(Rotation2d rotation) {
+    Rotation2d correctedRot = rotation.plus(Rotation2d.fromRadians(config.offset));
+    // Optimize the reference state to avoid spinning further than 90 degrees.
+    SwerveModuleState correctedState =
+        SwerveModuleState.optimize(new SwerveModuleState(0, correctedRot), getSteerPosition());
+    steerPID.setReference(correctedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    desiredState.angle = rotation;
+  }
 
-    /**
-     * Sets the desired state of the module. Should be used if you want to set both the velocity and rotation at the same time
-     * @param state The desired state of the module
-     */
-    @Override
-    public void setState(SwerveModuleState state) {
-         //Optimize the reference state to avoid spinning further than 90 degrees.
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
+  /**
+   * Sets the desired state of the module. Should be used if you want to set both the velocity and
+   * rotation at the same time
+   *
+   * @param state The desired state of the module
+   */
+  @Override
+  public void setState(SwerveModuleState state) {
+    // Optimize the reference state to avoid spinning further than 90 degrees.
+    SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
-        //Sets the PID goals to the desired states
-        drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-        steerPID.setReference(optimizedState.angle.getRadians(),  CANSparkMax.ControlType.kPosition);
+    // Sets the PID goals to the desired states
+    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    steerPID.setReference(optimizedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
 
-        desiredState = state;
-        SmartDashboard.putNumber(config.driveID + " setting rot", optimizedState.angle.getRadians() );//Changed this to divide by 2 pi and ad o.5 to map the joystick input (-pi to pi) to a zero to 1
-        SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-        SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
-        SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
-    }
+    desiredState = state;
+    SmartDashboard.putNumber(
+        config.driveID + " setting rot",
+        optimizedState.angle
+            .getRadians()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
+    // (-pi to pi) to a zero to 1
+    SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
+    SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
+    SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
+  }
 }
