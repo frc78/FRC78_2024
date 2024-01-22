@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Systems.Chassis;
+package frc.robot.subsystems.chassis;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -14,8 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Classes.ModuleConfig;
-import frc.robot.Constants.RobotConstants;
+import frc.robot.classes.ModuleConfig;
 
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
@@ -31,7 +30,7 @@ public class NeoModule implements SwerveModule {
 
   private SwerveModuleState desiredState;
 
-  NeoModule(ModuleConfig config) {
+  public NeoModule(ModuleConfig config) {
     this.config = config;
 
     drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
@@ -60,51 +59,46 @@ public class NeoModule implements SwerveModule {
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
     // but we want meters and meters per second to use with WPILib's swerve APIs.
-    driveEnc.setPositionConversionFactor(RobotConstants.DRIVE_ENC_TO_METERS);
-    driveEnc.setVelocityConversionFactor(RobotConstants.DRIVE_ENC_VEL_TO_METERS);
+    driveEnc.setPositionConversionFactor(config.drivePositionConversionFactor);
+    driveEnc.setVelocityConversionFactor(config.driveVelocityConversionFactor);
 
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
     // APIs.
-    steerEnc.setPositionConversionFactor(
-        RobotConstants
-            .STEER_ENC_POS_TO_METERS); // TODO have to change this to be the encoder without the
-    // steering gear ratio
-    steerEnc.setVelocityConversionFactor(RobotConstants.STEER_ENC_VEL_TO_METERS);
+    steerEnc.setPositionConversionFactor(config.steerPositionConversionFactor);
+    steerEnc.setVelocityConversionFactor(config.steerVelocityConversionFactor);
 
     // Invert the turning encoder, since the output shaft rotates in the opposite direction of
     // the steering motor in the MAXSwerve Module.
-    steerEnc.setInverted(RobotConstants.STEER_ENC_INVERTED);
-    steer.setInverted(RobotConstants.STEER_INVERTED);
-    drive.setInverted(RobotConstants.DRIVE_INVERTED);
+    steerEnc.setInverted(config.steerEncoderInverted);
+    steer.setInverted(config.steerMotorInverted);
+    drive.setInverted(config.driveMotorInverted);
 
     // Enable PID wrap around for the turning motor. This will allow the PID
     // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
     // to 10 degrees will go through 0 rather than the other direction which is a
     // longer route.
     steerPID.setPositionPIDWrappingEnabled(true);
-    steerPID.setPositionPIDWrappingMinInput(RobotConstants.STEER_ENC_PID_MIN);
-    steerPID.setPositionPIDWrappingMaxInput(RobotConstants.STEER_ENC_PID_MAX);
+    steerPID.setPositionPIDWrappingMinInput(config.steerEncoderPidMin);
+    steerPID.setPositionPIDWrappingMaxInput(config.steerEncoderPidMax);
 
     // Set the PID gains for the driving motor
-    drivePID.setP(RobotConstants.K_DRIVE_P);
-    drivePID.setI(RobotConstants.K_DRIVE_I);
-    drivePID.setD(RobotConstants.K_DRIVE_D);
-    drivePID.setFF(RobotConstants.K_DRIVE_FF);
-    drivePID.setOutputRange(RobotConstants.DRIVE_OUT_MIN, RobotConstants.DRIVE_OUT_MAX);
+    drivePID.setP(config.driveClosedLoopParameters.kP);
+    drivePID.setI(config.driveClosedLoopParameters.kI);
+    drivePID.setD(config.driveClosedLoopParameters.kD);
+    drivePID.setFF(config.driveClosedLoopParameters.kF);
 
     // Set the PID gains for the turning motor
-    steerPID.setP(RobotConstants.K_STEER_P);
-    steerPID.setI(RobotConstants.K_STEER_I);
-    steerPID.setD(RobotConstants.K_STEER_D);
-    steerPID.setFF(RobotConstants.K_STEER_FF);
-    steerPID.setOutputRange(RobotConstants.STEER_OUT_MIN, RobotConstants.STEER_OUT_MAX);
+    steerPID.setP(config.steerClosedLoopParameters.kP);
+    steerPID.setI(config.steerClosedLoopParameters.kI);
+    steerPID.setD(config.steerClosedLoopParameters.kD);
+    steerPID.setFF(config.steerClosedLoopParameters.kF);
 
-    drive.setSmartCurrentLimit(RobotConstants.DRIVE_CURRENT_LIMIT);
-    steer.setSmartCurrentLimit(RobotConstants.STEER_CURRENT_LIMIT);
+    drive.setSmartCurrentLimit(config.driveCurrentLimit);
+    steer.setSmartCurrentLimit(config.steerCurrentLimit);
 
-    drive.setIdleMode(RobotConstants.DRIVE_IDLE);
-    steer.setIdleMode(RobotConstants.STEER_IDLE);
+    drive.setIdleMode(config.driveIdleMode);
+    steer.setIdleMode(config.steerIdleMode);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
@@ -168,7 +162,7 @@ public class NeoModule implements SwerveModule {
    * Sets the desired velocity of the module. Should only be used if you want to ONLY set the
    * velocity. If not, then use {@link #setDesiredState(SwerveModuleState)}
    *
-   * @param veloctiy The desired velocity of the module, in meters per second
+   * @param velocity The desired velocity of the module, in meters per second
    */
   @Override
   public void setVelocity(double velocity) {
@@ -185,10 +179,9 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public void setRotation(Rotation2d rotation) {
-    Rotation2d correctedRot = rotation.plus(Rotation2d.fromRadians(config.offset));
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState correctedState =
-        SwerveModuleState.optimize(new SwerveModuleState(0, correctedRot), getSteerPosition());
+        SwerveModuleState.optimize(new SwerveModuleState(0, rotation), getSteerPosition());
     steerPID.setReference(correctedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
     desiredState.angle = rotation;
   }
