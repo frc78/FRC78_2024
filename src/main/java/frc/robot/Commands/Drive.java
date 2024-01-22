@@ -2,15 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Commands;
+package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.Constants;
-import frc.robot.Constants.RobotConstants;
-import frc.robot.Systems.Chassis.Chassis;
+import frc.robot.constants.Constants;
+import frc.robot.subsystems.chassis.Chassis;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
@@ -28,6 +27,8 @@ public class Drive extends Command {
   private final SlewRateLimiter yLimiter;
   private final SlewRateLimiter thetaLimiter;
   private final PIDController thetaPID;
+  private final double maxSpeed;
+  private final double maxAngularVelocity;
 
   public Drive(
       Chassis chassis,
@@ -39,7 +40,9 @@ public class Drive extends Command {
       BooleanSupplier upSupplier,
       BooleanSupplier rightSupplier,
       BooleanSupplier downSupplier,
-      BooleanSupplier leftSupplier) {
+      BooleanSupplier leftSupplier,
+      double maxSpeed,
+      double maxAngularVelocity) {
     this.chassis = chassis;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
@@ -50,6 +53,8 @@ public class Drive extends Command {
     this.rightSupplier = rightSupplier;
     this.downSupplier = downSupplier;
     this.leftSupplier = leftSupplier;
+    this.maxSpeed = maxSpeed;
+    this.maxAngularVelocity = maxAngularVelocity;
 
     xLimiter = new SlewRateLimiter(11, -11, 0);
     yLimiter = new SlewRateLimiter(11, -11, 0);
@@ -66,10 +71,9 @@ public class Drive extends Command {
 
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-            triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-            triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble()))
-                * RobotConstants.MAX_ANGULAR_VELOCITY,
+            triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * maxSpeed,
+            triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * maxSpeed,
+            triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * maxAngularVelocity,
             chassis
                 .getFusedPose()
                 .getRotation() // TODO will have to change to be fused pose instead of gyro
