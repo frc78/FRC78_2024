@@ -25,7 +25,7 @@ public class Drive extends Command{
     private final DoubleSupplier lTriggerSupplier;
     private final DoubleSupplier rTriggerSupplier;
     private final BooleanSupplier upSupplier, rightSupplier, downSupplier, leftSupplier;
-  
+
     private final SlewRateLimiter xLimiter;
     private final SlewRateLimiter yLimiter;
     private final SlewRateLimiter thetaLimiter;
@@ -52,23 +52,13 @@ public class Drive extends Command{
     thetaLimiter = new SlewRateLimiter(30, -30, 0);
 
     thetaPID = new PIDController(2.5, 7, 0.16); // TODO almost perfect
-    // thetaPID = new PIDController(5, 0, 0.025); good for 90 turns
-    // thetaPID = new PIDController(5, 0, 0);
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
-    
+
     addRequirements(chassis);
   }
 
   @Override
   public void execute() {
-    // Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector using trigonometry,
-    // then fits it to the range [0, 2 * PI)
-    //double x = (upSupplier.getAsBoolean() ? 1 : 0) - (downSupplier.getAsBoolean() ? 1 : 0);
-    //double y = (rightSupplier.getAsBoolean() ? 1 : 0) - (leftSupplier.getAsBoolean() ? 1 : 0);
-   // double dir = Math.atan2(y, x);
-    //dir = dir < 0 ? dir + 2 * Math.PI : dir;
-
-    //thetaPID.setSetpoint(dir * -1);
 
     ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
       triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
@@ -77,23 +67,8 @@ public class Drive extends Command{
       chassis.getFusedPose().getRotation() //TODO will have to change to be fused pose instead of gyro
       );
 
-    // ChassisSpeeds speeds = new ChassisSpeeds(
-    //   triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-    //   triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-    //   triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY
-    // );
-
-   // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
-  //  double dpadSpeed =
-     // upSupplier.getAsBoolean() || rightSupplier.getAsBoolean() || downSupplier.getAsBoolean() || leftSupplier.getAsBoolean()
-      //? thetaPID.calculate(currentRot) : 0;
-   // speeds = new ChassisSpeeds(
-     // xLimiter.calculate(speeds.vxMetersPerSecond),
-      //yLimiter.calculate(speeds.vyMetersPerSecond),
-     // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
-     
     chassis.chassisSpeed = speeds;
-    chassis.convertToStates(); 
+    chassis.convertToStates();
     chassis.drive();
   }
 
@@ -105,7 +80,7 @@ public class Drive extends Command{
   /**
    * Adjusts the speeds of the given input depending on trigger input, with left
    * trigger decreasing speed and RT increasing
-   * 
+   *
    * @param in
    * @return Adjusted speed
    */
@@ -141,8 +116,6 @@ public class Drive extends Command{
   private static double modifyJoystick(double value) {
     // Deadband
     value = deadband(value, Constants.JOYSTICK_DEADBAND);
-    // Square the axis
-    // value = Math.copySign(value * value, value);
     return Math.pow(value, 3);
   }
 }

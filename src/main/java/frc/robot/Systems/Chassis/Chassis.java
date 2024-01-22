@@ -15,16 +15,11 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.drive.RobotDriveBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.Constants;
@@ -39,31 +34,17 @@ public class Chassis extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator;
   private Pigeon2 pigeon;
 
-  // StructArrayPublisher<SwerveModuleState> publisher;
-
   public Chassis() {
     // It reads the number of modules from the RobotConstants
     modules = new SwerveModule[RobotConstants.MOD_CONFIGS.length];
     for (int i = 0; i < RobotConstants.MOD_CONFIGS.length; i++) {
-      switch (RobotConstants.ROBOT) {
-        case WASP: {
-          modules[i] = new FalconModule(RobotConstants.MOD_CONFIGS[i]);
-          break;
-        }
-        case NEO: {
-          modules[i] = new NeoModule(RobotConstants.MOD_CONFIGS[i]);
-          break;
-        }
-      }
+      modules[i] = new NeoModule(RobotConstants.MOD_CONFIGS[i]);
     }
 
     pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     kinematics = Constants.SWERVE_KINEMATICS;
     poseEstimator = new SwerveDrivePoseEstimator(kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
     chassisSpeed = new ChassisSpeeds();
-
-    // publisher = NetworkTableInstance.getDefault()
-    // .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
 
     AutoBuilder.configureHolonomic(
                 this::getFusedPose, // Robot pose supplier
