@@ -4,38 +4,42 @@
 
 package frc.robot.Commands;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Constants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Systems.Chassis.Chassis;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 /** This is the command for teleoperation of the chassis */
-public class Drive extends Command{
-    private Chassis chassis;
-    private final DoubleSupplier xSupplier;
-    private final DoubleSupplier ySupplier;
-    private final DoubleSupplier rotSupplier;
-    private final DoubleSupplier lTriggerSupplier;
-    private final DoubleSupplier rTriggerSupplier;
-    private final BooleanSupplier upSupplier, rightSupplier, downSupplier, leftSupplier;
+public class Drive extends Command {
+  private Chassis chassis;
+  private final DoubleSupplier xSupplier;
+  private final DoubleSupplier ySupplier;
+  private final DoubleSupplier rotSupplier;
+  private final DoubleSupplier lTriggerSupplier;
+  private final DoubleSupplier rTriggerSupplier;
+  private final BooleanSupplier upSupplier, rightSupplier, downSupplier, leftSupplier;
 
-    private final SlewRateLimiter xLimiter;
-    private final SlewRateLimiter yLimiter;
-    private final SlewRateLimiter thetaLimiter;
-    private final PIDController thetaPID;
+  private final SlewRateLimiter xLimiter;
+  private final SlewRateLimiter yLimiter;
+  private final SlewRateLimiter thetaLimiter;
+  private final PIDController thetaPID;
 
-    public Drive(
+  public Drive(
       Chassis chassis,
-      DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rotSupplier,
-      DoubleSupplier lTriggerSupplier, DoubleSupplier rTriggerSupplier,
-      BooleanSupplier upSupplier, BooleanSupplier rightSupplier, BooleanSupplier downSupplier, BooleanSupplier leftSupplier) {
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier rotSupplier,
+      DoubleSupplier lTriggerSupplier,
+      DoubleSupplier rTriggerSupplier,
+      BooleanSupplier upSupplier,
+      BooleanSupplier rightSupplier,
+      BooleanSupplier downSupplier,
+      BooleanSupplier leftSupplier) {
     this.chassis = chassis;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
@@ -60,12 +64,16 @@ public class Drive extends Command{
   @Override
   public void execute() {
 
-    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(
-      triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-      triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-      triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * RobotConstants.MAX_ANGULAR_VELOCITY,
-      chassis.getFusedPose().getRotation() //TODO will have to change to be fused pose instead of gyro
-      );
+    ChassisSpeeds speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+            triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
+            triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble()))
+                * RobotConstants.MAX_ANGULAR_VELOCITY,
+            chassis
+                .getFusedPose()
+                .getRotation() // TODO will have to change to be fused pose instead of gyro
+            );
 
     chassis.chassisSpeed = speeds;
     chassis.convertToStates();
@@ -78,8 +86,8 @@ public class Drive extends Command{
   }
 
   /**
-   * Adjusts the speeds of the given input depending on trigger input, with left
-   * trigger decreasing speed and RT increasing
+   * Adjusts the speeds of the given input depending on trigger input, with left trigger decreasing
+   * speed and RT increasing
    *
    * @param in
    * @return Adjusted speed
@@ -90,12 +98,16 @@ public class Drive extends Command{
     // Default speed = 1 - upAdjust
     // Full left trigger = 1 - upAdjust - downAdjust
     // Full right trigger = 1
-    double triggers = (1 - upAdjust) + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
-        - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
+    double triggers =
+        (1 - upAdjust)
+            + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
+            - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
     return in * triggers;
   }
-    /**
+
+  /**
    * Applies a deadband to the given joystick axis value
+   *
    * @param value
    * @param deadband
    * @return
@@ -110,6 +122,7 @@ public class Drive extends Command{
 
   /**
    * Processes the given joystick axis value, applying deadband and squaring it
+   *
    * @param value
    * @return
    */
