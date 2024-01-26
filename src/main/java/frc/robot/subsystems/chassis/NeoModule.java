@@ -102,7 +102,7 @@ public class NeoModule implements SwerveModule {
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
-    drive.burnFlash(); 
+    drive.burnFlash();
     steer.burnFlash();
 
     desiredState.angle = Rotation2d.fromRotations(steerEnc.getPosition());
@@ -198,7 +198,7 @@ public class NeoModule implements SwerveModule {
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kDutyCycle);
+    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
