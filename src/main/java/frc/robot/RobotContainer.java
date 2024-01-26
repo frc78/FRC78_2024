@@ -9,6 +9,7 @@ import org.photonvision.PhotonCamera;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +31,7 @@ public class RobotContainer {
     m_driveController = new XboxController(0);
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
+    PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis = new Chassis(m_ATCamera);
 
