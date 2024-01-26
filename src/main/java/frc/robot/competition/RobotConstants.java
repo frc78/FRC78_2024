@@ -32,9 +32,9 @@ class RobotConstants {
   public static final boolean STEER_INVERTED = true;
 
   public static final double STEER_ENC_POS_TO_METERS =
-      (2 * Math.PI); // factor of steer encoder to meters(conversion factor)
+      1; // factor of steer encoder to meters(conversion factor)
   public static final double STEER_ENC_VEL_TO_METERS =
-      (2 * Math.PI) / 60; // factor of vel to meters
+      1 / 60; // factor of vel to meters
 
   public static final int DRIVE_CURRENT_LIMIT = 50; // amps
   public static final int STEER_CURRENT_LIMIT = 20; // amps

@@ -113,7 +113,7 @@ class CompetitionRobotContainer {
     ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
         new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1);
     ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.7, 0, 0, 0);
+        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
     return new NeoModule(
         new ModuleConfig(
             driveId,

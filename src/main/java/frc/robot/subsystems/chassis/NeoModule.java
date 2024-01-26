@@ -102,10 +102,10 @@ public class NeoModule implements SwerveModule {
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
-    drive.burnFlash();
+    drive.burnFlash(); 
     steer.burnFlash();
 
-    desiredState.angle = new Rotation2d(steerEnc.getPosition());
+    desiredState.angle = Rotation2d.fromRotations(steerEnc.getPosition());
     driveEnc.setPosition(0);
   }
 
@@ -137,7 +137,7 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public Rotation2d getSteerPosition() {
-    return Rotation2d.fromRadians(steerEnc.getPosition());
+    return Rotation2d.fromRotations(steerEnc.getPosition());
   }
 
   /**
@@ -182,7 +182,7 @@ public class NeoModule implements SwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState correctedState =
         SwerveModuleState.optimize(new SwerveModuleState(0, rotation), getSteerPosition());
-    steerPID.setReference(correctedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    steerPID.setReference(correctedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
     desiredState.angle = rotation;
   }
 
@@ -198,14 +198,14 @@ public class NeoModule implements SwerveModule {
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-    steerPID.setReference(optimizedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kDutyCycle);
+    steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
     SmartDashboard.putNumber(
         config.driveID + " setting rot",
         optimizedState.angle
-            .getRadians()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
+            .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
     // (-pi to pi) to a zero to 1
     SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
     SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
