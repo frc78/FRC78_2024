@@ -53,7 +53,8 @@ class RobotConstants {
 
   public static final double STEER_ENC_POS_TO_METERS =
       1; // factor of steer encoder to meters(conversion factor)
-  public static final double STEER_ENC_VEL_TO_METERS = 1 / 60; // factor of vel to meters
+
+  public static final double STEER_ENC_VEL_TO_METERS = 1.0 / 60.0; // factor of vel to meters
 
   public static final int DRIVE_CURRENT_LIMIT = 50; // amps
   public static final int STEER_CURRENT_LIMIT = 20; // amps
@@ -65,4 +66,19 @@ class RobotConstants {
 
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
+
+  // SHOOTER
+  public static final int INTAKE_TOP_ID = 9;
+  public static final int INTAKE_BOTTOM_ID = 10;
+
+  public static final double INTAKE_TOP_P = 0; // TODO
+
+  // Feedforward Constants - TOP INTAKE
+  public static final double INTAKE_TOP_KF = 0.0001761804087; // TODO
+
+  // PID Constants - BOTTOM INTAKE
+  public static final double INTAKE_BOTTOM_P = 0; // TODO
+
+  // Feedforward Constants - BOTTOM INTAKE
+  public static final double INTAKE_BOTTOM_KF = 0.0001761804087; // TODO
 }

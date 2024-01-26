@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.SwerveModule;
@@ -26,6 +27,7 @@ import org.photonvision.PhotonCamera;
 class CompetitionRobotContainer {
   private final Chassis m_chassis;
   private PhotonCamera m_ATCamera;
+  private Intake m_intake;
   private final XboxController m_driveController;
   private final SendableChooser<Command> autoChooser;
 
@@ -87,6 +89,7 @@ class CompetitionRobotContainer {
     SmartDashboard.putData("AutoMode", autoChooser);
 
     configureBindings();
+    configureIntake();
   }
 
   private static SwerveDriveKinematics getSwerveDriveKinematics() {
@@ -145,6 +148,19 @@ class CompetitionRobotContainer {
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MAX_SPEED));
+
+    new Trigger(m_driveController::getAButton).onTrue(new IntakeNote(m_intake));
+  }
+
+  private void configureIntake() {
+    m_intake =
+        new Intake(
+            RobotConstants.INTAKE_TOP_ID,
+            RobotConstants.INTAKE_BOTTOM_ID,
+            RobotConstants.INTAKE_TOP_P,
+            RobotConstants.INTAKE_TOP_KF,
+            RobotConstants.INTAKE_BOTTOM_P,
+            RobotConstants.INTAKE_BOTTOM_KF);
   }
 
   public Command getAutonomousCommand() {
