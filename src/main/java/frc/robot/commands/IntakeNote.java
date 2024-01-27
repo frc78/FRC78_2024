@@ -10,11 +10,15 @@ import frc.robot.subsystems.Intake;
 public class IntakeNote extends Command {
 
   Intake intaker;
+  double setSpeedT;
+  double setSpeedB;
 
   /** Creates a new IntakeNote. */
-  public IntakeNote(Intake subsystem1) {
+  public IntakeNote(Intake intake1, double setSpeedT, double setSpeedB) {
     // Use addRequirements() here to declare subsystem dependencies.
-    intaker = subsystem1;
+    intaker = intake1;
+    this.setSpeedT = setSpeedT;
+    this.setSpeedB = setSpeedB;
     addRequirements(intaker);
   }
 
@@ -25,13 +29,13 @@ public class IntakeNote extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intaker.setPIDReferenceBOTH(5000);
+    intaker.intakeCTRL(setSpeedT, setSpeedB);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    intaker.setPIDReferenceBOTH(0);
+    intaker.intakeSTOP();
   }
 
   // Returns true when the command should end.
