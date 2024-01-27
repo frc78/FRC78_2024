@@ -6,8 +6,11 @@ package frc.robot.Commands;
 
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -40,6 +43,7 @@ public class OrbitalTarget extends Command {
   // Essentially the polar coordinates of the robot relative to the target
   private double TRAngle; // Target-Robot angle
   private double orbitDistance;
+  private double lateralSpeed;
 
   public OrbitalTarget(Chassis chassis,
     DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rotSupplier,
@@ -76,11 +80,15 @@ public class OrbitalTarget extends Command {
   public void execute() {
     // This first bit basically calculates polar coordinates for the robot with the target as the origin
     // Change target orbit distance based on joystick input
-    orbitDistance = Constants.ORBIT_RADIUS + (ySupplier.getAsDouble() * Constants.ORBIT_RADIUS_MARGIN);
-    TRAngle = TRAngle + (Math.asin((xSupplier.getAsDouble()) / orbitDistance) * RobotConstants.MAX_SPEED * Util.triggerAdjust(lTriggerSupplier.getAsDouble(), rTriggerSupplier.getAsDouble()));
+
+    // orbitDistance = Constants.ORBIT_RADIUS + (ySupplier.getAsDouble() * Constants.ORBIT_RADIUS_MARGIN);
+    orbitDistance = Constants.ORBIT_RADIUS;
+    lateralSpeed = Util.modifyJoystick(xSupplier.getAsDouble()) * RobotConstants.MAX_SPEED * Util.triggerAdjust(lTriggerSupplier.getAsDouble(), rTriggerSupplier.getAsDouble()) * 0.02;
+    TRAngle = TRAngle + (Math.asin(lateralSpeed / orbitDistance));
 
     // Then converts the polar coordinates to field coordinates
     calcTargetPose();
+    Logger.recordOutput("Orbit Goal", new Pose2d(xTarget, yTarget, Rotation2d.fromRadians(rotTarget)));
 
     // Then uses PID to move the robot to the target pose
     xController.setSetpoint(xTarget);
@@ -90,13 +98,18 @@ public class OrbitalTarget extends Command {
     chassis.setChassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
       xController.calculate(chassis.getFusedPose().getX()),
       yController.calculate(chassis.getFusedPose().getY()),
-      rotController.calculate(chassis.getFusedPose().getRotation().getRadians() % (2 * Math.PI))), // Not sure if I have to make sure the angle is in the range [0, 2 * PI)
+      rotController.calculate(chassis.getFusedPose().getRotation().getRadians())), // Not sure if I have to make sure the angle is in the range [0, 2 * PI)
       chassis.getFusedPose().getRotation()
     );
+
+    chassis.convertToStates();
+    chassis.drive();
   }
 
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    chassis.setChassisSpeed = new ChassisSpeeds();
+  }
 
   @Override
   public boolean isFinished() {

@@ -19,10 +19,10 @@ public final class Constants {
     public static final double UP_ADJUST = 0.5;
     public static final double DOWN_ADJUST = 0.25;
 
-    public static final Translation2d BLUE_ORBIT_POSE = new Translation2d(0, 0);
-    public static final Translation2d RED_ORBIT_POSE = new Translation2d(0, 0);
-    public static final double ORBIT_RADIUS = 0.0;
-    public static final double ORBIT_RADIUS_MARGIN = 0.0;
+    public static final Translation2d BLUE_ORBIT_POSE = new Translation2d(0.5, 5.5);
+    public static final Translation2d RED_ORBIT_POSE = new Translation2d(16, 5.5);
+    public static final double ORBIT_RADIUS = 2.5;
+    public static final double ORBIT_RADIUS_MARGIN = 1.0;
 
     // +X is forward, +Y is left
     public static final SwerveDriveKinematics SWERVE_KINEMATICS = new SwerveDriveKinematics(
