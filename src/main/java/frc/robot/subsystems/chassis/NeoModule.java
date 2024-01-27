@@ -4,7 +4,12 @@
 
 package frc.robot.subsystems.chassis;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -13,11 +18,17 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
 
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
+
   protected ModuleConfig config;
 
   protected CANSparkMax drive;
@@ -68,7 +79,8 @@ public class NeoModule implements SwerveModule {
     steerEnc.setPositionConversionFactor(config.steerPositionConversionFactor);
     steerEnc.setVelocityConversionFactor(config.steerVelocityConversionFactor);
 
-    // Invert the turning encoder, since the output shaft rotates in the opposite direction of
+    // Invert the turning encoder, since the output shaft rotates in the opposite
+    // direction of
     // the steering motor in the MAXSwerve Module.
     steerEnc.setInverted(config.steerEncoderInverted);
     steer.setInverted(config.steerMotorInverted);
@@ -213,5 +225,35 @@ public class NeoModule implements SwerveModule {
     SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
     SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
     SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
+  }
+
+  public void openLoopDiffDrive(double voltage) {
+    steerPID.setReference(0, ControlType.kPosition);
+    drive.setVoltage(voltage);
+  }
+
+  /*
+   * Mutate these each time we log so that we aren't creating objects constantly
+   */
+  private final MutableMeasure<Voltage> mutableAppliedVoltage = MutableMeasure.mutable(Volts.of(0));
+  private final MutableMeasure<Distance> mutableDistance = MutableMeasure.mutable(Meters.of(0));
+  private final MutableMeasure<Velocity<Distance>> mutableVelocity =
+      MutableMeasure.mutable(MetersPerSecond.of(0));
+
+  public void logMotor(SysIdRoutineLog log) {
+    log.motor("motor#" + config.driveID)
+        // Log voltage
+        .voltage(
+            mutableAppliedVoltage.mut_replace(
+                // getAppliedOutput return the duty cycle which is from [-1, +1]. We multiply
+                // this
+                // by the voltage going into the spark max, called the bus voltage to receive
+                // the
+                // output voltage
+                drive.getAppliedOutput() * drive.getBusVoltage(), Volts))
+        // the drive encoder has the necessary position and velocity conversion factors
+        // already set
+        .linearVelocity(mutableVelocity.mut_replace(driveEnc.getVelocity(), MetersPerSecond))
+        .linearPosition(mutableDistance.mut_replace(driveEnc.getPosition(), Meters));
   }
 }
