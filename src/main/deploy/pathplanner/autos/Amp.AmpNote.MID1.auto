@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.874071386238011,
+      "y": 6.528345247166685
+    },
+    "rotation": -119.74488129694225
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AmpSide.AmpNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "AmpNote.MID1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MID1.AMPside"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
