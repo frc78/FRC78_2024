@@ -4,43 +4,54 @@
 
 package frc.robot.competition;
 
+import com.pathplanner.lib.util.PIDConstants;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.util.Units;
 
 /** This is the constants for the NEO */
 class RobotConstants {
-  public static final double WHEEL_WIDTH =
-      Units.inchesToMeters(18.75); // Make sure this is from the wheel's center of rotation
-  public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4); // TODO measure more precisely
+    public static final double WHEEL_WIDTH = Units.inchesToMeters(18.75); // Make sure this is from the wheel's center
+                                                                          // of rotation
+    public static final double WHEEL_DIAMETER = Units.inchesToMeters(4); // TODO measure more precisely
 
-  public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
+    public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
-  public static final int PIGEON_ID = 0;
+    public static final int PIGEON_ID = 0;
 
-  public static final double MAX_SPEED = 4; // TODO
-  public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
+    public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
 
-  // WHEELS
+    public static final double MAX_SPEED = 4; // TODO
+    public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
 
-  public static final double DRIVE_GEAR_RATIO = (6.75);
-  public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
-  public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
-      ((WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO) / 60;
-  public static final boolean STEER_ENC_INVERTED = true;
-  public static final boolean DRIVE_INVERTED = true;
-  public static final boolean STEER_INVERTED = true;
+    public static final PIDConstants PP_TRANSLATION = new PIDConstants(5.0, 0.0, 0.0);
+    public static final PIDConstants PP_ROTATION = new PIDConstants(5.0, 0.0, 0.0);
+    // TODO Since the above and below are both PID constants for moving the robot to
+    // a target pose, perhaps we could use just one set of constants for both
+    // Pathplanner and other drive commands?
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+    public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
 
-  public static final double STEER_ENC_POS_TO_METERS =
-      1; // factor of steer encoder to meters(conversion factor)
-  public static final double STEER_ENC_VEL_TO_METERS = 1 / 60; // factor of vel to meters
+    // WHEELS
 
-  public static final int DRIVE_CURRENT_LIMIT = 50; // amps
-  public static final int STEER_CURRENT_LIMIT = 20; // amps
+    public static final double DRIVE_GEAR_RATIO = (6.75);
+    public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
+    public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND = ((WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO)
+            / 60;
+    public static final boolean STEER_ENC_INVERTED = true;
+    public static final boolean DRIVE_INVERTED = true;
+    public static final boolean STEER_INVERTED = true;
 
-  public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
-  public static final IdleMode STEER_IDLE = IdleMode.kCoast;
+    public static final double STEER_ENC_POS_TO_METERS = 1; // factor of steer encoder to meters(conversion factor)
+    public static final double STEER_ENC_VEL_TO_METERS = 1 / 60; // factor of vel to meters
 
-  public static final double STEER_ENC_PID_MIN = 0.0;
-  public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
+    public static final int DRIVE_CURRENT_LIMIT = 50; // amps
+    public static final int STEER_CURRENT_LIMIT = 20; // amps
+
+    public static final double NOMINAL_VOLTAGE = 12;
+
+    public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
+    public static final IdleMode STEER_IDLE = IdleMode.kCoast;
+
+    public static final double STEER_ENC_PID_MIN = 0.0;
+    public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 }

@@ -4,6 +4,7 @@
 
 package frc.robot.test;
 
+import com.pathplanner.lib.util.PIDConstants;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.util.Units;
 
@@ -18,8 +19,16 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
+  public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
+
   public static final double MAX_SPEED = 4; // TODO
   public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
+
+      public static final PIDConstants PP_TRANSLATION = new PIDConstants(5.0, 0.0, 0.0);
+    public static final PIDConstants PP_ROTATION = new PIDConstants(5.0, 0.0, 0.0);
+    // TODO Since the above and below are both PID constants for moving the robot to a target pose, perhaps we could use just one set of constants for both Pathplanner and other drive commands?
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+    public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
 
   // WHEELS
 
@@ -38,6 +47,8 @@ class RobotConstants {
 
   public static final int DRIVE_CURRENT_LIMIT = 50; // amps
   public static final int STEER_CURRENT_LIMIT = 20; // amps
+
+  public static final double NOMINAL_VOLTAGE = 12;
 
   public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
   public static final IdleMode STEER_IDLE = IdleMode.kCoast;

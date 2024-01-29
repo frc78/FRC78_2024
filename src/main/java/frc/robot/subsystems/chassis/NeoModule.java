@@ -97,6 +97,9 @@ public class NeoModule implements SwerveModule {
     drive.setSmartCurrentLimit(config.driveCurrentLimit);
     steer.setSmartCurrentLimit(config.steerCurrentLimit);
 
+    drive.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE);
+    steer.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE);
+
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
 
