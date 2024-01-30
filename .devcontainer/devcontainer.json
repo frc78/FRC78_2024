@@ -5,5 +5,11 @@
       "version": "17",
       "installGradle": true
     }
+  },
+  "postCreateCommand": "cd /opt && wget 'https://github.com/wpilibsuite/vscode-wpilib/releases/download/v2024.2.1/vscode-wpilib-2024.2.1.vsix'",
+  "customizations": {
+    "vscode": {
+      "extensions": ["/opt/vscode-wpilib-2024.2.1.vsix","vscjava.vscode-java-pack","vscjava.vscode-gradle"]
+    }
   }
 }
