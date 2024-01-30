@@ -4,11 +4,8 @@
 
 package frc.robot.test;
 
-import org.photonvision.PhotonCamera;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,6 +23,7 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.SwerveModule;
+import org.photonvision.PhotonCamera;
 
 class TestChassisContainer {
   private final Chassis m_chassis;
@@ -40,15 +38,16 @@ class TestChassisContainer {
     NeoModule backLeft = makeSwerveModule(5, 6);
     NeoModule backRight = makeSwerveModule(7, 8);
 
-    SwerveModule[] modules = new SwerveModule[] { frontLeft, frontRight, backLeft, backRight };
+    SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
     SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
+
+    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
     m_driveController = new XboxController(0);
 
-    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
     PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
@@ -68,7 +67,8 @@ class TestChassisContainer {
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
-        m_chassis::resetPose, // Method to reset odometry (will be called if your auto has a starting
+        m_chassis
+            ::resetPose, // Method to reset odometry (will be called if your auto has a starting
         // pose)
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
@@ -78,11 +78,12 @@ class TestChassisContainer {
             RobotConstants.PP_TRANSLATION, // Translation PID constants
             RobotConstants.PP_ROTATION, // Rotation PID constants
             RobotConstants.MAX_SPEED, // Max module speed, in m/s
-            RobotConstants.ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to
+            RobotConstants
+                .ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to
             // furthest module.
             new ReplanningConfig() // Default path replanning config. See the API for the options
-        // here
-        ),
+            // here
+            ),
         () -> {
           // Boolean supplier that controls when the path will be mirrored for the red
           // alliance
@@ -96,7 +97,7 @@ class TestChassisContainer {
           return false;
         },
         m_chassis // Reference to this subsystem to set requirements
-    );
+        );
 
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -106,22 +107,24 @@ class TestChassisContainer {
   }
 
   private static SwerveDriveKinematics getSwerveDriveKinematics() {
-    Translation2d frontLeftLocation = new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0,
-        RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d frontRightLocation = new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0,
-        -RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d backLeftLocation = new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0,
-        RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d backRightLocation = new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0,
-        -RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d frontLeftLocation =
+        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d frontRightLocation =
+        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d backLeftLocation =
+        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d backRightLocation =
+        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
 
     return new SwerveDriveKinematics(
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
   private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ModuleConfig.ClosedLoopParameters driveClosedLoopParams = new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1);
-    ModuleConfig.ClosedLoopParameters steerClosedLoopParams = new ModuleConfig.ClosedLoopParameters(0.7, 0, 0, 0);
+    ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
+        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1);
+    ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
+        new ModuleConfig.ClosedLoopParameters(0.7, 0, 0, 0);
     return new NeoModule(
         new ModuleConfig(
             driveId,
@@ -139,6 +142,7 @@ class TestChassisContainer {
             RobotConstants.STEER_ENC_PID_MAX,
             RobotConstants.DRIVE_CURRENT_LIMIT,
             RobotConstants.STEER_CURRENT_LIMIT,
+            RobotConstants.NOMINAL_VOLTAGE,
             RobotConstants.DRIVE_IDLE,
             RobotConstants.STEER_IDLE));
   }
@@ -146,13 +150,18 @@ class TestChassisContainer {
   private void configureBindings() {
     new Trigger(m_driveController::getStartButton)
         .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
-    new Trigger(m_driveController::getRightBumper).whileTrue(new OrbitalTarget(
-        m_chassis,
-        m_driveController::getLeftX,
-        m_driveController::getLeftY,
-        m_driveController::getRightX,
-        m_driveController::getLeftTriggerAxis,
-        m_driveController::getRightTriggerAxis));
+    new Trigger(m_driveController::getRightBumper)
+        .whileTrue(
+            new OrbitalTarget(
+                m_chassis,
+                m_driveController::getLeftX,
+                m_driveController::getLeftY,
+                m_driveController::getRightX,
+                m_driveController::getLeftTriggerAxis,
+                m_driveController::getRightTriggerAxis,
+                RobotConstants.TRANSLATION_PID,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.MAX_SPEED));
   }
 
   public Command getAutonomousCommand() {

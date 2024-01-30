@@ -26,6 +26,7 @@ public class ModuleConfig {
 
   public final int driveCurrentLimit;
   public final int steerCurrentLimit;
+  public final double nominalVoltage;
   public final CANSparkBase.IdleMode driveIdleMode;
   public final CANSparkBase.IdleMode steerIdleMode;
 
@@ -45,6 +46,7 @@ public class ModuleConfig {
       double steerEncoderPidMax,
       int driveCurrentLimit,
       int steerCurrentLimit,
+      double nominalVoltage,
       CANSparkBase.IdleMode driveIdleMode,
       CANSparkBase.IdleMode steerIdleMode) {
     this.driveID = driveID;
@@ -62,6 +64,7 @@ public class ModuleConfig {
     this.steerEncoderPidMax = steerEncoderPidMax;
     this.driveCurrentLimit = driveCurrentLimit;
     this.steerCurrentLimit = steerCurrentLimit;
+    this.nominalVoltage = nominalVoltage;
     this.driveIdleMode = driveIdleMode;
     this.steerIdleMode = steerIdleMode;
   }

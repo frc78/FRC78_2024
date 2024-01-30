@@ -5,7 +5,6 @@
 package frc.robot.subsystems.chassis;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -20,16 +19,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.io.IOException;
 import java.util.Optional;
-
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.targeting.PhotonPipelineResult;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
@@ -48,46 +44,54 @@ public class Chassis extends SubsystemBase {
   private PhotonCamera ATCamera;
   private PhotonPoseEstimator photonEstimator;
   private AprilTagFieldLayout aprilTagFieldLayout;
-  private final Transform3d robotToCam = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)); // Cam
-                                                                                                                     // mounted
-                                                                                                                     // facing
-                                                                                                                     // forward,
-                                                                                                                     // half
-                                                                                                                     // a
-                                                                                                                     // meter
-                                                                                                                     // forward
-                                                                                                                     // of
-                                                                                                                     // center,
-                                                                                                                     // half
-                                                                                                                     // a
-                                                                                                                     // meter
-                                                                                                                     // up
-                                                                                                                     // from
-                                                                                                                     // center.
+  private final Transform3d robotToCam =
+      new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)); // Cam
 
-  public Chassis(SwerveModule[] modules, SwerveDriveKinematics kinematics, int pigeonId, PhotonCamera ATCamera) {
+  // mounted
+  // facing
+  // forward,
+  // half
+  // a
+  // meter
+  // forward
+  // of
+  // center,
+  // half
+  // a
+  // meter
+  // up
+  // from
+  // center.
+
+  public Chassis(
+      SwerveModule[] modules,
+      SwerveDriveKinematics kinematics,
+      int pigeonId,
+      PhotonCamera ATCamera) {
     // It reads the number of modules from the RobotConstants
     this.modules = modules;
     this.kinematics = kinematics;
-
-    pigeon = new Pigeon2(pigeonId);
-    poseEstimator = new SwerveDrivePoseEstimator(
-        kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
-    setChassisSpeed = new ChassisSpeeds();
-
     this.ATCamera = ATCamera;
 
     getChassisSpeed = new ChassisSpeeds();
     getStates = new SwerveModuleState[4];
     getPositions = new SwerveModulePosition[4];
 
+    pigeon = new Pigeon2(pigeonId);
+    poseEstimator =
+        new SwerveDrivePoseEstimator(
+            kinematics, Rotation2d.fromDegrees(getGyroRot()), getPositions(), new Pose2d());
+    setChassisSpeed = new ChassisSpeeds();
+
     try {
-      aprilTagFieldLayout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+      aprilTagFieldLayout =
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
     } catch (IOException e) {
       System.err.println("Failed to load AprilTagFieldLayout");
     }
-    photonEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, ATCamera,
-        robotToCam);
+    photonEstimator =
+        new PhotonPoseEstimator(
+            aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, ATCamera, robotToCam);
   }
 
   public void initializeModules() {
@@ -107,12 +111,11 @@ public class Chassis extends SubsystemBase {
 
   @Override
   public void periodic() {
-    PhotonPipelineResult result = ATCamera.getLatestResult();
     Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose(getFusedPose());
 
     if (estimatedPose.isPresent()) {
-      poseEstimator.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(),
-          estimatedPose.get().timestampSeconds);
+      poseEstimator.addVisionMeasurement(
+          estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds);
       Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
     }
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), getPositions());
@@ -141,7 +144,7 @@ public class Chassis extends SubsystemBase {
     return getPositions;
   }
 
-  public SwerveModuleState[] getStates () {
+  public SwerveModuleState[] getStates() {
     for (int i = 0; i < modules.length; i++) {
       getStates[i] = modules[i].getState();
     }

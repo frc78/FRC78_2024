@@ -97,8 +97,8 @@ public class NeoModule implements SwerveModule {
     drive.setSmartCurrentLimit(config.driveCurrentLimit);
     steer.setSmartCurrentLimit(config.steerCurrentLimit);
 
-    drive.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE);
-    steer.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE);
+    drive.enableVoltageCompensation(config.nominalVoltage);
+    steer.enableVoltageCompensation(config.nominalVoltage);
 
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
@@ -201,7 +201,7 @@ public class NeoModule implements SwerveModule {
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kDutyCycle);
+    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;

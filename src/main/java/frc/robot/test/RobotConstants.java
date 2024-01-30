@@ -24,11 +24,12 @@ class RobotConstants {
   public static final double MAX_SPEED = 4; // TODO
   public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
 
-      public static final PIDConstants PP_TRANSLATION = new PIDConstants(5.0, 0.0, 0.0);
-    public static final PIDConstants PP_ROTATION = new PIDConstants(5.0, 0.0, 0.0);
-    // TODO Since the above and below are both PID constants for moving the robot to a target pose, perhaps we could use just one set of constants for both Pathplanner and other drive commands?
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-    public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final PIDConstants PP_TRANSLATION = new PIDConstants(5.0, 0.0, 0.0);
+  public static final PIDConstants PP_ROTATION = new PIDConstants(5.0, 0.0, 0.0);
+  // TODO Since the above and below are both PID constants for moving the robot to a target pose,
+  // perhaps we could use just one set of constants for both Pathplanner and other drive commands?
+  public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
 
   // WHEELS
 
@@ -41,7 +42,7 @@ class RobotConstants {
   public static final boolean STEER_INVERTED = true;
 
   public static final double STEER_ENC_POS_TO_METERS =
-      (2 * Math.PI); // factor of steer encoder to meters(conversion factor)
+      1; // factor of steer encoder to meters(conversion factor)
   public static final double STEER_ENC_VEL_TO_METERS =
       (2 * Math.PI) / 60; // factor of vel to meters
 

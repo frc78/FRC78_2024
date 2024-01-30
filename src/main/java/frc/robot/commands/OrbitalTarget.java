@@ -4,10 +4,7 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
-import org.littletonrobotics.junction.Logger;
-
+import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,8 +14,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
-import frc.robot.constants.RobotConstants;
 import frc.robot.subsystems.chassis.Chassis;
+import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 public class OrbitalTarget extends Command {
 
@@ -35,6 +33,10 @@ public class OrbitalTarget extends Command {
   private final PIDController yController;
   private final PIDController rotController;
 
+  private PIDConstants translationPID;
+  private PIDConstants rotationPID;
+  private double maxSpeed;
+
   // Target pose in field space for the robot to move to
   private double xTarget;
   private double yTarget;
@@ -45,26 +47,39 @@ public class OrbitalTarget extends Command {
   private double orbitDistance;
   private double lateralSpeed;
 
-  public OrbitalTarget(Chassis chassis,
-    DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rotSupplier,
-    DoubleSupplier lTriggerSupplier, DoubleSupplier rTriggerSupplier) {
+  public OrbitalTarget(
+      Chassis chassis,
+      DoubleSupplier xSupplier,
+      DoubleSupplier ySupplier,
+      DoubleSupplier rotSupplier,
+      DoubleSupplier lTriggerSupplier,
+      DoubleSupplier rTriggerSupplier,
+      PIDConstants translationPID,
+      PIDConstants rotationPID,
+      double maxSpeed) {
 
     this.chassis = chassis;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
     this.lTriggerSupplier = lTriggerSupplier;
     this.rTriggerSupplier = rTriggerSupplier;
+    this.translationPID = translationPID;
+    this.rotationPID = rotationPID;
+    this.maxSpeed = maxSpeed;
 
     // Might be shorter way of doing this
-    if(DriverStation.getAlliance().isPresent()) {
-      targetPose = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue ? Constants.BLUE_ORBIT_POSE : Constants.RED_ORBIT_POSE;
+    if (DriverStation.getAlliance().isPresent()) {
+      targetPose =
+          DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+              ? Constants.BLUE_ORBIT_POSE
+              : Constants.RED_ORBIT_POSE;
     } else {
       targetPose = Constants.BLUE_ORBIT_POSE;
     }
 
-    xController = new PIDController(RobotConstants.TRANSLATION_PID.kP, RobotConstants.TRANSLATION_PID.kI, RobotConstants.TRANSLATION_PID.kD);
-    yController = new PIDController(RobotConstants.TRANSLATION_PID.kP, RobotConstants.TRANSLATION_PID.kI, RobotConstants.TRANSLATION_PID.kD);
-    rotController = new PIDController(RobotConstants.ROTATION_PID.kP, RobotConstants.ROTATION_PID.kI, RobotConstants.ROTATION_PID.kD);
+    xController = new PIDController(translationPID.kP, translationPID.kI, translationPID.kD);
+    yController = new PIDController(translationPID.kP, translationPID.kI, translationPID.kD);
+    rotController = new PIDController(rotationPID.kP, rotationPID.kI, rotationPID.kD);
     rotController.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(chassis);
@@ -72,35 +87,51 @@ public class OrbitalTarget extends Command {
 
   @Override
   public void initialize() {
-    TRAngle = Math.atan2(chassis.getFusedPose().getY() - targetPose.getY(), chassis.getFusedPose().getX() - targetPose.getX());
+    TRAngle =
+        Math.atan2(
+            chassis.getFusedPose().getY() - targetPose.getY(),
+            chassis.getFusedPose().getX() - targetPose.getX());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // This first bit basically calculates polar coordinates for the robot with the target as the origin
+    // This first bit basically calculates polar coordinates for the robot with the target as the
+    // origin
     // Change target orbit distance based on joystick input
 
-    // orbitDistance = Constants.ORBIT_RADIUS + (ySupplier.getAsDouble() * Constants.ORBIT_RADIUS_MARGIN);
+    // orbitDistance = Constants.ORBIT_RADIUS + (ySupplier.getAsDouble() *
+    // Constants.ORBIT_RADIUS_MARGIN);
     orbitDistance = Constants.ORBIT_RADIUS;
-    lateralSpeed = Util.modifyJoystick(xSupplier.getAsDouble()) * RobotConstants.MAX_SPEED * Util.triggerAdjust(lTriggerSupplier.getAsDouble(), rTriggerSupplier.getAsDouble()) * 0.02;
+    lateralSpeed =
+        Util.modifyJoystick(xSupplier.getAsDouble())
+            * maxSpeed
+            * Util.triggerAdjust(lTriggerSupplier.getAsDouble(), rTriggerSupplier.getAsDouble())
+            * 0.02;
     TRAngle = TRAngle + (Math.asin(lateralSpeed / orbitDistance));
 
     // Then converts the polar coordinates to field coordinates
     calcTargetPose();
-    Logger.recordOutput("Orbit Goal", new Pose2d(xTarget, yTarget, Rotation2d.fromRadians(rotTarget)));
+    Logger.recordOutput(
+        "Orbit Goal", new Pose2d(xTarget, yTarget, Rotation2d.fromRadians(rotTarget)));
 
     // Then uses PID to move the robot to the target pose
     xController.setSetpoint(xTarget);
     yController.setSetpoint(yTarget);
     rotController.setSetpoint(rotTarget);
 
-    chassis.setChassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(
-      xController.calculate(chassis.getFusedPose().getX()),
-      yController.calculate(chassis.getFusedPose().getY()),
-      rotController.calculate(chassis.getFusedPose().getRotation().getRadians())), // Not sure if I have to make sure the angle is in the range [0, 2 * PI)
-      chassis.getFusedPose().getRotation()
-    );
+    chassis.setChassisSpeed =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            new ChassisSpeeds(
+                xController.calculate(chassis.getFusedPose().getX()),
+                yController.calculate(chassis.getFusedPose().getY()),
+                rotController.calculate(
+                    chassis
+                        .getFusedPose()
+                        .getRotation()
+                        .getRadians())), // Not sure if I have to make sure the angle is in the
+            // range [0, 2 * PI)
+            chassis.getFusedPose().getRotation());
 
     chassis.convertToStates();
     chassis.drive();
@@ -123,7 +154,10 @@ public class OrbitalTarget extends Command {
     xTarget += targetPose.getX();
     yTarget += targetPose.getY();
 
-    rotTarget = TRAngle + Math.PI; // Offset by 180 degrees to get robot-target angle as this is the angle the robot will be facing
+    rotTarget =
+        TRAngle
+            + Math.PI; // Offset by 180 degrees to get robot-target angle as this is the angle the
+    // robot will be facing
     rotTarget = rotTarget % (2 * Math.PI); // Wrap angle to [0, 2 * PI)
   }
 }
