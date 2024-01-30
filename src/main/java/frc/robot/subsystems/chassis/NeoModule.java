@@ -80,8 +80,7 @@ public class NeoModule implements SwerveModule {
     steerEnc.setVelocityConversionFactor(config.steerVelocityConversionFactor);
 
     // Invert the turning encoder, since the output shaft rotates in the opposite
-    // direction of
-    // the steering motor in the MAXSwerve Module.
+    // direction of the steering motor in the MAXSwerve Module.
     steerEnc.setInverted(config.steerEncoderInverted);
     steer.setInverted(config.steerMotorInverted);
     drive.setInverted(config.driveMotorInverted);
@@ -244,15 +243,12 @@ public class NeoModule implements SwerveModule {
     log.motor("motor#" + config.driveID)
         // Log voltage
         .voltage(
+            /* getAppliedOutput returns the duty cycle which is from [-1, +1].
+            We multiply this by the voltage going into the spark max,
+            called the bus voltage to receive the output voltage */
             mutableAppliedVoltage.mut_replace(
-                // getAppliedOutput return the duty cycle which is from [-1, +1]. We multiply
-                // this
-                // by the voltage going into the spark max, called the bus voltage to receive
-                // the
-                // output voltage
                 drive.getAppliedOutput() * drive.getBusVoltage(), Volts))
-        // the drive encoder has the necessary position and velocity conversion factors
-        // already set
+        // the drive encoder has the necessary position and velocity conversion factors already set
         .linearVelocity(mutableVelocity.mut_replace(driveEnc.getVelocity(), MetersPerSecond))
         .linearPosition(mutableDistance.mut_replace(driveEnc.getPosition(), Meters));
   }

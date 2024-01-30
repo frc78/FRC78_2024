@@ -35,9 +35,9 @@ public interface SwerveModule {
 
   public void setState(SwerveModuleState state);
 
-    /** Runs the drive motor at a set voltage, while keeping the steer angle at 0 degrees */
-    void openLoopDiffDrive(double voltage);
+  /** Runs the drive motor at a set voltage, while keeping the steer angle at 0 degrees */
+  void openLoopDiffDrive(double voltage);
 
-    /** Logs the motor position, velocity, and voltage data for SysId */
-    void logMotor(SysIdRoutineLog log);
+  /** Logs the motor position, velocity, and voltage data for SysId */
+  void logMotor(SysIdRoutineLog log);
 }
