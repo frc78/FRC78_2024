@@ -4,10 +4,13 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
 import java.util.function.BooleanSupplier;
@@ -29,6 +32,7 @@ public class Drive extends Command {
   private final PIDController thetaPID;
   private final double maxSpeed;
   private final double maxAngularVelocity;
+  private final PIDConstants cardinalPidConstants;
 
   public Drive(
       Chassis chassis,
@@ -42,7 +46,8 @@ public class Drive extends Command {
       BooleanSupplier downSupplier,
       BooleanSupplier leftSupplier,
       double maxSpeed,
-      double maxAngularVelocity) {
+      double maxAngularVelocity,
+      PIDConstants cardinalPidConstants) {
     this.chassis = chassis;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
@@ -55,12 +60,15 @@ public class Drive extends Command {
     this.leftSupplier = leftSupplier;
     this.maxSpeed = maxSpeed;
     this.maxAngularVelocity = maxAngularVelocity;
+    this.cardinalPidConstants = cardinalPidConstants;
 
     xLimiter = new SlewRateLimiter(11, -11, 0);
     yLimiter = new SlewRateLimiter(11, -11, 0);
     thetaLimiter = new SlewRateLimiter(30, -30, 0);
 
-    thetaPID = new PIDController(2.5, 7, 0.16); // TODO almost perfect
+    thetaPID =
+        new PIDController(
+            cardinalPidConstants.kP, cardinalPidConstants.kI, cardinalPidConstants.kD); // TODO tune
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(chassis);
@@ -68,71 +76,49 @@ public class Drive extends Command {
 
   @Override
   public void execute() {
+    double triggerAdjust =
+        Util.triggerAdjust(
+            Util.deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND),
+            Util.deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
+    double x = Util.modifyJoystick(-xSupplier.getAsDouble()) * triggerAdjust;
+    double y = Util.modifyJoystick(-ySupplier.getAsDouble()) * triggerAdjust;
+    double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
+    SmartDashboard.putNumber("triggerAdjust", triggerAdjust);
+
+    // Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector
+    // using trigonometry,
+    // then fits it to the range [0, 2 * PI)
+    // double x = (upSupplier.getAsBoolean() ? 1 : 0) - (downSupplier.getAsBoolean() ? 1 : 0);
+    // double y = (rightSupplier.getAsBoolean() ? 1 : 0) - (leftSupplier.getAsBoolean() ? 1 : 0);
+    // double dir = Math.atan2(y, x);
+    // dir = dir < 0 ? dir + 2 * Math.PI : dir;
+
+    // thetaPID.setSetpoint(dir * -1);
 
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * maxSpeed,
-            triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * maxSpeed,
-            triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) * maxAngularVelocity,
-            chassis
-                .getFusedPose()
-                .getRotation() // TODO will have to change to be fused pose instead of gyro
-            );
+            x * maxSpeed,
+            y * maxSpeed,
+            rot * maxAngularVelocity,
+            chassis.getFusedPose().getRotation());
 
-    chassis.chassisSpeed = speeds;
+    // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
+    //  double dpadSpeed =
+    // upSupplier.getAsBoolean() || rightSupplier.getAsBoolean() || downSupplier.getAsBoolean() ||
+    // leftSupplier.getAsBoolean()
+    // ? thetaPID.calculate(currentRot) : 0;
+    // speeds = new ChassisSpeeds(
+    // xLimiter.calculate(speeds.vxMetersPerSecond),
+    // yLimiter.calculate(speeds.vyMetersPerSecond),
+    // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
+
+    chassis.setChassisSpeed = speeds;
     chassis.convertToStates();
     chassis.drive();
   }
 
   @Override
   public void end(boolean interrupted) {
-    chassis.chassisSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
-  }
-
-  /**
-   * Adjusts the speeds of the given input depending on trigger input, with left trigger decreasing
-   * speed and RT increasing
-   *
-   * @param in
-   * @return Adjusted speed
-   */
-  public double triggerAdjust(double in) {
-    double upAdjust = 0.5;
-    double downAdjust = 0.25;
-    // Default speed = 1 - upAdjust
-    // Full left trigger = 1 - upAdjust - downAdjust
-    // Full right trigger = 1
-    double triggers =
-        (1 - upAdjust)
-            + (deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * upAdjust)
-            - (deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND) * downAdjust);
-    return in * triggers;
-  }
-
-  /**
-   * Applies a deadband to the given joystick axis value
-   *
-   * @param value
-   * @param deadband
-   * @return
-   */
-  private static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      return (value > 0.0 ? value - deadband : value + deadband) / (1.0 - deadband);
-    } else {
-      return 0.0;
-    }
-  }
-
-  /**
-   * Processes the given joystick axis value, applying deadband and squaring it
-   *
-   * @param value
-   * @return
-   */
-  private static double modifyJoystick(double value) {
-    // Deadband
-    value = deadband(value, Constants.JOYSTICK_DEADBAND);
-    return Math.pow(value, 3);
+    chassis.setChassisSpeed = new ChassisSpeeds(0.0, 0.0, 0.0);
   }
 }

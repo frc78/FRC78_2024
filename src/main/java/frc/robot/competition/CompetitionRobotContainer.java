@@ -5,12 +5,10 @@
 package frc.robot.competition;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -23,9 +21,11 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.SwerveModule;
+import org.photonvision.PhotonCamera;
 
 class CompetitionRobotContainer {
   private final Chassis m_chassis;
+  private PhotonCamera m_ATCamera;
   private final XboxController m_driveController;
   private final SendableChooser<Command> autoChooser;
 
@@ -38,21 +38,15 @@ class CompetitionRobotContainer {
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
-    SwerveDriveKinematics swerveDriveKinematics =
-        new SwerveDriveKinematics(
-            new Translation2d(
-                RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0), // front left
-            new Translation2d(
-                RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0), // front right
-            new Translation2d(
-                -RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0), // back left
-            new Translation2d(
-                -RobotConstants.WHEEL_WIDTH / 2.0,
-                -RobotConstants.WHEEL_WIDTH / 2.0)); // back right
+    SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID);
+    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
+
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
     m_driveController = new XboxController(0);
+
+    PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
         new Drive(
@@ -67,46 +61,46 @@ class CompetitionRobotContainer {
             m_driveController::getAButton,
             m_driveController::getXButton,
             RobotConstants.MAX_SPEED,
-            RobotConstants.MAX_ANGULAR_VELOCITY));
+            RobotConstants.MAX_ANGULAR_VELOCITY,
+            RobotConstants.ROTATION_PID));
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
         m_chassis
-            ::resetPose, // Method to reset odometry (will be called if your auto has a starting
+            ::resetPose, // Method to reset odometry (will be called if your auto has as starting
         // pose)
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
-            // your Constants class
-            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
-            RobotConstants.MAX_SPEED, // Max module speed, in m/s
-            RobotConstants
-                .ROBOT_RADIUS, // Drive base radius in meters. Distance from robot center to
-            // furthest module.
-            new ReplanningConfig() // Default path replanning config. See the API for the options
-            // here
-            ),
+        RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,
         () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
             return alliance.get() == DriverStation.Alliance.Red;
           }
           return false;
         },
-        m_chassis // Reference to this subsystem to set requirements
-        );
+        m_chassis);
 
     autoChooser = AutoBuilder.buildAutoChooser();
 
     SmartDashboard.putData("AutoMode", autoChooser);
 
     configureBindings();
+  }
+
+  private static SwerveDriveKinematics getSwerveDriveKinematics() {
+    Translation2d frontLeftLocation =
+        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d frontRightLocation =
+        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d backLeftLocation =
+        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
+    Translation2d backRightLocation =
+        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
+
+    return new SwerveDriveKinematics(
+        frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
   private NeoModule makeSwerveModule(int driveId, int steerId) {
@@ -131,6 +125,7 @@ class CompetitionRobotContainer {
             RobotConstants.STEER_ENC_PID_MAX,
             RobotConstants.DRIVE_CURRENT_LIMIT,
             RobotConstants.STEER_CURRENT_LIMIT,
+            RobotConstants.NOMINAL_VOLTAGE,
             RobotConstants.DRIVE_IDLE,
             RobotConstants.STEER_IDLE));
   }
@@ -138,6 +133,18 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_driveController::getStartButton)
         .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
+    new Trigger(m_driveController::getRightBumper)
+        .whileTrue(
+            new OrbitalTarget(
+                m_chassis,
+                m_driveController::getLeftX,
+                m_driveController::getLeftY,
+                m_driveController::getRightX,
+                m_driveController::getLeftTriggerAxis,
+                m_driveController::getRightTriggerAxis,
+                RobotConstants.TRANSLATION_PID,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.MAX_SPEED));
   }
 
   public Command getAutonomousCommand() {

@@ -21,6 +21,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    System.out.println("NO ROBOT SELECTED (DEFAULT TO COMPETITION)");
+
     CameraServer.startAutomaticCapture();
 
     if (isReal()) {
