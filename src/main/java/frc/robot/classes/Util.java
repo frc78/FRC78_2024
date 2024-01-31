@@ -20,9 +20,7 @@ public class Util {
    */
   public static double triggerAdjust(double down, double up) {
     double triggers =
-        (1 - Constants.UP_ADJUST)
-            + (up * Constants.UP_ADJUST)
-            - (down * Constants.DOWN_ADJUST);
+        (1 - Constants.UP_ADJUST) + (up * Constants.UP_ADJUST) - (down * Constants.DOWN_ADJUST);
     return triggers;
   }
 

@@ -29,8 +29,9 @@ public class Robot extends LoggedRobot {
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
     } else {
       setUseTiming(false); // Run as fast as possible
-      String logPath = LogFileUtil
-          .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      String logPath =
+          LogFileUtil
+              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
       Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
       Logger.addDataReceiver(
           new WPILOGWriter(
@@ -47,16 +48,13 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {
-  }
+  public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {
-  }
+  public void disabledPeriodic() {}
 
   @Override
-  public void disabledExit() {
-  }
+  public void disabledExit() {}
 
   @Override
   public void autonomousInit() {
@@ -68,12 +66,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {
-  }
+  public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {
-  }
+  public void autonomousExit() {}
 
   @Override
   public void teleopInit() {
@@ -83,12 +79,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {
-  }
+  public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {
-  }
+  public void teleopExit() {}
 
   @Override
   public void testInit() {
@@ -96,10 +90,8 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void testPeriodic() {
-  }
+  public void testPeriodic() {}
 
   @Override
-  public void testExit() {
-  }
+  public void testExit() {}
 }

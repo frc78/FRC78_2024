@@ -4,14 +4,10 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public final class Main {
-  private Main() {
-  }
+  private Main() {}
 
   public static void main(String... args) {
     if ("TEST".equalsIgnoreCase(System.getenv("FRC_BOT"))) {
