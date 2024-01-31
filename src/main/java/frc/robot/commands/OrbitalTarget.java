@@ -43,7 +43,7 @@ public class OrbitalTarget extends Command {
   private double rotTarget;
 
   // Essentially the polar coordinates of the robot relative to the target
-  private double TRAngle; // Target-Robot angle
+  private double targetRobotAngle;
   private double orbitDistance;
   private double lateralSpeed;
 
@@ -87,7 +87,7 @@ public class OrbitalTarget extends Command {
 
   @Override
   public void initialize() {
-    TRAngle =
+    targetRobotAngle =
         Math.atan2(
             chassis.getFusedPose().getY() - targetPose.getY(),
             chassis.getFusedPose().getX() - targetPose.getX());
@@ -108,7 +108,7 @@ public class OrbitalTarget extends Command {
             * maxSpeed
             * Util.triggerAdjust(lTriggerSupplier.getAsDouble(), rTriggerSupplier.getAsDouble())
             * 0.02;
-    TRAngle = TRAngle + (Math.asin(lateralSpeed / orbitDistance));
+    targetRobotAngle = targetRobotAngle + (Math.asin(lateralSpeed / orbitDistance));
 
     // Then converts the polar coordinates to field coordinates
     calcTargetPose();
@@ -148,14 +148,14 @@ public class OrbitalTarget extends Command {
   }
 
   public void calcTargetPose() {
-    xTarget = Math.cos(TRAngle) * orbitDistance;
-    yTarget = Math.sin(TRAngle) * orbitDistance;
+    xTarget = Math.cos(targetRobotAngle) * orbitDistance;
+    yTarget = Math.sin(targetRobotAngle) * orbitDistance;
 
     xTarget += targetPose.getX();
     yTarget += targetPose.getY();
 
     rotTarget =
-        TRAngle
+        targetRobotAngle
             + Math.PI; // Offset by 180 degrees to get robot-target angle as this is the angle the
     // robot will be facing
     rotTarget = rotTarget % (2 * Math.PI); // Wrap angle to [0, 2 * PI)

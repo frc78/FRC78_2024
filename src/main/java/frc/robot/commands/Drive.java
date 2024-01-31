@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -31,6 +32,7 @@ public class Drive extends Command {
   private final PIDController thetaPID;
   private final double maxSpeed;
   private final double maxAngularVelocity;
+  private final PIDConstants cardinalPidConstants;
 
   public Drive(
       Chassis chassis,
@@ -44,7 +46,8 @@ public class Drive extends Command {
       BooleanSupplier downSupplier,
       BooleanSupplier leftSupplier,
       double maxSpeed,
-      double maxAngularVelocity) {
+      double maxAngularVelocity,
+      PIDConstants cardinalPidConstants) {
     this.chassis = chassis;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
@@ -57,14 +60,15 @@ public class Drive extends Command {
     this.leftSupplier = leftSupplier;
     this.maxSpeed = maxSpeed;
     this.maxAngularVelocity = maxAngularVelocity;
+    this.cardinalPidConstants = cardinalPidConstants;
 
     xLimiter = new SlewRateLimiter(11, -11, 0);
     yLimiter = new SlewRateLimiter(11, -11, 0);
     thetaLimiter = new SlewRateLimiter(30, -30, 0);
 
-    thetaPID = new PIDController(2.5, 7, 0.16); // TODO almost perfect
-    // thetaPID = new PIDController(5, 0, 0.025); good for 90 turns
-    // thetaPID = new PIDController(5, 0, 0);
+    thetaPID =
+        new PIDController(
+            cardinalPidConstants.kP, cardinalPidConstants.kI, cardinalPidConstants.kD); // TODO tune
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(chassis);
@@ -72,6 +76,15 @@ public class Drive extends Command {
 
   @Override
   public void execute() {
+    double triggerAdjust =
+        Util.triggerAdjust(
+            Util.deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND),
+            Util.deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
+    double x = Util.modifyJoystick(-xSupplier.getAsDouble()) * triggerAdjust;
+    double y = Util.modifyJoystick(-ySupplier.getAsDouble()) * triggerAdjust;
+    double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
+    SmartDashboard.putNumber("triggerAdjust", triggerAdjust);
+
     // Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector
     // using trigonometry,
     // then fits it to the range [0, 2 * PI)
@@ -82,29 +95,12 @@ public class Drive extends Command {
 
     // thetaPID.setSetpoint(dir * -1);
 
-    // Processed inputs
-    double triggerAdjust =
-        Util.triggerAdjust(
-            Util.deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND),
-            Util.deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
-    double x = Util.modifyJoystick(-xSupplier.getAsDouble()) * triggerAdjust;
-    double y = Util.modifyJoystick(-ySupplier.getAsDouble()) * triggerAdjust;
-    double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
-    SmartDashboard.putNumber("triggerAdjust", triggerAdjust);
-
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
             x * maxSpeed,
             y * maxSpeed,
             rot * maxAngularVelocity,
             chassis.getFusedPose().getRotation());
-
-    // ChassisSpeeds speeds = new ChassisSpeeds(
-    //   triggerAdjust(modifyJoystick(-xSupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-    //   triggerAdjust(modifyJoystick(-ySupplier.getAsDouble())) * RobotConstants.MAX_SPEED,
-    //   triggerAdjust(modifyJoystick(-rotSupplier.getAsDouble())) *
-    // RobotConstants.MAX_ANGULAR_VELOCITY
-    // );
 
     // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
     //  double dpadSpeed =

@@ -4,7 +4,9 @@
 
 package frc.robot.test;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.util.Units;
 
@@ -24,8 +26,14 @@ class RobotConstants {
   public static final double MAX_SPEED = 4; // TODO
   public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
 
-  public static final PIDConstants PP_TRANSLATION = new PIDConstants(5.0, 0.0, 0.0);
-  public static final PIDConstants PP_ROTATION = new PIDConstants(5.0, 0.0, 0.0);
+  public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
+      new HolonomicPathFollowerConfig(
+          new PIDConstants(5, 0.0, 0.0), // Translation PID constants
+          new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
+          RobotConstants.MAX_SPEED, // Max module speed, in m/s
+          RobotConstants.ROBOT_RADIUS, // Drive base radius in meters
+          new ReplanningConfig() // Default path replanning config.
+          );
   // TODO Since the above and below are both PID constants for moving the robot to a target pose,
   // perhaps we could use just one set of constants for both Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);

@@ -5,8 +5,6 @@
 package frc.robot.competition;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -63,43 +61,26 @@ class CompetitionRobotContainer {
             m_driveController::getAButton,
             m_driveController::getXButton,
             RobotConstants.MAX_SPEED,
-            RobotConstants.MAX_ANGULAR_VELOCITY));
+            RobotConstants.MAX_ANGULAR_VELOCITY,
+            RobotConstants.ROTATION_PID));
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
-        m_chassis::resetPose, // Method to reset odometry (will be called if your auto has a
-        // starting
+        m_chassis
+            ::resetPose, // Method to reset odometry (will be called if your auto has as starting
         // pose)
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live
-            // in
-            // your Constants class
-            RobotConstants.PP_TRANSLATION, // Translation PID constants
-            RobotConstants.PP_ROTATION, // Rotation PID constants
-            RobotConstants.MAX_SPEED, // Max module speed, in m/s
-            RobotConstants.ROBOT_RADIUS, // Drive base radius in meters. Distance
-            // from robot center to
-            // furthest module.
-            new ReplanningConfig() // Default path replanning config. See the API
-            // for the options
-            // here
-            ),
+        RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,
         () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red
-          // alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
             return alliance.get() == DriverStation.Alliance.Red;
           }
           return false;
         },
-        m_chassis // Reference to this subsystem to set requirements
-        );
+        m_chassis);
 
     autoChooser = AutoBuilder.buildAutoChooser();
 
