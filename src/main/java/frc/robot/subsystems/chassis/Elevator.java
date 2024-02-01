@@ -19,9 +19,14 @@ public class Elevator extends SubsystemBase {
     ElevNeoMotor1 = new CANSparkMax(11, MotorType.kBrushless);
     ElevNeoMotor2 = new CANSparkMax(12, MotorType.kBrushless);
 
-    ElevNeoMotor2.follow(ElevNeoMotor1);
+    ElevNeoMotor1.restoreFactoryDefaults();
+    ElevNeoMotor2.restoreFactoryDefaults();
+    
+    ElevNeoMotor1.getAlternateEncoder(8192).setPositionConversionFactor(5.498);
 
-    ElevNeoMotor2.setInverted(true);
+    ElevNeoMotor1.setInverted(true);
+
+    ElevNeoMotor2.follow(ElevNeoMotor1, true);
   }
 
   public void SetSpeed(double speed){
