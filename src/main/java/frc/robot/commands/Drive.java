@@ -5,9 +5,12 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.util.PIDConstants;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Util;
@@ -15,6 +18,7 @@ import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.Logger;
 
 /** This is the command for teleoperation of the chassis */
 public class Drive extends Command {
@@ -29,46 +33,42 @@ public class Drive extends Command {
   private final SlewRateLimiter xLimiter;
   private final SlewRateLimiter yLimiter;
   private final SlewRateLimiter thetaLimiter;
-  private final PIDController thetaPID;
+  private final ProfiledPIDController thetaPID;
   private final double maxSpeed;
   private final double maxAngularVelocity;
-  private final PIDConstants cardinalPidConstants;
 
   public Drive(
       Chassis chassis,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier,
-      DoubleSupplier rotSupplier,
-      DoubleSupplier lTriggerSupplier,
-      DoubleSupplier rTriggerSupplier,
-      BooleanSupplier upSupplier,
-      BooleanSupplier rightSupplier,
-      BooleanSupplier downSupplier,
-      BooleanSupplier leftSupplier,
+      XboxController controller,
       double maxSpeed,
       double maxAngularVelocity,
-      PIDConstants cardinalPidConstants) {
+      PIDConstants cardinalPidConstants,
+      double translationRateLimit,
+      double rotationRateLimit,
+      Constraints constraints) {
     this.chassis = chassis;
-    this.xSupplier = xSupplier;
-    this.ySupplier = ySupplier;
-    this.rotSupplier = rotSupplier;
-    this.lTriggerSupplier = lTriggerSupplier;
-    this.rTriggerSupplier = rTriggerSupplier;
-    this.upSupplier = upSupplier;
-    this.rightSupplier = rightSupplier;
-    this.downSupplier = downSupplier;
-    this.leftSupplier = leftSupplier;
+    this.xSupplier = () -> controller.getLeftY();
+    this.ySupplier = () -> controller.getLeftX();
+    this.rotSupplier = () -> controller.getRightX();
+    this.lTriggerSupplier = () -> controller.getLeftTriggerAxis();
+    this.rTriggerSupplier = () -> controller.getRightTriggerAxis();
+    this.upSupplier = () -> controller.getYButton();
+    this.rightSupplier = () -> controller.getBButton();
+    this.downSupplier = () -> controller.getAButton();
+    this.leftSupplier = () -> controller.getXButton();
     this.maxSpeed = maxSpeed;
     this.maxAngularVelocity = maxAngularVelocity;
-    this.cardinalPidConstants = cardinalPidConstants;
 
-    xLimiter = new SlewRateLimiter(11, -11, 0);
-    yLimiter = new SlewRateLimiter(11, -11, 0);
-    thetaLimiter = new SlewRateLimiter(30, -30, 0);
+    xLimiter = new SlewRateLimiter(translationRateLimit, -translationRateLimit, 0);
+    yLimiter = new SlewRateLimiter(translationRateLimit, -translationRateLimit, 0);
+    thetaLimiter = new SlewRateLimiter(rotationRateLimit, -rotationRateLimit, 0);
 
     thetaPID =
-        new PIDController(
-            cardinalPidConstants.kP, cardinalPidConstants.kI, cardinalPidConstants.kD); // TODO tune
+        new ProfiledPIDController(
+            cardinalPidConstants.kP,
+            cardinalPidConstants.kI,
+            cardinalPidConstants.kD,
+            constraints); // TODO tune
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(chassis);
@@ -78,8 +78,8 @@ public class Drive extends Command {
   public void execute() {
     double triggerAdjust =
         Util.triggerAdjust(
-            Util.deadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND),
-            Util.deadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
+            MathUtil.applyDeadband(lTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND),
+            MathUtil.applyDeadband(rTriggerSupplier.getAsDouble(), Constants.TRIGGER_DEADBAND));
     double x = Util.modifyJoystick(-xSupplier.getAsDouble()) * triggerAdjust;
     double y = Util.modifyJoystick(-ySupplier.getAsDouble()) * triggerAdjust;
     double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
@@ -88,12 +88,14 @@ public class Drive extends Command {
     // Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector
     // using trigonometry,
     // then fits it to the range [0, 2 * PI)
-    // double x = (upSupplier.getAsBoolean() ? 1 : 0) - (downSupplier.getAsBoolean() ? 1 : 0);
-    // double y = (rightSupplier.getAsBoolean() ? 1 : 0) - (leftSupplier.getAsBoolean() ? 1 : 0);
-    // double dir = Math.atan2(y, x);
-    // dir = dir < 0 ? dir + 2 * Math.PI : dir;
+    double xCardinal = (upSupplier.getAsBoolean() ? 1 : 0) - (downSupplier.getAsBoolean() ? 1 : 0);
+    double yCardinal =
+        (rightSupplier.getAsBoolean() ? 1 : 0) - (leftSupplier.getAsBoolean() ? 1 : 0);
+    double dir = -Math.atan2(yCardinal, xCardinal);
+    dir = dir < 0 ? dir + 2 * Math.PI : dir;
+    Logger.recordOutput("goalCardinal", dir);
 
-    // thetaPID.setSetpoint(dir * -1);
+    thetaPID.setGoal(dir);
 
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -102,15 +104,18 @@ public class Drive extends Command {
             rot * maxAngularVelocity,
             chassis.getFusedPose().getRotation());
 
-    // double currentRot = chassis.getFusedPose().getRotation().getRadians() % (Math.PI * 2);
-    //  double dpadSpeed =
-    // upSupplier.getAsBoolean() || rightSupplier.getAsBoolean() || downSupplier.getAsBoolean() ||
-    // leftSupplier.getAsBoolean()
-    // ? thetaPID.calculate(currentRot) : 0;
-    // speeds = new ChassisSpeeds(
-    // xLimiter.calculate(speeds.vxMetersPerSecond),
-    // yLimiter.calculate(speeds.vyMetersPerSecond),
-    // thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
+    double dpadSpeed =
+        upSupplier.getAsBoolean()
+                || rightSupplier.getAsBoolean()
+                || downSupplier.getAsBoolean()
+                || leftSupplier.getAsBoolean()
+            ? thetaPID.calculate(chassis.getFusedPose().getRotation().getRadians())
+            : 0;
+    speeds =
+        new ChassisSpeeds(
+            xLimiter.calculate(speeds.vxMetersPerSecond),
+            yLimiter.calculate(speeds.vyMetersPerSecond),
+            thetaLimiter.calculate(speeds.omegaRadiansPerSecond) + dpadSpeed);
 
     chassis.setChassisSpeed = speeds;
     chassis.convertToStates();

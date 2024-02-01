@@ -51,24 +51,17 @@ class TestChassisContainer {
     m_chassis.setDefaultCommand(
         new Drive(
             m_chassis,
-            m_driveController::getLeftY,
-            m_driveController::getLeftX,
-            m_driveController::getRightX,
-            m_driveController::getLeftTriggerAxis,
-            m_driveController::getRightTriggerAxis,
-            m_driveController::getYButton,
-            m_driveController::getBButton,
-            m_driveController::getAButton,
-            m_driveController::getXButton,
+            m_driveController,
             RobotConstants.MAX_SPEED,
             RobotConstants.MAX_ANGULAR_VELOCITY,
-            RobotConstants.ROTATION_PID));
+            RobotConstants.ROTATION_PID,
+            RobotConstants.TRANSLATION_RATE_LIMIT,
+            RobotConstants.ROTATION_RATE_LIMIT,
+            RobotConstants.ROTATION_CONSTRAINTS));
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
-        m_chassis
-            ::resetPose, // Method to reset odometry (will be called if your auto has a starting
-        // pose)
+        m_chassis::resetPose, // Method to reset odometry
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
@@ -106,9 +99,9 @@ class TestChassisContainer {
 
   private NeoModule makeSwerveModule(int driveId, int steerId) {
     ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1);
+        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
     ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.7, 0, 0, 0);
+        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
     return new NeoModule(
         new ModuleConfig(
             driveId,

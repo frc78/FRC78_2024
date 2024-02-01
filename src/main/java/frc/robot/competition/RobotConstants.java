@@ -8,6 +8,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 
 /** This is the constants for the NEO */
@@ -26,6 +27,7 @@ class RobotConstants {
 
   public static final double MAX_SPEED = 4; // TODO
   public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
+  public static final double MAX_ANGULAR_ACCELERATION = 12; // TODO
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
@@ -40,10 +42,19 @@ class RobotConstants {
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
   public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final Constraints ROTATION_CONSTRAINTS =
+      new Constraints(MAX_ANGULAR_VELOCITY, MAX_ANGULAR_ACCELERATION);
+
+  public static final double TRANSLATION_RATE_LIMIT = 11;
+  public static final double ROTATION_RATE_LIMIT = 30;
 
   // WHEELS
+  public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
+  public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
+  public static final double DRIVE_WHEEL_FREESPEED =
+      (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
+          / DRIVE_GEAR_RATIO; // Converted for wheel
 
-  public static final double DRIVE_GEAR_RATIO = (6.75);
   public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
   public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
       ((WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO) / 60;
