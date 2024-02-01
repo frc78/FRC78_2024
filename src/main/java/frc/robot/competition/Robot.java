@@ -16,32 +16,40 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 public class Robot extends LoggedRobot {
+  Thread visionThread;
   private Command m_autonomousCommand;
 
   private CompetitionRobotContainer m_robotContainer;
 
   @Override
   public void robotInit() {
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(640, 480);
-
-    CvSink cvSink = CameraServer.getVideo();
-    CvSource outputStream = CameraServer.putVideo("blur", 640, 480);
-
-    Mat source = new Mat();
-    Mat output = new Mat();
-
-    while (!Thread.interrupted()) {
-      if (cvSink.grabFrame(source) == 0) {
-        continue;
-      }
-      Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
-      outputStream.putFrame(output);
-    }
+    visionThread = 
+    new Thread(
+      () -> {
+        UsbCamera camera = CameraServer.startAutomaticCapture();
+        camera.setResolution(640, 480);
+  
+        CvSink cvSink = CameraServer.getVideo();
+        CvSource outputStream = CameraServer.putVideo("blur", 640, 480); // Can edit camera resolution in ShuffleBoard
+  
+        Mat source = new Mat();
+        Mat output = new Mat();
+  
+        while(!Thread.interrupted()) {
+          if(cvSink.grabFrame(source) == 0) {
+            continue;
+          }
+          Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
+          outputStream.putFrame(output);
+        }
+      }); 
+      visionThread.setDaemon(true);
+      visionThread.start();
 
     if (isReal()) {
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
