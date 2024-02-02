@@ -25,6 +25,10 @@ public class Util {
     return triggers;
   }
 
+  public static double modifyTrigger(double value) {
+    return MathUtil.applyDeadband(value, Constants.TRIGGER_DEADBAND);
+  }
+
   /**
    * Processes the given joystick axis value, applying deadband and squaring it
    *

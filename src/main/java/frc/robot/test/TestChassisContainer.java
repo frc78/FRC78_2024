@@ -16,15 +16,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
+import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
 import org.photonvision.PhotonCamera;
 
 class TestChassisContainer {
   private final Chassis m_chassis;
+  private final BaseDrive m_baseDrive;
+  private final PoseEstimator m_poseEstimator;
   private PhotonCamera m_ATCamera;
   private final XboxController m_driveController;
   private final SendableChooser<Command> autoChooser;
@@ -44,24 +48,21 @@ class TestChassisContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
+    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera);
+
     m_driveController = new XboxController(0);
+
+    m_baseDrive =
+        new BaseDrive(m_driveController, RobotConstants.MOTION_LIMITS, RobotConstants.RATE_LIMITS);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
-        new Drive(
-            m_chassis,
-            m_driveController,
-            RobotConstants.MAX_SPEED,
-            RobotConstants.MAX_ANGULAR_VELOCITY,
-            RobotConstants.ROTATION_PID,
-            RobotConstants.TRANSLATION_RATE_LIMIT,
-            RobotConstants.ROTATION_RATE_LIMIT,
-            RobotConstants.ROTATION_CONSTRAINTS));
+        new FieldOrientedDrive(m_chassis, m_poseEstimator, m_baseDrive::calculateChassisSpeeds));
 
     AutoBuilder.configureHolonomic(
-        m_chassis::getFusedPose, // Robot pose supplier
-        m_chassis::resetPose, // Method to reset odometry
+        m_poseEstimator::getFusedPose, // Robot pose supplier
+        m_poseEstimator::resetPose, // Method to reset odometry
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
@@ -126,7 +127,7 @@ class TestChassisContainer {
 
   private void configureBindings() {
     new Trigger(m_driveController::getStartButton)
-        .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
+        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     new Trigger(m_driveController::getRightBumper)
         .whileTrue(
             new OrbitalTarget(
@@ -138,7 +139,9 @@ class TestChassisContainer {
                 m_driveController::getRightTriggerAxis,
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
-                RobotConstants.MAX_SPEED));
+                RobotConstants.MOTION_LIMITS.maxSpeed,
+                m_poseEstimator));
+    // TODO need to add cardinal snaps
   }
 
   public Command getAutonomousCommand() {
