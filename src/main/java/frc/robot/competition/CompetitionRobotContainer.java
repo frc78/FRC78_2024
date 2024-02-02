@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Intake;
@@ -32,6 +34,7 @@ class CompetitionRobotContainer {
   private final Elevator m_Elevator;
   private final XboxController m_driveController;
   private final XboxController m_manipController;
+  private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
 
   CompetitionRobotContainer() {
@@ -51,6 +54,8 @@ class CompetitionRobotContainer {
 
     m_driveController = new XboxController(0);
     m_manipController = new XboxController(1);
+    // Put on port 5 because we only want to use this during tests
+    sysIdController = new CommandXboxController(5);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
@@ -166,6 +171,12 @@ class CompetitionRobotContainer {
 
     new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
     new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
+
+    // The routine automatically stops the motors at the end of the command
+    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
   }
 
   public Command getAutonomousCommand() {
