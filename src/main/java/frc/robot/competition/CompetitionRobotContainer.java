@@ -155,7 +155,7 @@ class CompetitionRobotContainer {
     m_intake =
         new Intake(
             RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
-            RobotConstants.INTAKE_TOP_SPEED_IN, RobotConstants.INTAKE_TOP_SPEED_OUT);
+            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
 
     new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
     new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());

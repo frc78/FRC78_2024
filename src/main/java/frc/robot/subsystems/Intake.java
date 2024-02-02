@@ -27,34 +27,19 @@ public class Intake extends SubsystemBase {
 
     this.intakeSpeed = intakeSpeed;
     this.outtakeSpeed = outtakeSpeed;
-
-    // intakeTop.setClosedLoopRampRate(5);
-    // intakeBottom.setClosedLoopRampRate(5);
   }
 
-  public void intakeControl(double setSpeedT, double setSpeedB) {
-    intakeTop.set(setSpeedT);
-    intakeBottom.set(setSpeedB);
+  /* intake speed is same for top and bottom */
+  public void intakeControl(double speed) {
+    intakeTop.set(speed);
+    intakeBottom.set(speed);
   }
 
-  // intake speed is same for top and bottom
   public Command intakeCommand() {
-    return this.startEnd(
-        () -> this.intakeControl(intakeSpeed, intakeSpeed), () -> this.intakeStop());
+    return this.startEnd(() -> this.intakeControl(intakeSpeed), () -> this.intakeControl(0));
   }
 
   public Command outtakeCommand() {
-    return this.startEnd(
-        () -> this.intakeControl(outtakeSpeed, outtakeSpeed), () -> this.intakeStop());
-  }
-
-  public void intakeStop() {
-    intakeTop.set(0);
-    intakeBottom.set(0);
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+    return this.startEnd(() -> this.intakeControl(outtakeSpeed), () -> this.intakeControl(0));
   }
 }

@@ -71,20 +71,7 @@ class RobotConstants {
   public static final int INTAKE_TOP_ID = 9;
   public static final int INTAKE_BOTTOM_ID = 10;
 
-  public static final double INTAKE_TOP_SPEED_IN = 0.75;
-  public static final double INTAKE_BOTTOM_SPEED_IN = 0.75;
+  public static final double INTAKE_SPEED_IN = 0.75;
 
-  public static final double INTAKE_TOP_SPEED_OUT = -0.5;
-  public static final double INTAKE_BOTTOM_SPEED_OUT = -0.5;
-
-  //   public static final double INTAKE_TOP_P = 0; // TODO
-
-  //   // Feedforward Constants - TOP INTAKE
-  //   public static final double INTAKE_TOP_KF = 0.0001761804087; // TODO
-
-  //   // PID Constants - BOTTOM INTAKE
-  //   public static final double INTAKE_BOTTOM_P = 0; // TODO
-
-  //   // Feedforward Constants - BOTTOM INTAKE
-  //   public static final double INTAKE_BOTTOM_KF = 0.0001761804087; // TODO
+  public static final double INTAKE_SPEED_OUT = -0.5;
 }
