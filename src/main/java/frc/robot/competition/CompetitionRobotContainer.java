@@ -160,12 +160,9 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MAX_SPEED));
 
-    new Trigger(m_manipController::getYButton)
-        .whileTrue(m_Elevator.setElevatorSpeedUp(0.1))
-        .onFalse(m_Elevator.stopElevator());
-    new Trigger(m_manipController::getXButton)
-        .whileTrue(m_Elevator.setElevatorSpeedDown(0.1))
-        .onFalse(m_Elevator.stopElevator());
+    new Trigger(m_manipController::getYButton).whileTrue(m_Elevator.moveElevatorUp());
+
+    new Trigger(m_manipController::getXButton).whileTrue(m_Elevator.moveElevatorDown());
 
     new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
     new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
