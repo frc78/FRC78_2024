@@ -20,15 +20,18 @@ import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.SwerveModule;
 import org.photonvision.PhotonCamera;
 
 class CompetitionRobotContainer {
   private final Chassis m_chassis;
-  private PhotonCamera m_ATCamera;
-  private Intake m_intake;
+  private final PhotonCamera m_ATCamera;
+  private final Intake m_intake;
+  private final Elevator m_Elevator;
   private final XboxController m_driveController;
+  private final XboxController m_manipController;
   private final SendableChooser<Command> autoChooser;
 
   CompetitionRobotContainer() {
@@ -47,6 +50,7 @@ class CompetitionRobotContainer {
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
     m_driveController = new XboxController(0);
+    m_manipController = new XboxController(1);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
@@ -65,6 +69,13 @@ class CompetitionRobotContainer {
             RobotConstants.MAX_SPEED,
             RobotConstants.MAX_ANGULAR_VELOCITY,
             RobotConstants.ROTATION_PID));
+
+    m_intake =
+        new Intake(
+            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
+            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
+
+    m_Elevator = new Elevator();
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
@@ -88,7 +99,6 @@ class CompetitionRobotContainer {
 
     SmartDashboard.putData("AutoMode", autoChooser);
 
-    configureIntake();
     configureBindings();
   }
 
@@ -149,13 +159,10 @@ class CompetitionRobotContainer {
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MAX_SPEED));
-  }
 
-  private void configureIntake() {
-    m_intake =
-        new Intake(
-            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
-            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
+    new Trigger(m_manipController::getYButton).whileTrue(m_Elevator.moveElevatorUp());
+
+    new Trigger(m_manipController::getXButton).whileTrue(m_Elevator.moveElevatorDown());
 
     new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
     new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
