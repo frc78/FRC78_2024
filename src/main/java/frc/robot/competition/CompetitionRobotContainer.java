@@ -54,6 +54,7 @@ class CompetitionRobotContainer {
 
     m_driveController = new XboxController(0);
     m_manipController = new XboxController(1);
+
     // Put on port 5 because we only want to use this during tests
     sysIdController = new CommandXboxController(5);
 
@@ -84,13 +85,14 @@ class CompetitionRobotContainer {
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
-        m_chassis
-            ::resetPose, // Method to reset odometry (will be called if your auto has as starting
-        // pose)
-        m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
-        // ChassisSpeeds
+        // Method to reset odometry (will be called if your auto has as starting pose)
+        m_chassis::resetPose,
+        // Robot relative ChassisSpeed supplier
+        m_chassis::getChassisSpeeds,
+        // Robot relative ChassisSpeed consumer
+        m_chassis::driveRobotRelative,
         RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,
+        // Mirror path based on alliance due to field mirroring
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {

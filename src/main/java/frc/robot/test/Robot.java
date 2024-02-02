@@ -23,16 +23,16 @@ public class Robot extends LoggedRobot {
     System.out.println("TEST ROBOT SELECTED");
 
     if (isReal()) {
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      Logger.addDataReceiver(new NT4Publisher());
     } else {
-      setUseTiming(false); // Run as fast as possible
-      String logPath =
-          LogFileUtil
-              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      Logger.addDataReceiver(
-          new WPILOGWriter(
-              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+      // Run as fast as possible
+      setUseTiming(false);
+      // Pull the replay log from AdvantageScope (or prompt the user)
+      String logPath = LogFileUtil.findReplayLog();
+      // Read replay log
+      Logger.setReplaySource(new WPILOGReader(logPath));
+      // Save outputs to a new log
+      Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
     }
 
     Logger.start();

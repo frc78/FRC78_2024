@@ -40,16 +40,12 @@ public class Util {
   }
 
   /**
-   * Processes the given joystick axis value, applying deadband and squaring it
+   * Processes the given joystick axis value, applying deadband
    *
    * @param value
    * @return
    */
   public static double modifyJoystick(double value) {
-    // Deadband
-    value = deadband(value, Constants.JOYSTICK_DEADBAND);
-    // Square the axis
-    // value = Math.copySign(value * value, value);
-    return value;
+    return deadband(value, Constants.JOYSTICK_DEADBAND);
   }
 }

@@ -85,9 +85,8 @@ public class Drive extends Command {
     double rot = Util.modifyJoystick(-rotSupplier.getAsDouble()) * triggerAdjust;
     SmartDashboard.putNumber("triggerAdjust", triggerAdjust);
 
-    // Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector
-    // using trigonometry,
-    // then fits it to the range [0, 2 * PI)
+    /* Maps the Y, B, A, X buttons to create a vector and then gets the direction of the vector
+    using trigonometry, then fits it to the range [0, 2 * PI) */
     // double x = (upSupplier.getAsBoolean() ? 1 : 0) - (downSupplier.getAsBoolean() ? 1 : 0);
     // double y = (rightSupplier.getAsBoolean() ? 1 : 0) - (leftSupplier.getAsBoolean() ? 1 : 0);
     // double dir = Math.atan2(y, x);

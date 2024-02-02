@@ -143,8 +143,7 @@ public class Chassis extends SubsystemBase {
     return getStates;
   }
 
-  // There is probably a better way to feed this into the AutoBuilder, but this is
-  // simpler for now
+  /* There is probably a better way to feed this into the AutoBuilder, but this is simpler for now */
   public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getStates());
   }

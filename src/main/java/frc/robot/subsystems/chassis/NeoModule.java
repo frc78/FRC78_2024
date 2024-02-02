@@ -60,35 +60,34 @@ public class NeoModule implements SwerveModule {
   /** Initializes the NEO module. This should be called in the constructor of the module class. */
   @Override
   public void initialize() {
-    // Factory reset, so we get the SPARKS MAX to a known state before configuring
-    // them. This is useful in case a SPARK MAX is swapped out
+    /* Factory reset, so we get the SPARKS MAX to a known state before configuring
+    them. This is useful in case a SPARK MAX is swapped out */
     drive.restoreFactoryDefaults();
     steer.restoreFactoryDefaults();
     drivePID.setFeedbackDevice(driveEnc);
     steerPID.setFeedbackDevice(steerEnc);
 
-    // Apply position and velocity conversion factors for the driving encoder. The
-    // native units for position and velocity are rotations and RPM, respectively,
-    // but we want meters and meters per second to use with WPILib's swerve APIs.
+    /* Apply position and velocity conversion factors for the driving encoder. The
+     native units for position and velocity are rotations and RPM, respectively,
+    but we want meters and meters per second to use with WPILib's swerve APIs. */
     driveEnc.setPositionConversionFactor(config.drivePositionConversionFactor);
     driveEnc.setVelocityConversionFactor(config.driveVelocityConversionFactor);
 
-    // Apply position and velocity conversion factors for the turning encoder. We
-    // want these in radians and radians per second to use with WPILib's swerve
-    // APIs.
+    /* Apply position and velocity conversion factors for the turning encoder. We
+    want these in radians and radians per second to use with WPILib's swerve
+    APIs. */
     steerEnc.setPositionConversionFactor(config.steerPositionConversionFactor);
     steerEnc.setVelocityConversionFactor(config.steerVelocityConversionFactor);
 
-    // Invert the turning encoder, since the output shaft rotates in the opposite
-    // direction of the steering motor in the MAXSwerve Module.
+    // Invert the turning encoder to be CCW+
     steerEnc.setInverted(config.steerEncoderInverted);
     steer.setInverted(config.steerMotorInverted);
     drive.setInverted(config.driveMotorInverted);
 
-    // Enable PID wrap around for the turning motor. This will allow the PID
-    // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
-    // to 10 degrees will go through 0 rather than the other direction which is a
-    // longer route.
+    /* Enable PID wrap around for the turning motor. This will allow the PID
+    controller to go through 0 to get to the setpoint i.e. going from 350 degrees
+    to 10 degrees will go through 0 rather than the other direction which is a
+    longer route. */
     steerPID.setPositionPIDWrappingEnabled(true);
     steerPID.setPositionPIDWrappingMinInput(config.steerEncoderPidMin);
     steerPID.setPositionPIDWrappingMaxInput(config.steerEncoderPidMax);
@@ -114,8 +113,8 @@ public class NeoModule implements SwerveModule {
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
 
-    // Save the SPARK MAX configurations. If a SPARK MAX browns out during
-    // operation, it will maintain the above configurations.
+    /* Save the SPARK MAX configurations. If a SPARK MAX browns out during
+    operation, it will maintain the above configurations. */
     drive.burnFlash();
     steer.burnFlash();
 
@@ -211,17 +210,12 @@ public class NeoModule implements SwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
 
-    // Sets the PID goals to the desired states
     drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
-    SmartDashboard.putNumber(
-        config.driveID + " setting rot",
-        optimizedState.angle
-            .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
-    // (-pi to pi) to a zero to 1
-    SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
+    SmartDashboard.putNumber(config.driveID + " setting rot", optimizedState.angle.getRotations());
+    SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition());
     SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
     SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
   }
@@ -231,9 +225,7 @@ public class NeoModule implements SwerveModule {
     drive.setVoltage(voltage);
   }
 
-  /*
-   * Mutate these each time we log so that we aren't creating objects constantly
-   */
+  // Mutate these each time we log so that we aren't creating objects constantly
   private final MutableMeasure<Voltage> mutableAppliedVoltage = MutableMeasure.mutable(Volts.of(0));
   private final MutableMeasure<Distance> mutableDistance = MutableMeasure.mutable(Meters.of(0));
   private final MutableMeasure<Velocity<Distance>> mutableVelocity =

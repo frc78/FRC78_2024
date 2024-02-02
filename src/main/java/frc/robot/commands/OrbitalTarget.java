@@ -96,8 +96,8 @@ public class OrbitalTarget extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // This first bit basically calculates polar coordinates for the robot with the target as the
-    // origin
+    /* This first bit basically calculates polar coordinates for the robot with the target as the
+    origin */
     // Change target orbit distance based on joystick input
 
     // orbitDistance = Constants.ORBIT_RADIUS + (ySupplier.getAsDouble() *
@@ -125,12 +125,8 @@ public class OrbitalTarget extends Command {
             new ChassisSpeeds(
                 xController.calculate(chassis.getFusedPose().getX()),
                 yController.calculate(chassis.getFusedPose().getY()),
-                rotController.calculate(
-                    chassis
-                        .getFusedPose()
-                        .getRotation()
-                        .getRadians())), // Not sure if I have to make sure the angle is in the
-            // range [0, 2 * PI)
+                // Not sure if I have to make sure the angle is in the range [0, 2 * PI)
+                rotController.calculate(chassis.getFusedPose().getRotation().getRadians())),
             chassis.getFusedPose().getRotation());
 
     chassis.convertToStates();
@@ -154,10 +150,11 @@ public class OrbitalTarget extends Command {
     xTarget += targetPose.getX();
     yTarget += targetPose.getY();
 
-    rotTarget =
-        targetRobotAngle
-            + Math.PI; // Offset by 180 degrees to get robot-target angle as this is the angle the
+    // Offset by 180 degrees to get robot-target angle as this is the angle the
     // robot will be facing
-    rotTarget = rotTarget % (2 * Math.PI); // Wrap angle to [0, 2 * PI)
+    rotTarget = targetRobotAngle + Math.PI;
+
+    // Wrap angle to [0, 2 * PI)
+    rotTarget = rotTarget % (2 * Math.PI);
   }
 }

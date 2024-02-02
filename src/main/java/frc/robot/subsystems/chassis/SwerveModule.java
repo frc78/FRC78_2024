@@ -19,23 +19,39 @@ public interface SwerveModule {
 
   public void resetEncoders();
 
-  public double getDriveVelocity(); // Get current drive velocity from  (m/s)
+  /**
+   * @return current wheel speed in m/s
+   */
+  public double getDriveVelocity();
 
+  /**
+   * @return current
+   */
   public double getDrivePosition(); // Get the relative position of the angle motor's encoder
 
-  public Rotation2d getSteerPosition(); // Get the absolute position of the magnetic encoder
+  /**
+   * @return current azimuth position of the module
+   */
+  public Rotation2d getSteerPosition();
 
   public SwerveModuleState getState();
 
   public SwerveModulePosition getPosition();
 
-  public void setVelocity(double velocity); // Set goal drive velocity (m/s)
+  /**
+   * @param velocity linear velocity of wheel in m/s
+   */
+  public void setVelocity(double velocity);
 
   public void setRotation(Rotation2d rotation);
 
   public void setState(SwerveModuleState state);
 
-  /** Runs the drive motor at a set voltage, while keeping the steer angle at 0 degrees */
+  /**
+   * Runs the drive motor while keeping the steer angle at 0 degrees.
+   *
+   * @param voltage voltage to run the motor at
+   */
   void openLoopDiffDrive(double voltage);
 
   /** Logs the motor position, velocity, and voltage data for SysId */
