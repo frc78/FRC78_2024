@@ -10,12 +10,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Intake;
@@ -30,8 +29,8 @@ class CompetitionRobotContainer {
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
-  private final XboxController m_driveController;
-  private final XboxController m_manipController;
+  private final CommandXboxController m_driveController;
+  private final CommandXboxController m_manipController;
   private final SendableChooser<Command> autoChooser;
 
   CompetitionRobotContainer() {
@@ -49,8 +48,8 @@ class CompetitionRobotContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
-    m_driveController = new XboxController(0);
-    m_manipController = new XboxController(1);
+    m_driveController = new CommandXboxController(0);
+    m_manipController = new CommandXboxController(1);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
@@ -62,10 +61,10 @@ class CompetitionRobotContainer {
             m_driveController::getRightX,
             m_driveController::getLeftTriggerAxis,
             m_driveController::getRightTriggerAxis,
-            m_driveController::getYButton,
-            m_driveController::getBButton,
-            m_driveController::getAButton,
-            m_driveController::getXButton,
+            m_driveController.x(),
+            m_driveController.b(),
+            m_driveController.a(),
+            m_driveController.x(),
             RobotConstants.MAX_SPEED,
             RobotConstants.MAX_ANGULAR_VELOCITY,
             RobotConstants.ROTATION_PID));
@@ -144,10 +143,10 @@ class CompetitionRobotContainer {
   }
 
   private void configureBindings() {
-    new Trigger(m_driveController::getStartButton)
-        .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
+    m_driveController.start().onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
 
-    new Trigger(m_driveController::getRightBumper)
+    m_driveController
+        .rightBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -160,12 +159,12 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MAX_SPEED));
 
-    new Trigger(m_manipController::getYButton).whileTrue(m_Elevator.moveElevatorUp());
+    m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
 
-    new Trigger(m_manipController::getXButton).whileTrue(m_Elevator.moveElevatorDown());
+    m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
-    new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
-    new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
+    m_driveController.a().whileTrue(m_intake.intakeCommand());
+    m_driveController.b().whileTrue(m_intake.outtakeCommand());
   }
 
   public Command getAutonomousCommand() {

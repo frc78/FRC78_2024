@@ -10,12 +10,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.chassis.Chassis;
@@ -26,7 +25,7 @@ import org.photonvision.PhotonCamera;
 class TestChassisContainer {
   private final Chassis m_chassis;
   private PhotonCamera m_ATCamera;
-  private final XboxController m_driveController;
+  private final CommandXboxController m_driveController;
   private final SendableChooser<Command> autoChooser;
 
   TestChassisContainer() {
@@ -44,7 +43,7 @@ class TestChassisContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
 
-    m_driveController = new XboxController(0);
+    m_driveController = new CommandXboxController(0);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
@@ -56,10 +55,10 @@ class TestChassisContainer {
             m_driveController::getRightX,
             m_driveController::getLeftTriggerAxis,
             m_driveController::getRightTriggerAxis,
-            m_driveController::getYButton,
-            m_driveController::getBButton,
-            m_driveController::getAButton,
-            m_driveController::getXButton,
+            m_driveController.y(),
+            m_driveController.b(),
+            m_driveController.a(),
+            m_driveController.x(),
             RobotConstants.MAX_SPEED,
             RobotConstants.MAX_ANGULAR_VELOCITY,
             RobotConstants.ROTATION_PID));
@@ -132,9 +131,9 @@ class TestChassisContainer {
   }
 
   private void configureBindings() {
-    new Trigger(m_driveController::getStartButton)
-        .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
-    new Trigger(m_driveController::getRightBumper)
+    m_driveController.start().onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
+    m_driveController
+        .rightBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
