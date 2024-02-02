@@ -6,33 +6,51 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
-  private CANSparkMax intakeTOP;
-  private CANSparkMax intakeBOTTOM;
+  private CANSparkMax intakeTop;
+  private CANSparkMax intakeBottom;
+
+  private double intakeSpeed;
+  private double outtakeSpeed;
 
   /** Creates a new Intake. */
-  public Intake(int intakeTopId, int intakeBottomId) {
-    intakeTOP = new CANSparkMax(intakeTopId, MotorType.kBrushless);
-    intakeBOTTOM = new CANSparkMax(intakeBottomId, MotorType.kBrushless);
+  public Intake(int intakeTopId, int intakeBottomId, double intakeSpeed, double outtakeSpeed) {
+    intakeTop = new CANSparkMax(intakeTopId, MotorType.kBrushless);
+    intakeBottom = new CANSparkMax(intakeBottomId, MotorType.kBrushless);
 
-    intakeTOP.restoreFactoryDefaults();
-    intakeBOTTOM.restoreFactoryDefaults();
+    intakeTop.restoreFactoryDefaults();
+    intakeBottom.restoreFactoryDefaults();
 
-    intakeTOP.setClosedLoopRampRate(5);
-    intakeBOTTOM.setClosedLoopRampRate(5);
+    this.intakeSpeed = intakeSpeed;
+    this.outtakeSpeed = outtakeSpeed;
+
+    // intakeTop.setClosedLoopRampRate(5);
+    // intakeBottom.setClosedLoopRampRate(5);
   }
 
-  public void intakeCTRL(double setSpeedT, double setSpeedB) {
-    intakeTOP.set(setSpeedT);
-    intakeBOTTOM.set(setSpeedB);
+  public void intakeControl(double setSpeedT, double setSpeedB) {
+    intakeTop.set(setSpeedT);
+    intakeBottom.set(setSpeedB);
   }
 
-  public void intakeSTOP() {
-    intakeTOP.set(0);
-    intakeBOTTOM.set(0);
+  // intake speed is same for top and bottom
+  public Command intakeCommand() {
+    return this.startEnd(
+        () -> this.intakeControl(intakeSpeed, intakeSpeed), () -> this.intakeStop());
+  }
+
+  public Command outtakeCommand() {
+    return this.startEnd(
+        () -> this.intakeControl(outtakeSpeed, outtakeSpeed), () -> this.intakeStop());
+  }
+
+  public void intakeStop() {
+    intakeTop.set(0);
+    intakeBottom.set(0);
   }
 
   @Override

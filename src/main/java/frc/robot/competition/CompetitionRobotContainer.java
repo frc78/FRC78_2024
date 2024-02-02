@@ -136,7 +136,7 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_driveController::getStartButton)
         .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
-<<<<<<< HEAD
+
     new Trigger(m_driveController::getRightBumper)
         .whileTrue(
             new OrbitalTarget(
@@ -149,26 +149,16 @@ class CompetitionRobotContainer {
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MAX_SPEED));
-
-    new Trigger(m_driveController::getAButton).onTrue(new IntakeNote(m_intake));
-=======
-    new Trigger(m_driveController::getAButton)
-        .whileTrue(
-            new IntakeNote(
-                m_intake,
-                RobotConstants.INTAKE_TOP_SPEED_IN,
-                RobotConstants.INTAKE_BOTTOM_SPEED_IN));
-    new Trigger(m_driveController::getBButton)
-        .whileTrue(
-            new IntakeNote(
-                m_intake,
-                RobotConstants.INTAKE_TOP_SPEED_OUT,
-                RobotConstants.INTAKE_BOTTOM_SPEED_OUT));
->>>>>>> ae0337f (INTAKE CTRLs - intake/outtake working on A/B buttons respectively; fixed inverted forwards/backwards driving)
   }
 
   private void configureIntake() {
-    m_intake = new Intake(RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID);
+    m_intake =
+        new Intake(
+            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
+            RobotConstants.INTAKE_TOP_SPEED_IN, RobotConstants.INTAKE_TOP_SPEED_OUT);
+
+    new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
+    new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
   }
 
   public Command getAutonomousCommand() {
