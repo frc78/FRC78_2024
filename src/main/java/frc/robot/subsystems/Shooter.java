@@ -12,18 +12,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-  private final TalonFX shooter1;
-  private final TalonFX shooter2;
+  private final TalonFX shooterTop;
+  private final TalonFX shooterBottom;
 
   public Shooter(int shooter1ID, int shooter2ID) {
-    shooter1 = new TalonFX(shooter1ID);
-    shooter2 = new TalonFX(shooter2ID);
+    shooterTop = new TalonFX(shooter1ID);
+    shooterBottom = new TalonFX(shooter2ID);
   }
 
   public Command setShooter(double speed) {
     return new InstantCommand(() -> {
-      shooter1.set(speed);
-      shooter2.set(speed);
+      shooterTop.set(speed);
+      shooterBottom.set(speed);
     });
   }
 }
