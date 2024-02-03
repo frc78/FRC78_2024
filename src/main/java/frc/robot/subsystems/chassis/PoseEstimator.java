@@ -40,6 +40,8 @@ public class PoseEstimator {
     this.ATCam1 = ATCam1;
     this.chassis = chassis;
 
+    pigeon = new Pigeon2(pigeonId);
+
     poseEstimator =
         new SwerveDrivePoseEstimator(
             chassis.kinematics,
@@ -56,7 +58,6 @@ public class PoseEstimator {
     photonEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, ATCam1, robotToCam);
-    pigeon = new Pigeon2(pigeonId);
   }
 
   public void update() {
