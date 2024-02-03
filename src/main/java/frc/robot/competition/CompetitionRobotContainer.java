@@ -24,6 +24,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.Elevator;
+import frc.robot.subsystems.chassis.Feed;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
@@ -40,6 +41,7 @@ class CompetitionRobotContainer {
   private final Elevator m_Elevator;
   private final Shooter m_Shooter;
   private final Wrist m_Wrist;
+  private final Feed m_feed;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController sysIdController;
@@ -109,6 +111,8 @@ class CompetitionRobotContainer {
     m_Wrist =
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
+
+    m_feed = new Feed();
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -230,6 +234,8 @@ class CompetitionRobotContainer {
     m_manipController.a().whileTrue(m_Wrist.moveWristUp());
 
     m_manipController.b().whileTrue(m_Wrist.moveWristDown());
+
+    m_manipController.rightBumper().whileTrue(m_intake.intakeCommand().alongWith(m_feed.runFeed()));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
