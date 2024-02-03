@@ -26,11 +26,15 @@ public class Feed extends SubsystemBase {
   }
 
   public Command runFeed() {
-    return this.startEnd(() -> feedMotor.set(0.2), () -> feedMotor.set(0));
+    return this.startEnd(() -> feedMotor.set(0.15), () -> feedMotor.set(0));
   }
 
   public Command reverseFeed() {
-    return this.startEnd(() -> feedMotor.set(-.2), () -> feedMotor.set(0));
+    return this.startEnd(() -> feedMotor.set(-0.2), () -> feedMotor.set(0));
+  }
+
+  public Command fire() {
+    return this.startEnd(() -> feedMotor.set(0.5), () -> feedMotor.set(0));
   }
 
   public boolean isTriggered() {

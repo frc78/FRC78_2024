@@ -238,6 +238,12 @@ class CompetitionRobotContainer {
         .rightBumper()
         .whileTrue(m_intake.intakeCommand().alongWith(m_feed.runFeed()).until(m_feed::isTriggered));
 
+    m_manipController
+        .leftBumper()
+        .whileTrue(m_intake.outtakeCommand().alongWith(m_feed.reverseFeed()));
+
+    m_manipController.rightTrigger(0.5).whileTrue(m_feed.fire());
+
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
     sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
