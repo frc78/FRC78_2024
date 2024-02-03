@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.subsystems.Shooter;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Intake;
@@ -32,6 +33,7 @@ class CompetitionRobotContainer {
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
+  private final Shooter m_shooter;
   private final XboxController m_driveController;
   private final XboxController m_manipController;
   private final CommandXboxController sysIdController;
@@ -81,6 +83,8 @@ class CompetitionRobotContainer {
             RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
 
     m_Elevator = new Elevator();
+
+    m_shooter = new Shooter(RobotConstants.SHOOTER_TOP_ID, RobotConstants.SHOOTER_BOTTOM_ID);
 
     AutoBuilder.configureHolonomic(
         m_chassis::getFusedPose, // Robot pose supplier
@@ -171,6 +175,8 @@ class CompetitionRobotContainer {
 
     new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
     new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
+
+    new Trigger(m_manipController::getLeftBumper).onTrue(m_shooter.setShooter(90)).onFalse(m_shooter.setShooter(0));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
