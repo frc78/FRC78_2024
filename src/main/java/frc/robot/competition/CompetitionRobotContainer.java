@@ -148,7 +148,10 @@ class CompetitionRobotContainer {
             RobotConstants.STEER_IDLE));
   }
 
-  private void configureBindings() {
+  public void configureBindings() {
+    new Trigger(m_Elevator::hasNotBeenZeroed)
+        .and(DriverStation::isEnabled)
+        .whileTrue(m_Elevator.zeroElevator());
     new Trigger(m_driveController::getStartButton)
         .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
 
