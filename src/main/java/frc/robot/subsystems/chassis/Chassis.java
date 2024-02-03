@@ -4,13 +4,21 @@
 
 package frc.robot.subsystems.chassis;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Chassis extends SubsystemBase {
@@ -91,5 +99,34 @@ public class Chassis extends SubsystemBase {
     }
 
     Logger.recordOutput("ModuleSet", setStates);
+  }
+
+  private void voltageDrive(Measure<Voltage> voltage) {
+    // Iterate through each of the 4 swerve modules
+    for (SwerveModule module : modules) {
+      // Call the open loop method, which sends a voltage with no feedback to the motors, but holds
+      // the wheel at 0 degrees
+      module.openLoopDiffDrive(voltage.in(Volts));
+    }
+  }
+
+  private SysIdRoutine drivetrainRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(null, null, Seconds.of(3)),
+          new SysIdRoutine.Mechanism(this::voltageDrive, this::logMotor, this));
+
+  public void logMotor(SysIdRoutineLog log) {
+    for (SwerveModule module : modules) {
+      // Each motor will write to the log directly
+      module.logMotor(log);
+    }
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return drivetrainRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return drivetrainRoutine.dynamic(direction);
   }
 }

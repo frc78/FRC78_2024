@@ -15,22 +15,28 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
-import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
 class CompetitionRobotContainer {
   private final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   private final PoseEstimator m_poseEstimator;
-  private PhotonCamera m_ATCamera;
+  private final PhotonCamera m_ATCamera;
+  private final Intake m_intake;
+  private final Elevator m_Elevator;
   private final CommandXboxController m_driveController;
+  private final CommandXboxController m_manipController;
+  private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
 
   CompetitionRobotContainer() {
@@ -51,6 +57,9 @@ class CompetitionRobotContainer {
     m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera);
 
     m_driveController = new CommandXboxController(0);
+    m_manipController = new CommandXboxController(1);
+    // Put on port 5 because we only want to use this during tests
+    sysIdController = new CommandXboxController(5);
 
     m_baseDrive =
         new BaseDrive(
@@ -60,6 +69,20 @@ class CompetitionRobotContainer {
 
     m_chassis.setDefaultCommand(
         new FieldOrientedDrive(m_chassis, m_poseEstimator, m_baseDrive::calculateChassisSpeeds));
+
+    m_intake =
+        new Intake(
+            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
+            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
+
+    m_Elevator = new Elevator();
+
+    m_intake =
+        new Intake(
+            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
+            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
+
+    m_Elevator = new Elevator();
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -170,6 +193,19 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
+
+    new Trigger(m_manipController::getYButton).whileTrue(m_Elevator.moveElevatorUp());
+
+    new Trigger(m_manipController::getXButton).whileTrue(m_Elevator.moveElevatorDown());
+
+    new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
+    new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
+
+    // The routine automatically stops the motors at the end of the command
+    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
   }
 
   public Command getAutonomousCommand() {
