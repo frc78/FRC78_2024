@@ -29,11 +29,11 @@ public class FieldOrientedDrive extends Command {
   @Override
   public void execute() {
     chassis.driveRobotRelative(
-        ChassisSpeeds.fromRobotRelativeSpeeds(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
             speeds.get(), poseEstimator.getFusedPose().getRotation()));
   }
 
-  // Called once the command ends or is interrupted.
+  // TODO possibly remove to avoid jitter
   @Override
   public void end(boolean interrupted) {
     chassis.driveRobotRelative(new ChassisSpeeds());

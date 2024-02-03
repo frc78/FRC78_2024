@@ -10,12 +10,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
@@ -23,17 +22,18 @@ import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
-class CompetitionChassisContainer {
+class CompetitionRobotContainer {
   private final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   private final PoseEstimator m_poseEstimator;
   private PhotonCamera m_ATCamera;
-  private final XboxController m_driveController;
+  private final CommandXboxController m_driveController;
   private final SendableChooser<Command> autoChooser;
 
-  CompetitionChassisContainer() {
+  CompetitionRobotContainer() {
 
     NeoModule frontLeft = makeSwerveModule(1, 2);
     NeoModule frontRight = makeSwerveModule(3, 4);
@@ -46,14 +46,15 @@ class CompetitionChassisContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID, m_ATCamera);
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID);
 
     m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera);
 
-    m_driveController = new XboxController(0);
+    m_driveController = new CommandXboxController(0);
 
     m_baseDrive =
-        new BaseDrive(m_driveController, RobotConstants.MOTION_LIMITS, RobotConstants.RATE_LIMITS);
+        new BaseDrive(
+            m_driveController.getHID(), RobotConstants.MOTION_LIMITS, RobotConstants.RATE_LIMITS);
 
     PortForwarder.add(5800, "photonvision.local", 5800);
 
@@ -126,9 +127,11 @@ class CompetitionChassisContainer {
   }
 
   private void configureBindings() {
-    new Trigger(m_driveController::getStartButton)
+    m_driveController
+        .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
-    new Trigger(m_driveController::getRightBumper)
+    m_driveController
+        .rightBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -141,7 +144,32 @@ class CompetitionChassisContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MOTION_LIMITS.maxSpeed,
                 m_poseEstimator));
-    // TODO need to add cardinal snaps
+    m_driveController
+        .a()
+        .or(m_driveController.b())
+        .or(m_driveController.x())
+        .or(m_driveController.y())
+        .whileTrue(
+            new FieldOrientedWithCardinal(
+                m_chassis,
+                m_poseEstimator,
+                () -> {
+                  double xCardinal =
+                      (m_driveController.y().getAsBoolean() ? 1 : 0)
+                          - (m_driveController.a().getAsBoolean() ? 1 : 0);
+                  double yCardinal =
+                      (m_driveController.b().getAsBoolean() ? 1 : 0)
+                          - (m_driveController.x().getAsBoolean() ? 1 : 0);
+                  double dir = -Math.atan2(yCardinal, xCardinal);
+                  dir = dir < 0 ? dir + 2 * Math.PI : dir; // TODO check if needed
+
+                  Logger.recordOutput("goalCardinal", dir);
+                  return dir;
+                },
+                m_baseDrive::calculateChassisSpeeds,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.ROTATION_CONSTRAINTS,
+                RobotConstants.ROTATION_FF));
   }
 
   public Command getAutonomousCommand() {

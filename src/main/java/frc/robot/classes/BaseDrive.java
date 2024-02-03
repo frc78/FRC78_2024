@@ -32,9 +32,9 @@ public class BaseDrive {
     this.controller = controller;
     this.motionLimits = motionLimits;
     this.rateLimit = rateLimits;
-    this.xSupplier = () -> controller.getLeftY();
-    this.ySupplier = () -> controller.getLeftX();
-    this.rotSupplier = () -> controller.getRightX();
+    this.xSupplier = () -> -controller.getLeftY();
+    this.ySupplier = () -> -controller.getLeftX();
+    this.rotSupplier = () -> -controller.getRightX();
     this.lTriggerSupplier = () -> controller.getLeftTriggerAxis();
     this.rTriggerSupplier = () -> controller.getRightTriggerAxis();
 

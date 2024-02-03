@@ -12,7 +12,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonCamera;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
@@ -27,11 +26,7 @@ public class Chassis extends SubsystemBase {
 
   public final SwerveDriveKinematics kinematics;
 
-  public Chassis(
-      SwerveModule[] modules,
-      SwerveDriveKinematics kinematics,
-      int pigeonId,
-      PhotonCamera ATCamera) {
+  public Chassis(SwerveModule[] modules, SwerveDriveKinematics kinematics, int pigeonId) {
     // It reads the number of modules from the RobotConstants
     this.modules = modules;
     this.kinematics = kinematics;
