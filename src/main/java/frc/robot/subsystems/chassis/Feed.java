@@ -6,7 +6,6 @@ package frc.robot.subsystems.chassis;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,11 +13,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Feed extends SubsystemBase {
   private final TalonFX feedMotor;
   public TimeOfFlight feedSensor;
- 
+
   /** Creates a new Feed. */
   public Feed() {
     feedMotor = new TalonFX(14);
     feedSensor = new TimeOfFlight(17);
+    feedSensor.setRangeOfInterest(-1, 1, 1, -1);
   }
 
   public void setSpeed(double speed) {
@@ -26,13 +26,17 @@ public class Feed extends SubsystemBase {
   }
 
   public Command runFeed() {
-    return this.startEnd(() -> feedMotor.set(0.5), () -> feedMotor.set(0));
+    return this.startEnd(() -> feedMotor.set(0.2), () -> feedMotor.set(0));
   }
 
-  public boolean isTriggered(){
-    if(feedSensor.getRange() <= 80){
+  public Command reverseFeed() {
+    return this.startEnd(() -> feedMotor.set(-.2), () -> feedMotor.set(0));
+  }
+
+  public boolean isTriggered() {
+    if (feedSensor.getRange() <= 40) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
