@@ -223,7 +223,6 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF));
 
     m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
-
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
     m_manipController
@@ -235,7 +234,9 @@ class CompetitionRobotContainer {
 
     m_manipController.b().whileTrue(m_Wrist.moveWristDown());
 
-    m_manipController.rightBumper().whileTrue(m_intake.intakeCommand().alongWith(m_feed.runFeed()));
+    m_manipController
+        .rightBumper()
+        .whileTrue(m_intake.intakeCommand().alongWith(m_feed.runFeed()).until(m_feed::isTriggered));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
