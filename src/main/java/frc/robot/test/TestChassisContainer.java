@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
@@ -26,7 +25,7 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
 class TestChassisContainer {
-  private final Chassis m_chassis;
+  public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
   private PhotonCamera m_ATCamera;
@@ -46,9 +45,9 @@ class TestChassisContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID);
+    m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera);
+    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
 
     m_driveController = new CommandXboxController(0);
 
@@ -63,7 +62,8 @@ class TestChassisContainer {
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
-        m_poseEstimator::resetPose, // Method to reset odometry
+        m_poseEstimator
+            ::resetPose, // Method to reset odometry, TODO check if it still works with the command
         m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
@@ -127,9 +127,7 @@ class TestChassisContainer {
   }
 
   private void configureBindings() {
-    m_driveController
-        .start()
-        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
+    m_driveController.start().onTrue(m_poseEstimator.resetPose(new Pose2d()));
     m_driveController
         .rightBumper()
         .whileTrue(

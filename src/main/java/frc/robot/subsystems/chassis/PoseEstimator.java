@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.chassis;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -13,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import java.io.IOException;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -27,19 +30,20 @@ public class PoseEstimator {
 
   private final SwerveDrivePoseEstimator poseEstimator;
   private PhotonCamera ATCam1;
+  private Pigeon2 pigeon;
   private PhotonPoseEstimator photonEstimator;
   private AprilTagFieldLayout aprilTagFieldLayout;
   private final Transform3d robotToCam =
       new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0)); // Camera offset
 
-  public PoseEstimator(Chassis chassis, PhotonCamera ATCam1) {
+  public PoseEstimator(Chassis chassis, PhotonCamera ATCam1, int pigeonId) {
     this.ATCam1 = ATCam1;
     this.chassis = chassis;
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
             chassis.kinematics,
-            Rotation2d.fromDegrees(chassis.getGyroRot()),
+            Rotation2d.fromDegrees(getGyroRot()),
             chassis.getPositions(),
             new Pose2d());
 
@@ -52,19 +56,20 @@ public class PoseEstimator {
     photonEstimator =
         new PhotonPoseEstimator(
             aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, ATCam1, robotToCam);
+    pigeon = new Pigeon2(pigeonId);
   }
 
   public void update() {
-    Optional<EstimatedRobotPose> estimatedPose = getEstimatedGlobalPose(getFusedPose());
+    Optional<EstimatedRobotPose> estimatedPose = photonEstimator.update();
 
     if (estimatedPose.isPresent()) {
       poseEstimator.addVisionMeasurement(
           estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds);
       Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
     }
-    poseEstimator.update(Rotation2d.fromDegrees(chassis.getGyroRot()), chassis.getPositions());
+    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions());
 
-    SmartDashboard.putNumber("gyroYaw", chassis.getGyroRot());
+    SmartDashboard.putNumber("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
@@ -72,13 +77,18 @@ public class PoseEstimator {
     return poseEstimator.getEstimatedPosition();
   }
 
-  public void resetPose(Pose2d pose) {
-    poseEstimator.resetPosition(
-        Rotation2d.fromDegrees(chassis.getGyroRot()), chassis.getPositions(), pose);
+  public Command resetPose(Pose2d pose) {
+    return new InstantCommand(
+        () ->
+            poseEstimator.resetPosition(
+                Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions(), pose));
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
-    photonEstimator.setReferencePose(prevEstimatedRobotPose);
-    return photonEstimator.update();
+  public double getGyroRot() {
+    return pigeon.getYaw().getValueAsDouble();
+  }
+
+  public void setGyroRot(double rot) {
+    pigeon.setYaw(rot);
   }
 }

@@ -7,7 +7,6 @@ package frc.robot.subsystems.chassis;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -23,7 +22,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
-  private Pigeon2 pigeon;
 
   public ChassisSpeeds setChassisSpeed;
   public SwerveModuleState[] setStates;
@@ -34,7 +32,7 @@ public class Chassis extends SubsystemBase {
 
   public final SwerveDriveKinematics kinematics;
 
-  public Chassis(SwerveModule[] modules, SwerveDriveKinematics kinematics, int pigeonId) {
+  public Chassis(SwerveModule[] modules, SwerveDriveKinematics kinematics) {
     // It reads the number of modules from the RobotConstants
     this.modules = modules;
     this.kinematics = kinematics;
@@ -43,8 +41,6 @@ public class Chassis extends SubsystemBase {
     setChassisSpeed = new ChassisSpeeds();
     getStates = new SwerveModuleState[4];
     getPositions = new SwerveModulePosition[4];
-
-    pigeon = new Pigeon2(pigeonId);
   }
 
   public void initializeModules() {
@@ -52,14 +48,6 @@ public class Chassis extends SubsystemBase {
     for (SwerveModule module : modules) {
       module.initialize();
     }
-  }
-
-  public double getGyroRot() {
-    return pigeon.getYaw().getValueAsDouble();
-  }
-
-  public void setGyroRot(double rot) {
-    pigeon.setYaw(rot);
   }
 
   public SwerveModulePosition[] getPositions() {

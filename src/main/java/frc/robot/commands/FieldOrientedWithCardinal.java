@@ -62,14 +62,9 @@ public class FieldOrientedWithCardinal extends Command {
 
     double cardinalRotSpeed =
         thetaPID.calculate(poseEstimator.getFusedPose().getRotation().getRadians());
-    speeds.omegaRadiansPerSecond += cardinalRotSpeed;
+    speeds.omegaRadiansPerSecond = cardinalRotSpeed;
 
     chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(speeds, poseEstimator.getFusedPose().getRotation()));
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 }

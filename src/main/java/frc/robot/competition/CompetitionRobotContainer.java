@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
@@ -29,9 +28,9 @@ import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
 class CompetitionRobotContainer {
-  private final Chassis m_chassis;
+  public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
-  private final PoseEstimator m_poseEstimator;
+  public final PoseEstimator m_poseEstimator;
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
@@ -53,9 +52,9 @@ class CompetitionRobotContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.PIGEON_ID);
+    m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera);
+    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -144,9 +143,7 @@ class CompetitionRobotContainer {
   }
 
   private void configureBindings() {
-    m_driveController
-        .start()
-        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
+    m_driveController.start().onTrue(m_poseEstimator.resetPose(new Pose2d()));
     m_driveController
         .rightBumper()
         .whileTrue(

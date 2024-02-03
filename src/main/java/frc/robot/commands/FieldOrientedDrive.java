@@ -32,10 +32,4 @@ public class FieldOrientedDrive extends Command {
         ChassisSpeeds.fromFieldRelativeSpeeds(
             speeds.get(), poseEstimator.getFusedPose().getRotation()));
   }
-
-  // TODO possibly remove to avoid jitter
-  @Override
-  public void end(boolean interrupted) {
-    chassis.driveRobotRelative(new ChassisSpeeds());
-  }
 }
