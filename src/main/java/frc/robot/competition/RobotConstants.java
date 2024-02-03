@@ -71,8 +71,8 @@ class RobotConstants {
   public static final int INTAKE_TOP_ID = 9;
   public static final int INTAKE_BOTTOM_ID = 10;
 
-  public static final int SHOOTER_TOP_ID = 0; //TODO
-  public static final int SHOOTER_BOTTOM_ID = 0;
+  public static final int SHOOTER_TOP_ID = 14; //TODO
+  public static final int SHOOTER_BOTTOM_ID = 15;
 
   public static final double INTAKE_SPEED_IN = 0.75;
 
