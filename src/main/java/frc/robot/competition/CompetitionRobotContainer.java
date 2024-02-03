@@ -27,6 +27,7 @@ import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import frc.robot.subsystems.chassis.Wrist;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
@@ -38,6 +39,7 @@ class CompetitionRobotContainer {
   private final Intake m_intake;
   private final Elevator m_Elevator;
   private final Shooter m_Shooter;
+  private final Wrist m_Wrist;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController sysIdController;
@@ -103,6 +105,10 @@ class CompetitionRobotContainer {
     shooterConfig.HOOD_ANGLE = RobotConstants.HOOD_ANGLE;
 
     m_Shooter = new Shooter(shooterConfig);
+
+    m_Wrist =
+        new Wrist(
+            RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -217,9 +223,13 @@ class CompetitionRobotContainer {
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
     m_manipController
-        .a()
-        .whileTrue(m_Shooter.startShooter(100))
+        .leftTrigger(0.5)
+        .whileTrue(m_Shooter.startShooter(500))
         .whileFalse(m_Shooter.stopCommand());
+
+    m_manipController.a().whileTrue(m_Wrist.moveWristUp());
+
+    m_manipController.b().whileTrue(m_Wrist.moveWristDown());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
