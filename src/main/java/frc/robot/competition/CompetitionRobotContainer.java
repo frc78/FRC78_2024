@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
@@ -25,6 +25,7 @@ import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
 class CompetitionRobotContainer {
@@ -69,13 +70,6 @@ class CompetitionRobotContainer {
 
     m_chassis.setDefaultCommand(
         new FieldOrientedDrive(m_chassis, m_poseEstimator, m_baseDrive::calculateChassisSpeeds));
-
-    m_intake =
-        new Intake(
-            RobotConstants.INTAKE_TOP_ID, RobotConstants.INTAKE_BOTTOM_ID,
-            RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
-
-    m_Elevator = new Elevator();
 
     m_intake =
         new Intake(
@@ -194,12 +188,12 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
 
-    new Trigger(m_manipController::getYButton).whileTrue(m_Elevator.moveElevatorUp());
+    m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
 
-    new Trigger(m_manipController::getXButton).whileTrue(m_Elevator.moveElevatorDown());
+    m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
-    new Trigger(m_driveController::getAButton).whileTrue(m_intake.intakeCommand());
-    new Trigger(m_driveController::getBButton).whileTrue(m_intake.outtakeCommand());
+    m_manipController.a().whileTrue(m_intake.intakeCommand());
+    m_manipController.b().whileTrue(m_intake.outtakeCommand());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
