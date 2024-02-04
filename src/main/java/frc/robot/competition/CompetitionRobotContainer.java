@@ -19,7 +19,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
-import frc.robot.commands.*;
+import frc.robot.commands.FieldOrientedDrive;
+import frc.robot.commands.FieldOrientedWithCardinal;
+import frc.robot.commands.OrbitalTarget;
+import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.chassis.Chassis;
@@ -40,6 +43,7 @@ class CompetitionRobotContainer {
   private final Elevator m_Elevator;
   private final Shooter m_Shooter;
   private final Wrist m_Wrist;
+  private final Feeder m_feeder;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController sysIdController;
@@ -109,6 +113,8 @@ class CompetitionRobotContainer {
     m_Wrist =
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
+
+    m_feeder = new Feeder();
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -219,7 +225,6 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF));
 
     m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
-
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
     m_manipController
@@ -230,6 +235,17 @@ class CompetitionRobotContainer {
     m_manipController.a().whileTrue(m_Wrist.moveWristUp());
 
     m_manipController.b().whileTrue(m_Wrist.moveWristDown());
+
+    m_manipController
+        .rightBumper()
+        .whileTrue(
+            m_intake.intakeCommand().alongWith(m_feeder.runFeed()).until(m_feeder::isNoteQueued));
+
+    m_manipController
+        .leftBumper()
+        .whileTrue(m_intake.outtakeCommand().alongWith(m_feeder.reverseFeed()));
+
+    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.fire());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
