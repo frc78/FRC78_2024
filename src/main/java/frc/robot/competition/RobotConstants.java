@@ -89,8 +89,8 @@ class RobotConstants {
 
   // SHOOTER
 
-  public static final int FLYWHEEL_TOP_ID = 14; // TODO - UPDATE W/ REAL IDs
-  public static final int FLYWHEEL_BOTTOM_ID = 15; // TODO - UPDATE W/ REAL IDs
+  public static final int FLYWHEEL_TOP_ID = 14;
+  public static final int FLYWHEEL_BOTTOM_ID = 15;
   public static final int FEED_ID = 0; // TODO
   public static final int BELT_ID = 0; // TODO
 
@@ -120,4 +120,10 @@ class RobotConstants {
 
   /** Hood's angle of elevation in degrees */
   public static final double HOOD_ANGLE = 45.0; // TODO
+
+  // Wrist Constants
+  public static final int WRIST_ID = 13;
+
+  public static final float WRIST_HIGH_LIM = 130; // 139
+  public static final float WRIST_LOW_LIM = 100; // 90
 }
