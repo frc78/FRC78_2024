@@ -51,7 +51,7 @@ public class Robot extends LoggedRobot {
               }
             });
     visionThread.setDaemon(true);
-    // visionThread.start();
+    visionThread.start();
 
     if (isReal()) {
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
