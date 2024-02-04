@@ -106,7 +106,6 @@ class CompetitionRobotContainer {
     shooterConfig.FLYWHEEL_BOTTOM_S = RobotConstants.FLYWHEEL_BOTTOM_S;
     shooterConfig.FLYWHEEL_BOTTOM_V = RobotConstants.FLYWHEEL_BOTTOM_V;
     shooterConfig.FLYWHEEL_BOTTOM_FF = RobotConstants.FLYWHEEL_BOTTOM_FF;
-    shooterConfig.HOOD_ANGLE = RobotConstants.HOOD_ANGLE;
 
     m_Shooter = new Shooter(shooterConfig);
 
