@@ -64,7 +64,7 @@ class TestChassisContainer {
         m_poseEstimator::getFusedPose, // Robot pose supplier
         m_poseEstimator
             ::resetPose, // Method to reset odometry, TODO check if it still works with the command
-        m_chassis::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        m_chassis::getRealChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
         RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,

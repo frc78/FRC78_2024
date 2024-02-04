@@ -124,21 +124,18 @@ public class OrbitalTarget extends Command {
     yController.setSetpoint(yTarget);
     rotController.setSetpoint(rotTarget);
 
-    chassis.setChassisSpeed =
+    chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             new ChassisSpeeds(
                 xController.calculate(poseEstimator.getFusedPose().getX()),
                 yController.calculate(poseEstimator.getFusedPose().getY()),
                 rotController.calculate(poseEstimator.getFusedPose().getRotation().getRadians())),
-            poseEstimator.getFusedPose().getRotation());
-
-    chassis.convertToStates();
-    chassis.drive();
+            poseEstimator.getFusedPose().getRotation()));
   }
 
   @Override
   public void end(boolean interrupted) {
-    chassis.setChassisSpeed = new ChassisSpeeds();
+    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 
   @Override

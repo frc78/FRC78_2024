@@ -23,10 +23,8 @@ import org.littletonrobotics.junction.Logger;
 public class Chassis extends SubsystemBase {
   public SwerveModule[] modules;
 
-  public ChassisSpeeds setChassisSpeed;
   public SwerveModuleState[] setStates;
 
-  public ChassisSpeeds getChassisSpeed;
   public SwerveModuleState[] getStates;
   public SwerveModulePosition[] getPositions;
 
@@ -37,17 +35,8 @@ public class Chassis extends SubsystemBase {
     this.modules = modules;
     this.kinematics = kinematics;
 
-    getChassisSpeed = new ChassisSpeeds();
-    setChassisSpeed = new ChassisSpeeds();
     getStates = new SwerveModuleState[4];
     getPositions = new SwerveModulePosition[4];
-  }
-
-  public void initializeModules() {
-    // This is an example of how we will perform operations on all modules
-    for (SwerveModule module : modules) {
-      module.initialize();
-    }
   }
 
   public SwerveModulePosition[] getPositions() {
@@ -66,23 +55,14 @@ public class Chassis extends SubsystemBase {
 
   // There is probably a better way to feed this into the AutoBuilder, but this is
   // simpler for now
-  public ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getRealChassisSpeed() {
     return kinematics.toChassisSpeeds(getStates());
   }
 
-  public void convertToStates() {
-    setStates = kinematics.toSwerveModuleStates(setChassisSpeed);
-  }
-
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    setChassisSpeed = speeds;
-    convertToStates();
-    drive();
-  }
-
-  public void drive() {
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     for (int i = 0; i < modules.length; i++) {
-      modules[i].setState(setStates[i]);
+      modules[i].setState(states[i]);
       SmartDashboard.putNumber(i + " Rot", setStates[i].angle.getRotations());
     }
 
