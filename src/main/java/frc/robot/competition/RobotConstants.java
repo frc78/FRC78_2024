@@ -80,10 +80,44 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
   // INTAKE
-  public static final int INTAKE_TOP_ID = 9;
-  public static final int INTAKE_BOTTOM_ID = 10;
+  public static final int INTAKE_TOP_ID = 10;
+  public static final int INTAKE_BOTTOM_ID = 9;
 
   public static final double INTAKE_SPEED_IN = 0.75;
 
   public static final double INTAKE_SPEED_OUT = -0.5;
+
+  // SHOOTER
+
+  public static final int FLYWHEEL_TOP_ID = 14; // TODO - UPDATE W/ REAL IDs
+  public static final int FLYWHEEL_BOTTOM_ID = 15; // TODO - UPDATE W/ REAL IDs
+  public static final int FEED_ID = 0; // TODO
+  public static final int BELT_ID = 0; // TODO
+
+  // Constants - TOP FLYWHEEL
+  public static final double FLYWHEEL_TOP_MIN = -1;
+  public static final double FLYWHEEL_TOP_MAX = 1;
+  // PID Consants - TOP FLYWHEEL
+  public static final double FLYWHEEL_TOP_P = 0.11; // TODO
+  public static final double FLYWHEEL_TOP_I = 0; // TODO
+  public static final double FLYWHEEL_TOP_D = 0; // TODO
+
+  public static final double FLYWHEEL_TOP_S = 0.5; // TODO
+  public static final double FLYWHEEL_TOP_V = 0.12; // TODO
+  public static final double FLYWHEEL_TOP_FF = 0.00015673981;
+
+  // Constants - BOTTOM FLYWHEEL
+  public static final double FLYWHEEL_BOTTOM_MIN = -1;
+  public static final double FLYWHEEL_BOTTOM_MAX = 1;
+  // PID Constants - BOTTOM FLYWHEEL
+  public static final double FLYWHEEL_BOTTOM_P = 0.11; // TODO
+  public static final double FLYWHEEL_BOTTOM_I = 0; // TODO
+  public static final double FLYWHEEL_BOTTOM_D = 0; // TODO
+
+  public static final double FLYWHEEL_BOTTOM_S = 0.5; // TODO
+  public static final double FLYWHEEL_BOTTOM_V = 0.12; // TODO
+  public static final double FLYWHEEL_BOTTOM_FF = 0.00015673981;
+
+  /** Hood's angle of elevation in degrees */
+  public static final double HOOD_ANGLE = 45.0; // TODO
 }
