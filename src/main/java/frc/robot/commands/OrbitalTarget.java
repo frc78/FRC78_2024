@@ -33,7 +33,7 @@ public class OrbitalTarget extends Command {
   private final ProfiledPIDController xController;
   private final ProfiledPIDController yController;
   private final ProfiledPIDController rotController;
-  private final double ffCoefficient;
+  private final double rotationFFCoefficient;
 
   private Rotation2d goalRotation;
 
@@ -46,12 +46,14 @@ public class OrbitalTarget extends Command {
       PIDConstants rotationPID,
       Structs.MotionLimits motionLimits,
       PoseEstimator poseEstimator,
-      DoubleSupplier orbitDistance) {
+      DoubleSupplier orbitDistance,
+      double rotationFFCoefficient) {
 
     this.chassis = chassis;
     this.poseEstimator = poseEstimator;
     this.speedsSupplier = speedsSupplier;
     this.orbitDistance = orbitDistance;
+    this.rotationFFCoefficient = rotationFFCoefficient;
 
     // Might be shorter way of doing this
     if (DriverStation.getAlliance().isPresent()) {
@@ -72,8 +74,6 @@ public class OrbitalTarget extends Command {
             translationPID.kP, translationPID.kI, translationPID.kD, constraints);
     rotController =
         new ProfiledPIDController(rotationPID.kP, rotationPID.kI, rotationPID.kD, constraints);
-
-    ffCoefficient = 3;
 
     rotController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -100,7 +100,10 @@ public class OrbitalTarget extends Command {
                     .getTranslation()
                     .plus(
                         Util.perpendicular(goalPosition)
-                            .times(speedsSupplier.get().vyMetersPerSecond * 0.02 * ffCoefficient)))
+                            .times(
+                                speedsSupplier.get().vyMetersPerSecond
+                                    * 0.02
+                                    * rotationFFCoefficient)))
             .getAngle();
 
     goalPosition = Util.normalize(goalPosition);

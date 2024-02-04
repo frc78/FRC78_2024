@@ -44,6 +44,7 @@ class RobotConstants {
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
   public static final Structs.FFConstants ROTATION_FF = new Structs.FFConstants(0.0, 0.0, 0.0);
+  public static final double ORBITAL_FF_CONSTANT = 3;
 
   public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
 

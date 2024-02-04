@@ -195,7 +195,8 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.MOTION_LIMITS,
                 m_poseEstimator,
-                () -> Constants.ORBIT_RADIUS));
+                () -> Constants.ORBIT_RADIUS,
+                RobotConstants.ORBITAL_FF_CONSTANT));
     m_driveController
         .a()
         .or(m_driveController.b())
