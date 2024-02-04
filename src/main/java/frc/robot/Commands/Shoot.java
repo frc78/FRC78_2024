@@ -9,6 +9,7 @@ import frc.robot.Systems.Shooter;
 
 public class Shoot extends Command {
   Shooter shooter;
+
   /** Creates a new Shoot. */
   public Shoot(Shooter subsystem1) {
     // Use addRequirements() here to declare subsystem dependencies.
