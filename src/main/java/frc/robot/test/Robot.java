@@ -4,6 +4,7 @@
 
 package frc.robot.test;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -43,6 +44,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.m_poseEstimator.update();
   }
 
   @Override
@@ -67,7 +69,9 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
+  }
 
   @Override
   public void teleopInit() {
@@ -80,7 +84,9 @@ public class Robot extends LoggedRobot {
   public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
+  }
 
   @Override
   public void testInit() {

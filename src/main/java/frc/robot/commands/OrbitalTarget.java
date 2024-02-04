@@ -15,12 +15,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.PoseEstimator;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class OrbitalTarget extends Command {
 
   private final Chassis chassis;
+  private final PoseEstimator poseEstimator;
 
   private final DoubleSupplier xSupplier;
   private final DoubleSupplier ySupplier;
@@ -56,9 +58,11 @@ public class OrbitalTarget extends Command {
       DoubleSupplier rTriggerSupplier,
       PIDConstants translationPID,
       PIDConstants rotationPID,
-      double maxSpeed) {
+      double maxSpeed,
+      PoseEstimator poseEstimator) {
 
     this.chassis = chassis;
+    this.poseEstimator = poseEstimator;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
     this.lTriggerSupplier = lTriggerSupplier;
@@ -89,8 +93,8 @@ public class OrbitalTarget extends Command {
   public void initialize() {
     targetRobotAngle =
         Math.atan2(
-            chassis.getFusedPose().getY() - targetPose.getY(),
-            chassis.getFusedPose().getX() - targetPose.getX());
+            poseEstimator.getFusedPose().getY() - targetPose.getY(),
+            poseEstimator.getFusedPose().getX() - targetPose.getX());
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -120,26 +124,18 @@ public class OrbitalTarget extends Command {
     yController.setSetpoint(yTarget);
     rotController.setSetpoint(rotTarget);
 
-    chassis.setChassisSpeed =
+    chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             new ChassisSpeeds(
-                xController.calculate(chassis.getFusedPose().getX()),
-                yController.calculate(chassis.getFusedPose().getY()),
-                rotController.calculate(
-                    chassis
-                        .getFusedPose()
-                        .getRotation()
-                        .getRadians())), // Not sure if I have to make sure the angle is in the
-            // range [0, 2 * PI)
-            chassis.getFusedPose().getRotation());
-
-    chassis.convertToStates();
-    chassis.drive();
+                xController.calculate(poseEstimator.getFusedPose().getX()),
+                yController.calculate(poseEstimator.getFusedPose().getY()),
+                rotController.calculate(poseEstimator.getFusedPose().getRotation().getRadians())),
+            poseEstimator.getFusedPose().getRotation()));
   }
 
   @Override
   public void end(boolean interrupted) {
-    chassis.setChassisSpeed = new ChassisSpeeds();
+    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 
   @Override

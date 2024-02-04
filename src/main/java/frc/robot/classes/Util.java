@@ -4,6 +4,7 @@
 
 package frc.robot.classes;
 
+import edu.wpi.first.math.MathUtil;
 import frc.robot.constants.Constants;
 
 /** Utility class */
@@ -24,19 +25,8 @@ public class Util {
     return triggers;
   }
 
-  /**
-   * Applies a deadband to the given joystick axis value
-   *
-   * @param value
-   * @param deadband
-   * @return
-   */
-  public static double deadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      return (value > 0.0 ? value - deadband : value + deadband) / (1.0 - deadband);
-    } else {
-      return 0.0;
-    }
+  public static double modifyTrigger(double value) {
+    return MathUtil.applyDeadband(value, Constants.TRIGGER_DEADBAND);
   }
 
   /**
@@ -47,7 +37,7 @@ public class Util {
    */
   public static double modifyJoystick(double value) {
     // Deadband
-    value = deadband(value, Constants.JOYSTICK_DEADBAND);
+    value = MathUtil.applyDeadband(value, Constants.JOYSTICK_DEADBAND);
     // Square the axis
     // value = Math.copySign(value * value, value);
     return value;

@@ -8,7 +8,9 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.classes.Structs;
 
 /** This is the constants for the NEO */
 class RobotConstants {
@@ -24,14 +26,14 @@ class RobotConstants {
 
   public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
 
-  public static final double MAX_SPEED = 4; // TODO
-  public static final double MAX_ANGULAR_VELOCITY = 8; // TODO set temporarily, to look into later
+  public static final Structs.MotionLimits MOTION_LIMITS =
+      new Structs.MotionLimits(4, 3 /*TODO */, 8, 12);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
           new PIDConstants(5, 0.0, 0.0), // Translation PID constants
           new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
-          RobotConstants.MAX_SPEED, // Max module speed, in m/s
+          RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
@@ -40,10 +42,20 @@ class RobotConstants {
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
   public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final Constraints ROTATION_CONSTRAINTS =
+      new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
+  // TODO
+  public static final Structs.FFConstants ROTATION_FF = new Structs.FFConstants(0.0, 0.0, 0.0);
+
+  public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
 
   // WHEELS
+  public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
+  public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
+  public static final double DRIVE_WHEEL_FREESPEED =
+      (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
+          / DRIVE_GEAR_RATIO; // Converted for wheel
 
-  public static final double DRIVE_GEAR_RATIO = (6.75);
   public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
   public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
       ((WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO) / 60;
