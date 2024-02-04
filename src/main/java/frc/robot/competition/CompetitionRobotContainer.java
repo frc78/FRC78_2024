@@ -4,6 +4,8 @@
 
 package frc.robot.competition;
 
+import static frc.robot.subsystems.Shooter.*;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,6 +21,7 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
@@ -34,6 +37,7 @@ class CompetitionRobotContainer {
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
+  private final Shooter m_Shooter;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController sysIdController;
@@ -76,6 +80,29 @@ class CompetitionRobotContainer {
             RobotConstants.INTAKE_SPEED_IN, RobotConstants.INTAKE_SPEED_OUT);
 
     m_Elevator = new Elevator();
+
+    ShooterConfig shooterConfig = new ShooterConfig();
+    shooterConfig.FLYWHEEL_TOP_ID = RobotConstants.FLYWHEEL_TOP_ID;
+    shooterConfig.FLYWHEEL_BOTTOM_ID = RobotConstants.FLYWHEEL_BOTTOM_ID;
+    shooterConfig.FLYWHEEL_TOP_MIN = RobotConstants.FLYWHEEL_TOP_MIN;
+    shooterConfig.FLYWHEEL_TOP_MAX = RobotConstants.FLYWHEEL_TOP_MAX;
+    shooterConfig.FLYWHEEL_TOP_P = RobotConstants.FLYWHEEL_TOP_P;
+    shooterConfig.FLYWHEEL_TOP_I = RobotConstants.FLYWHEEL_TOP_I;
+    shooterConfig.FLYWHEEL_TOP_D = RobotConstants.FLYWHEEL_TOP_D;
+    shooterConfig.FLYWHEEL_TOP_S = RobotConstants.FLYWHEEL_TOP_S;
+    shooterConfig.FLYWHEEL_TOP_V = RobotConstants.FLYWHEEL_TOP_V;
+    shooterConfig.FLYWHEEL_TOP_FF = RobotConstants.FLYWHEEL_TOP_FF;
+    shooterConfig.FLYWHEEL_BOTTOM_MIN = RobotConstants.FLYWHEEL_BOTTOM_MIN;
+    shooterConfig.FLYWHEEL_BOTTOM_MAX = RobotConstants.FLYWHEEL_BOTTOM_MAX;
+    shooterConfig.FLYWHEEL_BOTTOM_P = RobotConstants.FLYWHEEL_BOTTOM_P;
+    shooterConfig.FLYWHEEL_BOTTOM_I = RobotConstants.FLYWHEEL_BOTTOM_I;
+    shooterConfig.FLYWHEEL_BOTTOM_D = RobotConstants.FLYWHEEL_BOTTOM_D;
+    shooterConfig.FLYWHEEL_BOTTOM_S = RobotConstants.FLYWHEEL_BOTTOM_S;
+    shooterConfig.FLYWHEEL_BOTTOM_V = RobotConstants.FLYWHEEL_BOTTOM_V;
+    shooterConfig.FLYWHEEL_BOTTOM_FF = RobotConstants.FLYWHEEL_BOTTOM_FF;
+    shooterConfig.HOOD_ANGLE = RobotConstants.HOOD_ANGLE;
+
+    m_Shooter = new Shooter(shooterConfig);
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
