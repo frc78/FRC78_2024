@@ -39,7 +39,7 @@ class RobotConstants {
   // TODO Since the above and below are both PID constants for moving the robot to a target pose,
   // perhaps we could use just one set of constants for both Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0.0, 0.0);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO

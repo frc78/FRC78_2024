@@ -22,9 +22,11 @@ import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConfig;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
@@ -188,15 +190,12 @@ class CompetitionRobotContainer {
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
-                m_driveController::getLeftX,
-                m_driveController::getLeftY,
-                m_driveController::getRightX,
-                m_driveController::getLeftTriggerAxis,
-                m_driveController::getRightTriggerAxis,
+                m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
-                RobotConstants.MOTION_LIMITS.maxSpeed,
-                m_poseEstimator));
+                RobotConstants.MOTION_LIMITS,
+                m_poseEstimator,
+                () -> Constants.ORBIT_RADIUS));
     m_driveController
         .a()
         .or(m_driveController.b())

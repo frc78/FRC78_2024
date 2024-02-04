@@ -63,10 +63,10 @@ public class Chassis extends SubsystemBase {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
     for (int i = 0; i < modules.length; i++) {
       modules[i].setState(states[i]);
-      SmartDashboard.putNumber(i + " Rot", setStates[i].angle.getRotations());
+      SmartDashboard.putNumber(i + " Rot", states[i].angle.getRotations());
     }
 
-    Logger.recordOutput("ModuleSet", setStates);
+    Logger.recordOutput("ModuleSet", states);
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
