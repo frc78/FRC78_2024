@@ -4,15 +4,23 @@
 
 package frc.robot.subsystems;
 
+import static com.revrobotics.CANSparkBase.*;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -21,6 +29,15 @@ public class Wrist extends SubsystemBase {
   private AbsoluteEncoder encoder;
   private double stowPos = 50;
   private double target = 0;
+
+  private final SysIdRoutine sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(Volts.of(.5).per(Second), Volts.of(2), Seconds.of(10)),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> volts) -> wristNeo.setVoltage(volts.in(Volts)),
+              null,
+              this,
+              "wrist"));
 
   /** Creates a new Wrist. */
   public Wrist(int WRIST_ID, float WRIST_HIGH_LIM, float WRIST_LOW_LIM) {
@@ -32,6 +49,7 @@ public class Wrist extends SubsystemBase {
 
     encoder = wristNeo.getAbsoluteEncoder(Type.kDutyCycle);
     encoder.setPositionConversionFactor(360);
+    encoder.setVelocityConversionFactor(360.0 / 60.0);
     wristNeo.getPIDController().setFeedbackDevice(encoder);
     wristNeo.getPIDController().setP(.03);
 
@@ -56,6 +74,40 @@ public class Wrist extends SubsystemBase {
 
   public boolean isAtTarget() {
     return Math.abs(target - encoder.getPosition()) < 2;
+  }
+
+  private void configureMotorsBeforeSysId() {
+    // Applied Output - Combined with motor voltage gives us applied voltage
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 10);
+    // Motor Voltage
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 10);
+    // Absolute Encoder Position
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus5, 10);
+    // Absolute Encoder Velocity
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus6, 10);
+  }
+
+  private void configureMotorsAfterSysId() {
+    // Applied Output
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 65535);
+    // Motor Voltage
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 65535);
+    // Absolute Encoder Position - Keep at 200 to update telemetry
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus5, 200);
+    // Absolute Encoder Velocity
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus6, 65535);
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return runOnce(this::configureMotorsBeforeSysId)
+        .andThen(sysIdRoutine.quasistatic(direction))
+        .finallyDo(this::configureMotorsAfterSysId);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return runOnce(this::configureMotorsBeforeSysId)
+        .andThen(sysIdRoutine.dynamic(direction))
+        .finallyDo(this::configureMotorsAfterSysId);
   }
 
   @Override

@@ -7,10 +7,13 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -18,18 +21,26 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
   private CANSparkMax elevNeoMotor2;
+
+  private final SysIdRoutine sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(Volts.of(1).per(Second), Volts.of(2), Seconds.of(10)),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> volts) -> elevNeoMotor1.setVoltage(volts.in(Volts)),
+              null,
+              this,
+              "elevator"));
 
   private DigitalInput reverseLimitSwitch = new DigitalInput(0);
   private boolean zeroed = false;
@@ -47,8 +58,6 @@ public class Elevator extends SubsystemBase {
   // Command loop runs at 50Hz, 20ms period
   private final double kDt = 0.02;
   private double appliedOutput = 0;
-
-  private final Measure<Velocity<Distance>> manualSpeed = InchesPerSecond.of(1);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final ProfiledPIDController profiledPid =
@@ -71,14 +80,31 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor2.setIdleMode(IdleMode.kBrake);
 
     encoder = elevNeoMotor1.getEncoder();
-    encoder.setPositionConversionFactor((1.29 * Math.PI) / 25);
-    elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
+    double inchesPerRevolution = 1.29 * Math.PI / 5 * 5;
+    encoder.setPositionConversionFactor(inchesPerRevolution);
+    // Inches per second
+    encoder.setVelocityConversionFactor(inchesPerRevolution / 60);
     elevNeoMotor1.getPIDController().setP(.144);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
     elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
+
+    // Remaining status frames are unused
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus3, 65535);
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus4, 65535);
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus5, 65535);
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus6, 65535);
+
+    // This motor will only follow, so no status frame are necessary
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus3, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus4, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus5, 65535);
+    elevNeoMotor2.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus6, 65535);
 
     this.setDefaultCommand(setToTarget(0));
   }
@@ -89,6 +115,36 @@ public class Elevator extends SubsystemBase {
 
   private Command lowerElevatorUntilLimitReached() {
     return run(() -> elevNeoMotor1.set(-.1)).until(() -> !reverseLimitSwitch.get());
+  }
+
+  private void configureLeaderBeforeSysId() {
+    // Applied Output
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 10);
+    // Motor Velocity and Voltage
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 10);
+    // Motor Position
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 10);
+  }
+
+  private void configureLeaderAfterSysId() {
+    // Applied Output
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus0, 65535);
+    // Motor Velocity and Voltage
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus1, 10);
+    // Motor Position
+    elevNeoMotor1.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus2, 10);
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return runOnce(this::configureLeaderBeforeSysId)
+        .andThen(sysIdRoutine.quasistatic(direction))
+        .finallyDo(this::configureLeaderAfterSysId);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return runOnce(this::configureLeaderBeforeSysId)
+        .andThen(sysIdRoutine.dynamic(direction))
+        .finallyDo(this::configureLeaderAfterSysId);
   }
 
   private Command configureMotorsAfterZeroing() {
@@ -109,22 +165,6 @@ public class Elevator extends SubsystemBase {
     return lowerElevatorUntilLimitReached()
         .andThen(configureMotorsAfterZeroing())
         .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming);
-  }
-
-  /** Manually move elevator up by gradually moving the setpoint. */
-  public Command moveElevatorUp() {
-    return Commands.runOnce(
-        () ->
-            profiledPid.setGoal(
-                encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)));
-  }
-
-  /** Manually move elevator down by gradually moving the setpoint. */
-  public Command moveElevatorDown() {
-    return Commands.runOnce(
-        () ->
-            profiledPid.setGoal(
-                encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)));
   }
 
   public void periodic() {

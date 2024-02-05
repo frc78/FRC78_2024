@@ -285,10 +285,39 @@ class CompetitionRobotContainer {
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
     // The routine automatically stops the motors at the end of the command
-    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    sysIdController
+        .a()
+        .and(sysIdController.leftBumper())
+        .whileTrue(m_Wrist.sysIdQuasistatic(Direction.kForward));
+    sysIdController
+        .b()
+        .and(sysIdController.leftBumper())
+        .whileTrue(m_Wrist.sysIdQuasistatic(Direction.kReverse));
+    sysIdController
+        .x()
+        .and(sysIdController.leftBumper())
+        .whileTrue(m_Wrist.sysIdDynamic(Direction.kForward));
+    sysIdController
+        .y()
+        .and(sysIdController.leftBumper())
+        .whileTrue(m_Wrist.sysIdDynamic(Direction.kReverse));
+
+    sysIdController
+        .a()
+        .and(sysIdController.rightBumper())
+        .whileTrue(m_Elevator.sysIdQuasistatic(Direction.kForward));
+    sysIdController
+        .b()
+        .and(sysIdController.rightBumper())
+        .whileTrue(m_Elevator.sysIdQuasistatic(Direction.kReverse));
+    sysIdController
+        .x()
+        .and(sysIdController.rightBumper())
+        .whileTrue(m_Elevator.sysIdDynamic(Direction.kForward));
+    sysIdController
+        .y()
+        .and(sysIdController.rightBumper())
+        .whileTrue(m_Elevator.sysIdDynamic(Direction.kReverse));
   }
 
   public Command getAutonomousCommand() {
