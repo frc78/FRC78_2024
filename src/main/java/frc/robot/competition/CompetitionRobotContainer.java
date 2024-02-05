@@ -27,12 +27,12 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Shooter.ShooterConfig;
+import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.Chassis;
-import frc.robot.subsystems.chassis.Elevator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
-import frc.robot.subsystems.chassis.Wrist;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
