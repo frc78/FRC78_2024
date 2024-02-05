@@ -112,6 +112,8 @@ public class OrbitalTarget extends Command {
                                     * rotationFFCoefficient)))
             .getAngle();
 
+    /*  The goal position is normalized and scaled by the orbit distance, then added to the speaker
+    position to get a goal position that is radius distance away from the speaker in the direction of the robot*/
     goalPosition = Util.normalize(goalPosition);
     goalPosition = goalPosition.times(orbitDistance.getAsDouble());
     goalPosition = goalPosition.plus(speakerPose);
