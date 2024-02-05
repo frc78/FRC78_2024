@@ -93,6 +93,12 @@ public class OrbitalTarget extends Command {
     Pose2d robotPose = poseEstimator.getFusedPose();
 
     Translation2d goalPosition = robotPose.getTranslation().minus(speakerPose);
+    /*
+     * The goal rotation is the angle between the predicted position of the robot and the speaker.
+     * Predicted robot position is calculated by current position plus a vector perpendicular to the difference of the robot to the speaker,
+     * scaled by the speed of the robot and a constant for tuning
+     * Angle is taken from the difference of the speaker position and the predicted robot position
+     */
     goalRotation =
         speakerPose
             .minus(
