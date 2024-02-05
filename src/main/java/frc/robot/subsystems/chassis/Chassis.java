@@ -13,7 +13,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -94,14 +93,7 @@ public class Chassis extends SubsystemBase {
   private SysIdRoutine drivetrainRoutine =
       new SysIdRoutine(
           new SysIdRoutine.Config(null, null, Seconds.of(3)),
-          new SysIdRoutine.Mechanism(this::voltageDrive, this::logMotor, this));
-
-  public void logMotor(SysIdRoutineLog log) {
-    for (SwerveModule module : modules) {
-      // Each motor will write to the log directly
-      module.logMotor(log);
-    }
-  }
+          new SysIdRoutine.Mechanism(this::voltageDrive, null, this, "chassis"));
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return drivetrainRoutine.quasistatic(direction);
