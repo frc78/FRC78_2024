@@ -2,9 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.chassis;
 
-import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -12,8 +11,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,8 +48,17 @@ public class Elevator extends SubsystemBase {
     reverseLimitSwitch = elevNeoMotor2.getReverseLimitSwitch(Type.kNormallyOpen);
   }
 
+  private Command configureMotorsForZeroing() {
+    return runOnce(
+        () -> {
+          elevNeoMotor1.follow(elevNeoMotor2, true);
+          reverseLimitSwitch.enableLimitSwitch(false);
+          elevNeoMotor2.set(0);
+        });
+  }
+
   private Command lowerElevatorUntilLimitReached() {
-    return startEnd(() -> elevNeoMotor1.set(-.1), () -> elevNeoMotor1.set(0))
+    return startEnd(() -> elevNeoMotor2.set(-.1), () -> elevNeoMotor2.set(0))
         .until(reverseLimitSwitch::isPressed);
   }
 
@@ -60,18 +66,19 @@ public class Elevator extends SubsystemBase {
     return runOnce(
         () -> {
           encoder.setPosition(0);
+          elevNeoMotor2.follow(elevNeoMotor1);
+          elevNeoMotor1.set(0);
           reverseLimitSwitch.enableLimitSwitch(false);
-          elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
-                    elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 14);
-          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 1);
           zeroed = true;
         });
   }
 
   public Command zeroElevator() {
-    return lowerElevatorUntilLimitReached()
-        .andThen(configureMotorsAfterZeroing());
+    return configureMotorsForZeroing()
+        .andThen(lowerElevatorUntilLimitReached())
+        .andThen(configureMotorsAfterZeroing())
+        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
   }
 
   public void SetSpeed(double speed) {
@@ -84,13 +91,5 @@ public class Elevator extends SubsystemBase {
 
   public Command moveElevatorDown() {
     return this.startEnd(() -> elevNeoMotor1.set(-.1), () -> elevNeoMotor1.set(0));
-  }
-
-
-  public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", reverseLimitSwitch.isPressed());
-    SmartDashboard.putBoolean("zeroed", zeroed);
-    SmartDashboard.putNumber("position", encoder.getPosition());
-    SmartDashboard.putBoolean("reverse limit", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
   }
 }
