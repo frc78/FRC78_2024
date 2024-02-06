@@ -25,6 +25,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
+import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
@@ -210,9 +211,15 @@ public class NeoModule implements SwerveModule {
   public void setState(SwerveModuleState state) {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
+    double speedModifier =
+        Math.abs(
+            Math.cos(
+                ((optimizedState.angle.getRadians() % Math.PI) - getSteerPosition().getRadians())));
+    Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    drivePID.setReference(
+        optimizedState.speedMetersPerSecond * speedModifier, CANSparkMax.ControlType.kVelocity);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;

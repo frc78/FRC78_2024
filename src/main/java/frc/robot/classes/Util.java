@@ -39,6 +39,7 @@ public class Util {
   public static double modifyJoystick(double value) {
     // Deadband
     value = MathUtil.applyDeadband(value, Constants.JOYSTICK_DEADBAND);
+    // value = Math.pow(value, 1.5) * Math.signum(value);
     // Square the axis
     // value = Math.copySign(value * value, value);
     return value;
