@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
@@ -181,21 +180,10 @@ class CompetitionRobotContainer {
             RobotConstants.STEER_IDLE));
   }
 
-<<<<<<< HEAD
   private void configureBindings() {
     m_driveController.start().onTrue(m_poseEstimator.resetPose(new Pose2d()));
     m_driveController
         .rightBumper()
-=======
-  public void configureBindings() {
-    new Trigger(m_Elevator::hasNotBeenZeroed)
-        .and(DriverStation::isEnabled)
-        .whileTrue(m_Elevator.zeroElevator());
-    new Trigger(m_driveController::getStartButton)
-        .onTrue(new InstantCommand(() -> m_chassis.resetPose(new Pose2d())));
-
-    new Trigger(m_driveController::getRightBumper)
->>>>>>> 8e8ed307b4d66f3afa2b2dcef91f48dcd496fe21
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -237,9 +225,7 @@ class CompetitionRobotContainer {
 
     m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
-             
-    // new Trigger(m_Elevator::hasNotBeenZeroed)
-    //     .and(DriverStation::isEnabled)
+
     m_manipController.start().whileTrue(m_Elevator.zeroElevator());
 
     m_manipController
