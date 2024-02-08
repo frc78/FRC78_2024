@@ -212,9 +212,7 @@ public class NeoModule implements SwerveModule {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
     double speedModifier =
-        Math.abs(
-            Math.cos(
-                ((optimizedState.angle.getRadians() % Math.PI) - getSteerPosition().getRadians())));
+        Math.abs(Math.cos(((optimizedState.angle.getRadians()) - getSteerPosition().getRadians())));
     Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
@@ -231,6 +229,9 @@ public class NeoModule implements SwerveModule {
     SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
     SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
     SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
+    SmartDashboard.putNumber(
+        config.driveID + "steer err",
+        (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
   }
 
   public void openLoopDiffDrive(double voltage) {
