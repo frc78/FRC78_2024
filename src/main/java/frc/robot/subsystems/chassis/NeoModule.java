@@ -227,8 +227,10 @@ public class NeoModule implements SwerveModule {
             .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
     // (-pi to pi) to a zero to 1
     SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-    SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
-    SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
+    SmartDashboard.putNumber(config.driveID + " getting speed", getDriveVelocity());
+    SmartDashboard.putNumber(
+        config.driveID + " setting speed", optimizedState.speedMetersPerSecond);
+    Logger.recordOutput(config.driveID + " drive meters", driveEnc.getPosition());
     SmartDashboard.putNumber(
         config.driveID + "steer err",
         (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
