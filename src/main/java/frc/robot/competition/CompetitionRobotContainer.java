@@ -7,6 +7,7 @@ package frc.robot.competition;
 import static frc.robot.subsystems.Shooter.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -87,6 +88,7 @@ class CompetitionRobotContainer {
 
     m_Elevator = new Elevator();
 
+    // TODO needs to be cleaned up, should probably be added to structs and created in constants
     ShooterConfig shooterConfig = new ShooterConfig();
     shooterConfig.FLYWHEEL_TOP_ID = RobotConstants.FLYWHEEL_TOP_ID;
     shooterConfig.FLYWHEEL_BOTTOM_ID = RobotConstants.FLYWHEEL_BOTTOM_ID;
@@ -114,6 +116,13 @@ class CompetitionRobotContainer {
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
     m_feeder = new Feeder();
+
+    NamedCommands.registerCommand(
+        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
+    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
+    NamedCommands.registerCommand("Score", m_feeder.fire());
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier

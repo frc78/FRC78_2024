@@ -16,7 +16,7 @@ public class Feeder extends SubsystemBase {
 
   /** Creates a new Feed. */
   public Feeder() {
-    feedMotor = new TalonFX(14);
+    feedMotor = new TalonFX(16);
     feedSensor = new TimeOfFlight(17);
     feedSensor.setRangeOfInterest(-1, 1, 1, -1);
 
