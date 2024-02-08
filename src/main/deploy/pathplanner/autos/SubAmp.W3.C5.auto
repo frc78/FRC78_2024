@@ -5,7 +5,7 @@
       "x": 1.2728086408553774,
       "y": 6.700349553080058
     },
-    "rotation": -143.67317404787988
+    "rotation": -144.58294472353268
   },
   "command": {
     "type": "sequential",
@@ -68,9 +68,53 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "AmpNote.MID1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MID1.AMPside"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StartShooter"
+                }
+              }
+            ]
           }
         },
         {
@@ -82,6 +126,6 @@
       ]
     }
   },
-  "folder": "2NoteAutos",
+  "folder": "3 Note Sides",
   "choreoAuto": false
 }

@@ -2,38 +2,31 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4376744281438871,
-      "y": 5.566684809560096
+      "x": 1.2728086408553774,
+      "y": 6.700349553080058
     },
-    "rotation": 180.0
+    "rotation": -135.70731936854423
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartShooter"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Score"
-                }
-              }
-            ]
+            "name": "StartShooter"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
           }
         },
         {
@@ -43,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Center.CenterNote"
+                  "pathName": "AmpSide.AmpNote"
                 }
               },
               {
