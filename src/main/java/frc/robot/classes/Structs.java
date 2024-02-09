@@ -41,4 +41,13 @@ public class Structs {
       this.maxAngularAcceleration = maxAngularAcceleration;
     }
   }
+
+  public static class MinMax {
+    public double min, max;
+
+    public MinMax(double min, double max) {
+      this.min = min;
+      this.max = max;
+    }
+  }
 }

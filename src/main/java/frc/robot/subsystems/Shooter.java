@@ -8,9 +8,12 @@ import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.pathplanner.lib.util.PIDConstants;
+import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint.MinMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Structs.FFConstants;
 
 public class Shooter extends SubsystemBase {
 
@@ -25,29 +28,29 @@ public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
   public Shooter(ShooterConfig config) {
     this.config = config;
-    shooterTOP = new TalonFX(config.FLYWHEEL_TOP_ID);
-    shooterBOTTOM = new TalonFX(config.FLYWHEEL_BOTTOM_ID);
+    shooterTOP = new TalonFX(config.flywheelTopID);
+    shooterBOTTOM = new TalonFX(config.flywheelBottomID);
 
     shooterTOP.getConfigurator().apply(new TalonFXConfiguration());
     shooterBOTTOM.getConfigurator().apply(new TalonFXConfiguration());
 
     var shooterTopConfigs = new Slot0Configs();
     shooterTOP.setInverted(true);
-    shooterTopConfigs.kS = config.FLYWHEEL_TOP_S;
-    shooterTopConfigs.kV = config.FLYWHEEL_TOP_V;
-    shooterTopConfigs.kP = config.FLYWHEEL_TOP_P;
-    shooterTopConfigs.kI = config.FLYWHEEL_TOP_I;
-    shooterTopConfigs.kD = config.FLYWHEEL_TOP_D;
+    shooterTopConfigs.kS = config.flywheelTopFF.kS;
+    shooterTopConfigs.kV = config.flywheelTopFF.kV;
+    shooterTopConfigs.kP = config.flywheelTopPID.kP;
+    shooterTopConfigs.kI = config.flywheelTopPID.kI;
+    shooterTopConfigs.kD = config.flywheelTopPID.kD;
 
     shooterTOP.getConfigurator().apply(shooterTopConfigs);
 
     var shooterBottomConfigs = new Slot0Configs();
     shooterBOTTOM.setInverted(true);
-    shooterBottomConfigs.kS = config.FLYWHEEL_BOTTOM_S;
-    shooterBottomConfigs.kV = config.FLYWHEEL_BOTTOM_V;
-    shooterBottomConfigs.kP = config.FLYWHEEL_BOTTOM_P;
-    shooterBottomConfigs.kI = config.FLYWHEEL_BOTTOM_I;
-    shooterBottomConfigs.kD = config.FLYWHEEL_BOTTOM_D;
+    shooterBottomConfigs.kS = config.flywheelBottomFF.kS;
+    shooterBottomConfigs.kV = config.flywheelBottomFF.kV;
+    shooterBottomConfigs.kP = config.flywheelBottomPID.kP;
+    shooterBottomConfigs.kI = config.flywheelBottomPID.kI;
+    shooterBottomConfigs.kD = config.flywheelBottomPID.kD;
 
     shooterBOTTOM.getConfigurator().apply(shooterBottomConfigs);
 
@@ -57,12 +60,15 @@ public class Shooter extends SubsystemBase {
 
   public void setPIDReferenceTOP(double setPoint) {
     shooterTOP.setControl(
-        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.FLYWHEEL_TOP_FF));
+        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kA));
   }
 
   public void setPIDReferenceBOTTOM(double setPoint) {
     shooterBOTTOM.setControl(
-        shooterBottomVV.withVelocity(setPoint / 60).withFeedForward(config.FLYWHEEL_BOTTOM_FF));
+        shooterBottomVV
+            .withVelocity(setPoint / 60)
+            .withFeedForward(
+                config.flywheelTopFF.kA)); // TODO should maybe use new variable instead of kA
   }
 
   public void setPIDReferenceBOTH(double setPoint) {
@@ -91,36 +97,35 @@ public class Shooter extends SubsystemBase {
   }
 
   public static class ShooterConfig {
-    // SHOOTER
+    public int flywheelTopID;
+    public int flywheelBottomID;
+    public MinMax flywheelTopMinMax;
+    public MinMax flywheelBottomMinMax;
+    public PIDConstants flywheelTopPID;
+    public PIDConstants flywheelBottomPID;
+    public FFConstants flywheelTopFF;
+    public FFConstants flywheelBottomFF;
 
-    public int FLYWHEEL_TOP_ID;
-    public int FLYWHEEL_BOTTOM_ID;
-
-    // Constants - TOP FLYWHEEL
-    public double FLYWHEEL_TOP_MIN;
-    public double FLYWHEEL_TOP_MAX;
-    // PID Consants - TOP FLYWHEEL
-    public double FLYWHEEL_TOP_P;
-    public double FLYWHEEL_TOP_I;
-    public double FLYWHEEL_TOP_D;
-
-    public double FLYWHEEL_TOP_S;
-    public double FLYWHEEL_TOP_V;
-    public double FLYWHEEL_TOP_FF;
-
-    // Constants - BOTTOM FLYWHEEL
-    public double FLYWHEEL_BOTTOM_MIN;
-    public double FLYWHEEL_BOTTOM_MAX;
-    // PID Constants - BOTTOM FLYWHEEL
-    public double FLYWHEEL_BOTTOM_P;
-    public double FLYWHEEL_BOTTOM_I;
-    public double FLYWHEEL_BOTTOM_D;
-
-    public double FLYWHEEL_BOTTOM_S;
-    public double FLYWHEEL_BOTTOM_V;
-    public double FLYWHEEL_BOTTOM_FF;
-
-    /** Hood's angle of elevation in degrees */
+    // Hood's angle of elevation in degrees
     public double HOOD_ANGLE;
+
+    public ShooterConfig(
+        int flywheelTopID,
+        int flywheelBottomID,
+        MinMax flywheelTopMinMax,
+        MinMax flywheelBottomMinMax,
+        PIDConstants flywheelTopPID,
+        PIDConstants flywheelBottomPID,
+        FFConstants flywheelTopFF,
+        FFConstants flywheelBottomFF) {
+      this.flywheelTopID = flywheelTopID;
+      this.flywheelBottomID = flywheelBottomID;
+      this.flywheelTopMinMax = flywheelTopMinMax;
+      this.flywheelBottomMinMax = flywheelBottomMinMax;
+      this.flywheelTopPID = flywheelTopPID;
+      this.flywheelBottomPID = flywheelBottomPID;
+      this.flywheelTopFF = flywheelTopFF;
+      this.flywheelBottomFF = flywheelBottomFF;
+    }
   }
 }
