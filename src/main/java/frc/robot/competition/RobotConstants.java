@@ -33,7 +33,7 @@ class RobotConstants {
       new HolonomicPathFollowerConfig(
           new PIDConstants(5, 0.0, 0.0), // Translation PID constants
           new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
-          RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
+          1, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
