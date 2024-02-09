@@ -230,6 +230,8 @@ class CompetitionRobotContainer {
     m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
     m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
 
+    m_manipController.start().whileTrue(m_Elevator.zeroElevator());
+
     m_manipController
         .leftTrigger(0.5)
         .whileTrue(m_Shooter.startShooter(500))
