@@ -4,18 +4,33 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkLimitSwitch;
+import com.revrobotics.SparkLimitSwitch.Type;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
   private CANSparkMax elevNeoMotor2;
+  private boolean zeroed = false;
+
+  public boolean hasNotBeenZeroed() {
+    return !zeroed;
+  }
 
   /** Creates a new Elevator. */
+  private final SparkLimitSwitch magneticLimitSwitch;
+
+  private final RelativeEncoder encoder;
+
   public Elevator() {
     elevNeoMotor1 = new CANSparkMax(11, MotorType.kBrushless);
     elevNeoMotor2 = new CANSparkMax(12, MotorType.kBrushless);
@@ -26,23 +41,53 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setIdleMode(IdleMode.kBrake);
     elevNeoMotor2.setIdleMode(IdleMode.kBrake);
 
-    RelativeEncoder encoder = elevNeoMotor1.getAlternateEncoder(8192);
+    encoder = elevNeoMotor1.getAlternateEncoder(8192);
     encoder.setPositionConversionFactor(5.498);
     elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
 
     elevNeoMotor1.setInverted(true);
     elevNeoMotor2.follow(elevNeoMotor1, true);
+    magneticLimitSwitch = elevNeoMotor2.getReverseLimitSwitch(Type.kNormallyOpen);
+    magneticLimitSwitch.enableLimitSwitch(false);
+
+    setDefaultCommand(run(() -> elevNeoMotor1.set(0)));
   }
 
-  public void SetSpeed(double speed) {
-    elevNeoMotor1.set(speed);
+  private Command lowerElevatorUntilLimitReached() {
+    return run(() -> elevNeoMotor1.set(-.1)).until(magneticLimitSwitch::isPressed);
+  }
+
+  private Command configureMotorsAfterZeroing() {
+    return Commands.runOnce(
+        () -> {
+          encoder.setPosition(0);
+          elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
+          elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 14);
+          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
+          zeroed = true;
+        });
+  }
+
+  public Command zeroElevator() {
+    return lowerElevatorUntilLimitReached().andThen(configureMotorsAfterZeroing());
   }
 
   public Command moveElevatorUp() {
-    return this.startEnd(() -> elevNeoMotor1.set(.1), () -> elevNeoMotor1.set(0));
+    return this.run(() -> elevNeoMotor1.set(.1));
   }
 
   public Command moveElevatorDown() {
-    return this.startEnd(() -> elevNeoMotor1.set(-.1), () -> elevNeoMotor1.set(0));
+    return this.run(() -> elevNeoMotor1.set(-.1));
+  }
+
+  public void periodic() {
+    SmartDashboard.putBoolean("limit pressed", magneticLimitSwitch.isPressed());
+    SmartDashboard.putBoolean("zeroed", zeroed);
+    SmartDashboard.putNumber("position", encoder.getPosition());
+    SmartDashboard.putBoolean(
+        "reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
+    SmartDashboard.putBoolean(
+        "forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
   }
 }
