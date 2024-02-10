@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -124,6 +125,8 @@ public class NeoModule implements SwerveModule {
 
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
+
+    steer.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
