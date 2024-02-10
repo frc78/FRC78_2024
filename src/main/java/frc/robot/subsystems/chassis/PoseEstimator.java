@@ -14,8 +14,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import java.io.IOException;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -78,11 +76,8 @@ public class PoseEstimator {
     return poseEstimator.getEstimatedPosition();
   }
 
-  public Command resetPose(Pose2d pose) {
-    return new InstantCommand(
-        () ->
-            poseEstimator.resetPosition(
-                Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions(), pose));
+  public void resetPose(Pose2d pose) {
+    poseEstimator.resetPosition(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions(), pose);
   }
 
   public double getGyroRot() {

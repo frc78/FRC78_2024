@@ -50,7 +50,7 @@ class RobotConstants {
 
   public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
 
-  // WHEELS //
+  // WHEELS
   public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
   public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
@@ -80,7 +80,7 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
-  // INTAKE //
+  // INTAKE
   public static final int INTAKE_TOP_ID = 10;
   public static final int INTAKE_BOTTOM_ID = 9;
 
@@ -88,41 +88,46 @@ class RobotConstants {
 
   public static final double INTAKE_SPEED_OUT = -0.5;
 
-  // FEED //
-  public static final int FEED_ID = 0; // TODO
-  public static final int BELT_ID = 0; // TODO
+  // SHOOTER
 
-  // SHOOTER //
   public static final int FLYWHEEL_TOP_ID = 14;
   public static final int FLYWHEEL_BOTTOM_ID = 15;
+  public static final int FEED_ID = 0; // TODO
+  public static final int BELT_ID = 0; // TODO
 
   // Constants - TOP FLYWHEEL
   public static final double FLYWHEEL_TOP_MIN = -1;
   public static final double FLYWHEEL_TOP_MAX = 1;
   // PID Consants - TOP FLYWHEEL
-  public static final double FLYWHEEL_TOP_P = 0;
-  public static final double FLYWHEEL_TOP_I = 0;
-  public static final double FLYWHEEL_TOP_D = 0;
+  public static final double FLYWHEEL_TOP_P = 0.11; // TODO
+  public static final double FLYWHEEL_TOP_I = 0; // TODO
+  public static final double FLYWHEEL_TOP_D = 0; // TODO
 
-  public static final double FLYWHEEL_TOP_S = 0.16;
-  public static final double FLYWHEEL_TOP_V = 0.1065;
-  public static final double FLYWHEEL_TOP_FF = 0;
+  public static final double FLYWHEEL_TOP_S = 0.5; // TODO
+  public static final double FLYWHEEL_TOP_V = 0.12; // TODO
+  public static final double FLYWHEEL_TOP_FF = 0.00015673981;
 
   // Constants - BOTTOM FLYWHEEL
   public static final double FLYWHEEL_BOTTOM_MIN = -1;
   public static final double FLYWHEEL_BOTTOM_MAX = 1;
   // PID Constants - BOTTOM FLYWHEEL
-  public static final double FLYWHEEL_BOTTOM_P = 0;
-  public static final double FLYWHEEL_BOTTOM_I = 0;
-  public static final double FLYWHEEL_BOTTOM_D = 0;
+  public static final double FLYWHEEL_BOTTOM_P = 0.11; // TODO
+  public static final double FLYWHEEL_BOTTOM_I = 0; // TODO
+  public static final double FLYWHEEL_BOTTOM_D = 0; // TODO
 
-  public static final double FLYWHEEL_BOTTOM_S = 0.14;
-  public static final double FLYWHEEL_BOTTOM_V = 0.1065;
-  public static final double FLYWHEEL_BOTTOM_FF = 0;
+  public static final double FLYWHEEL_BOTTOM_S = 0.5; // TODO
+  public static final double FLYWHEEL_BOTTOM_V = 0.12; // TODO
+  public static final double FLYWHEEL_BOTTOM_FF = 0.00015673981;
 
-  // WRIST //
+  /** Hood's angle of elevation in degrees */
+  public static final double HOOD_ANGLE = 45.0; // TODO
+
+  // Wrist Constants
   public static final int WRIST_ID = 13;
 
-  public static final float WRIST_HIGH_LIM = 130; // 139
+  public static final float WRIST_HIGH_LIM = 139; // 139
   public static final float WRIST_LOW_LIM = 100; // 90
+
+  public static final double AUTO_SHOOT_SPEED = 500;
+  public static final double AUTO_WRIST_SETPOINT = 0;
 }
