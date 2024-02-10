@@ -5,15 +5,14 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.util.PIDConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.classes.Structs.FFConstants;
-import frc.robot.classes.Structs.MinMax;
+import frc.robot.classes.Structs.Range;
+import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
 
@@ -31,28 +30,27 @@ public class Shooter extends SubsystemBase {
     shooterTOP = new TalonFX(config.flywheelTopID);
     shooterBOTTOM = new TalonFX(config.flywheelBottomID);
 
-    shooterTOP.getConfigurator().apply(new TalonFXConfiguration());
-    shooterBOTTOM.getConfigurator().apply(new TalonFXConfiguration());
+    // TODO might have to reset to factory defaults
 
-    var shooterTopConfigs = new Slot0Configs();
-    shooterTOP.setInverted(true);
-    shooterTopConfigs.kS = config.flywheelTopFF.kS;
-    shooterTopConfigs.kV = config.flywheelTopFF.kV;
-    shooterTopConfigs.kP = config.flywheelTopPID.kP;
-    shooterTopConfigs.kI = config.flywheelTopPID.kI;
-    shooterTopConfigs.kD = config.flywheelTopPID.kD;
+    var shooterTopConfig = new Slot0Configs();
+    shooterTOP.setInverted(config.flywheelTopInverted);
+    shooterTopConfig.kS = config.flywheelTopFF.kS;
+    shooterTopConfig.kV = config.flywheelTopFF.kV;
+    shooterTopConfig.kP = config.flywheelTopPID.kP;
+    shooterTopConfig.kI = config.flywheelTopPID.kI;
+    shooterTopConfig.kD = config.flywheelTopPID.kD;
 
-    shooterTOP.getConfigurator().apply(shooterTopConfigs);
+    shooterTOP.getConfigurator().apply(shooterTopConfig);
 
-    var shooterBottomConfigs = new Slot0Configs();
-    shooterBOTTOM.setInverted(true);
-    shooterBottomConfigs.kS = config.flywheelBottomFF.kS;
-    shooterBottomConfigs.kV = config.flywheelBottomFF.kV;
-    shooterBottomConfigs.kP = config.flywheelBottomPID.kP;
-    shooterBottomConfigs.kI = config.flywheelBottomPID.kI;
-    shooterBottomConfigs.kD = config.flywheelBottomPID.kD;
+    var shooterBottomConfig = new Slot0Configs();
+    shooterBOTTOM.setInverted(config.flywheelBottomInverted);
+    shooterBottomConfig.kS = config.flywheelBottomFF.kS;
+    shooterBottomConfig.kV = config.flywheelBottomFF.kV;
+    shooterBottomConfig.kP = config.flywheelBottomPID.kP;
+    shooterBottomConfig.kI = config.flywheelBottomPID.kI;
+    shooterBottomConfig.kD = config.flywheelBottomPID.kD;
 
-    shooterBOTTOM.getConfigurator().apply(shooterBottomConfigs);
+    shooterBOTTOM.getConfigurator().apply(shooterBottomConfig);
 
     shooterTopVV = new VelocityVoltage(0).withSlot(0);
     shooterBottomVV = new VelocityVoltage(0).withSlot(0);
@@ -60,15 +58,12 @@ public class Shooter extends SubsystemBase {
 
   public void setPIDReferenceTOP(double setPoint) {
     shooterTOP.setControl(
-        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kA));
+        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kF));
   }
 
   public void setPIDReferenceBOTTOM(double setPoint) {
     shooterBOTTOM.setControl(
-        shooterBottomVV
-            .withVelocity(setPoint / 60)
-            .withFeedForward(
-                config.flywheelTopFF.kA)); // TODO should maybe use new variable instead of kA
+        shooterBottomVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kF));
   }
 
   public void setPIDReferenceBOTH(double setPoint) {
@@ -76,26 +71,24 @@ public class Shooter extends SubsystemBase {
     setPIDReferenceBOTTOM(setPoint);
   }
 
-  public Command setShooter(int setPoint) {
+  public Command setShooter(double setPoint) {
     return this.runOnce(() -> this.setPIDReferenceBOTH(setPoint));
-  }
-
-  public Command stopCommand() {
-    return this.runOnce(() -> this.setPIDReferenceBOTH(0));
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("TOP SetPoint", shooterTOP.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("BOTTOM SetPoint", shooterBOTTOM.getVelocity().getValueAsDouble());
+    // TODO is this reading velocity encoder or the setting velocity?
+    Logger.recordOutput("Shooter Top", shooterTOP.getVelocity().getValueAsDouble());
+    Logger.recordOutput("Shooter Bottom", shooterBOTTOM.getVelocity().getValueAsDouble());
   }
 
   public static class ShooterConfig {
     public final int flywheelTopID;
     public final int flywheelBottomID;
-    public final MinMax flywheelTopMinMax;
-    public final MinMax flywheelBottomMinMax;
+    public final Boolean flywheelTopInverted;
+    public final Boolean flywheelBottomInverted;
+    public final Range flywheelTopMinMax;
+    public final Range flywheelBottomMinMax;
     public final PIDConstants flywheelTopPID;
     public final PIDConstants flywheelBottomPID;
     public final FFConstants flywheelTopFF;
@@ -104,14 +97,18 @@ public class Shooter extends SubsystemBase {
     public ShooterConfig(
         int flywheelTopID,
         int flywheelBottomID,
-        MinMax flywheelTopMinMax,
-        MinMax flywheelBottomMinMax,
+        Boolean flywheelTopInverted,
+        Boolean flywheelBottomInverted,
+        Range flywheelTopMinMax,
+        Range flywheelBottomMinMax,
         PIDConstants flywheelTopPID,
         PIDConstants flywheelBottomPID,
         FFConstants flywheelTopFF,
         FFConstants flywheelBottomFF) {
       this.flywheelTopID = flywheelTopID;
       this.flywheelBottomID = flywheelBottomID;
+      this.flywheelTopInverted = flywheelTopInverted;
+      this.flywheelBottomInverted = flywheelBottomInverted;
       this.flywheelTopMinMax = flywheelTopMinMax;
       this.flywheelBottomMinMax = flywheelBottomMinMax;
       this.flywheelTopPID = flywheelTopPID;

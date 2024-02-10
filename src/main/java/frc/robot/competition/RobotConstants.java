@@ -89,51 +89,36 @@ class RobotConstants {
   public static final double INTAKE_SPEED_OUT = -0.5;
 
   // FEED //
-  public static final int FEED_ID = 0; // TODO
-  public static final int BELT_ID = 0; // TODO
+  public static final int FEED_ID = 16;
+  public static final int FEED_SENSOR_ID = 17;
 
-  // SHOOTER //
-  public static final int FLYWHEEL_TOP_ID = 14;
-  public static final int FLYWHEEL_BOTTOM_ID = 15;
+  // Time of flight sensor range of interest
+  public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
+  public static final double FEED_SENSOR_THRESHOLD = 125;
 
-  // Constants - TOP FLYWHEEL
-  public static final double FLYWHEEL_TOP_MIN = -1;
-  public static final double FLYWHEEL_TOP_MAX = 1;
-  // PID Consants - TOP FLYWHEEL
-  public static final double FLYWHEEL_TOP_P = 0;
-  public static final double FLYWHEEL_TOP_I = 0;
-  public static final double FLYWHEEL_TOP_D = 0;
-
-  public static final double FLYWHEEL_TOP_S = 0.16;
-  public static final double FLYWHEEL_TOP_V = 0.1065;
-  public static final double FLYWHEEL_TOP_FF = 0;
-
-  // Constants - BOTTOM FLYWHEEL
-  public static final double FLYWHEEL_BOTTOM_MIN = -1;
-  public static final double FLYWHEEL_BOTTOM_MAX = 1;
-  // PID Constants - BOTTOM FLYWHEEL
-  public static final double FLYWHEEL_BOTTOM_P = 0;
-  public static final double FLYWHEEL_BOTTOM_I = 0;
-  public static final double FLYWHEEL_BOTTOM_D = 0;
-
-  public static final double FLYWHEEL_BOTTOM_S = 0.14;
-  public static final double FLYWHEEL_BOTTOM_V = 0.1065;
-  public static final double FLYWHEEL_BOTTOM_FF = 0;
+  public static final double FEED_INTAKE_SPEED = 0.15;
+  public static final double FEED_OUTTAKE_SPEED = -0.5;
+  public static final double FEED_FIRE_SPEED = 0.5;
 
   public static final ShooterConfig SHOOTER_CONFIG =
       new ShooterConfig(
           14,
           15,
-          new MinMax(-1, 1),
-          new MinMax(-1, 1),
+          true,
+          true,
+          new Range(-1, 1),
+          new Range(-1, 1),
           new PIDConstants(0, 0, 0),
           new PIDConstants(0, 0, 0),
-          new FFConstants(0.16, 0.1065, 0.0),
-          new FFConstants(0.14, 0.1065, 0.0));
+          new FFConstants(0.16, 0.1065, 0.0, 0.0),
+          new FFConstants(0.14, 0.1065, 0.0, 0.0));
 
   // WRIST //
   public static final int WRIST_ID = 13;
 
   public static final float WRIST_HIGH_LIM = 130; // 139
   public static final float WRIST_LOW_LIM = 100; // 90
+
+  // CANDLE //
+  public static final int CANDLE_ID = 1;
 }

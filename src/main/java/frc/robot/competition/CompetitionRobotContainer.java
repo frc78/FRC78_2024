@@ -98,9 +98,14 @@ class CompetitionRobotContainer {
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
-    m_feeder = new Feeder();
+    m_feeder =
+        new Feeder(
+            RobotConstants.FEED_ID,
+            RobotConstants.FEED_SENSOR_ID,
+            RobotConstants.TOF_RANGE,
+            RobotConstants.FEED_SENSOR_THRESHOLD);
 
-    m_feedback = new Feedback(1);
+    m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -213,7 +218,7 @@ class CompetitionRobotContainer {
     m_manipController
         .leftTrigger(0.5)
         .whileTrue(m_Shooter.setShooter(500))
-        .whileFalse(m_Shooter.stopCommand());
+        .whileFalse(m_Shooter.setShooter(0));
 
     m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
@@ -229,11 +234,14 @@ class CompetitionRobotContainer {
     m_manipController
         .rightBumper()
         .whileTrue(
-            m_intake.intakeCommand().alongWith(m_feeder.runFeed()).until(m_feeder::isNoteQueued));
+            m_intake
+                .intakeCommand()
+                .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+                .until(m_feeder::isNoteQueued));
 
-    m_manipController.leftBumper().whileTrue(m_feeder.reverseFeed());
+    m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
-    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.fire());
+    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
