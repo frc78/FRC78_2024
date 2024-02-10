@@ -9,13 +9,13 @@ public class Structs {
 
   /** Struct for feed forward constants. Contains 3 doubles of kS, kV, and kA */
   public static class FFConstants {
-    public final double kS, kV, kA, kF;
+    public final double kS, kV, kA, kFF;
 
-    public FFConstants(double kS, double kV, double kA, double kF) {
+    public FFConstants(double kS, double kV, double kA, double kFF) {
       this.kS = kS;
       this.kV = kV;
       this.kA = kA;
-      this.kF = kF;
+      this.kFF = kFF;
     }
 
     public FFConstants(double kS, double kV, double kA) {
