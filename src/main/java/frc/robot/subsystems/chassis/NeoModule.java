@@ -59,6 +59,8 @@ public class NeoModule implements SwerveModule {
     steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
     drivePID = drive.getPIDController();
     steerPID = steer.getPIDController();
+    // driveFF = new SimpleMotorFeedforward(config.driveFeedforward);
+    // steerFF = new SimpleMotorFeedforward(config.steerFeedforward);
 
     desiredState = new SwerveModuleState();
 

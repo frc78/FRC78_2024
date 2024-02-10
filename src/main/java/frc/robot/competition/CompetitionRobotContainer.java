@@ -21,8 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
-import frc.robot.classes.ModuleConfig;
-import frc.robot.classes.Structs.ClosedLoopParameters;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
@@ -60,10 +58,14 @@ class CompetitionRobotContainer {
 
   CompetitionRobotContainer() {
 
-    NeoModule frontLeft = makeSwerveModule(1, 2);
-    NeoModule frontRight = makeSwerveModule(3, 4);
-    NeoModule backLeft = makeSwerveModule(5, 6);
-    NeoModule backRight = makeSwerveModule(7, 8);
+    NeoModule frontLeft = new NeoModule(1, 2, RobotConstants.MODULE_CONFIG);
+    ;
+    NeoModule frontRight = new NeoModule(3, 4, RobotConstants.MODULE_CONFIG);
+    ;
+    NeoModule backLeft = new NeoModule(5, 6, RobotConstants.MODULE_CONFIG);
+    ;
+    NeoModule backRight = new NeoModule(7, 8, RobotConstants.MODULE_CONFIG);
+    ;
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
@@ -171,32 +173,6 @@ class CompetitionRobotContainer {
 
     return new SwerveDriveKinematics(
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
-  }
-
-  private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ClosedLoopParameters driveClosedLoopParams =
-        new ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
-    ClosedLoopParameters steerClosedLoopParams = new ClosedLoopParameters(18, 0, 0, 0);
-    return new NeoModule(
-        driveId,
-        steerId,
-        new ModuleConfig(
-            driveClosedLoopParams,
-            steerClosedLoopParams,
-            RobotConstants.DRIVE_ENC_TO_METERS,
-            RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
-            RobotConstants.STEER_ENC_POS_TO_METERS,
-            RobotConstants.STEER_ENC_VEL_TO_METERS,
-            RobotConstants.DRIVE_INVERTED,
-            RobotConstants.STEER_INVERTED,
-            RobotConstants.STEER_ENC_INVERTED,
-            RobotConstants.STEER_ENC_PID_MIN,
-            RobotConstants.STEER_ENC_PID_MAX,
-            RobotConstants.DRIVE_CURRENT_LIMIT,
-            RobotConstants.STEER_CURRENT_LIMIT,
-            RobotConstants.NOMINAL_VOLTAGE,
-            RobotConstants.DRIVE_IDLE,
-            RobotConstants.STEER_IDLE));
   }
 
   private void configureBindings() {
