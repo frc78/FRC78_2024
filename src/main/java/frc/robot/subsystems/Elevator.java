@@ -4,7 +4,10 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
+import static edu.wpi.first.units.Units.InchesPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Second;
+
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
@@ -13,6 +16,13 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkLimitSwitch;
 import com.revrobotics.SparkLimitSwitch.Type;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,6 +41,25 @@ public class Elevator extends SubsystemBase {
 
   /** Creates a new Elevator. */
   private final SparkLimitSwitch magneticLimitSwitch;
+
+  private final double kS = 0.035369;
+  private final double kV = 0.52479;
+  private final double kA = 0.029988;
+  private final double kG = 0.029988;
+  // Command loop runs at 50Hz, 20ms period
+  private final double kDt = 0.02;
+
+  private final Measure<Velocity<Distance>> manualSpeed = InchesPerSecond.of(1);
+
+  private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
+  private final ProfiledPIDController profiledPid =
+      new ProfiledPIDController(
+          5.6495,
+          0,
+          0.15652,
+          new TrapezoidProfile.Constraints(
+              InchesPerSecond.of(8), InchesPerSecond.per(Second).of(6)),
+          kDt);
 
   public Elevator() {
     elevNeoMotor1 = new CANSparkMax(11, MotorType.kBrushless);
@@ -62,9 +91,10 @@ public class Elevator extends SubsystemBase {
   }
 
   private Command configureMotorsAfterZeroing() {
-    return Commands.runOnce(
+    return runOnce(
         () -> {
           encoder.setPosition(0);
+          profiledPid.setGoal(0);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 14);
@@ -74,15 +104,25 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command zeroElevator() {
-    return lowerElevatorUntilLimitReached().andThen(configureMotorsAfterZeroing());
+    return lowerElevatorUntilLimitReached()
+        .andThen(configureMotorsAfterZeroing())
+        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming);
   }
 
+  /** Manually move elevator up by gradually moving the setpoint. */
   public Command moveElevatorUp() {
-    return this.run(() -> elevNeoMotor1.set(.1));
+    return Commands.runOnce(
+        () ->
+            profiledPid.setGoal(
+                encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)));
   }
 
+  /** Manually move elevator down by gradually moving the setpoint. */
   public Command moveElevatorDown() {
-    return this.run(() -> elevNeoMotor1.set(-.1));
+    return Commands.runOnce(
+        () ->
+            profiledPid.setGoal(
+                encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)));
   }
 
   public void periodic() {
@@ -93,13 +133,21 @@ public class Elevator extends SubsystemBase {
         "reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
     SmartDashboard.putBoolean(
         "forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
+    SmartDashboard.putNumber("Elevator Profile Velocity", profiledPid.getSetpoint().velocity);
   }
 
   /** Moves elevator to target as long as elevator is zeroed */
   public Command setToTarget(double target) {
-    return this.run(
-        () -> {
-          if (zeroed) elevNeoMotor1.getPIDController().setReference(target, ControlType.kPosition);
-        });
+    return runOnce(() -> profiledPid.setGoal(target))
+        .andThen(
+            run(
+                () -> {
+                  if (!zeroed) return;
+                  elevNeoMotor1.setVoltage(
+                      profiledPid.calculate(Units.metersToInches(encoder.getPosition()))
+                          + feedforward.calculate(
+                              MetersPerSecond.of(profiledPid.getSetpoint().velocity)
+                                  .in(InchesPerSecond)));
+                }));
   }
 }
