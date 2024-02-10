@@ -129,10 +129,10 @@ class CompetitionRobotContainer {
 
     NamedCommands.registerCommand(
         "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
     NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
     NamedCommands.registerCommand("Score", m_feeder.fire());
+    NamedCommands.registerCommand(
+        "ScoreFromW1", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED).alongWith());
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
