@@ -5,11 +5,10 @@
 package frc.robot.classes;
 
 import com.revrobotics.CANSparkBase;
+import frc.robot.classes.Structs.ClosedLoopParameters;
 
 /** Add your docs here. */
 public class ModuleConfig {
-  public final int driveID;
-  public final int steerID;
 
   public final ClosedLoopParameters driveClosedLoopParameters;
   public final ClosedLoopParameters steerClosedLoopParameters;
@@ -31,8 +30,6 @@ public class ModuleConfig {
   public final CANSparkBase.IdleMode steerIdleMode;
 
   public ModuleConfig(
-      int driveID,
-      int steerID,
       ClosedLoopParameters driveClosedLoopParameters,
       ClosedLoopParameters steerClosedLoopParameters,
       double drivePositionConversionFactor,
@@ -49,8 +46,6 @@ public class ModuleConfig {
       double nominalVoltage,
       CANSparkBase.IdleMode driveIdleMode,
       CANSparkBase.IdleMode steerIdleMode) {
-    this.driveID = driveID;
-    this.steerID = steerID;
     this.driveClosedLoopParameters = driveClosedLoopParameters;
     this.steerClosedLoopParameters = steerClosedLoopParameters;
     this.drivePositionConversionFactor = drivePositionConversionFactor;
@@ -67,16 +62,5 @@ public class ModuleConfig {
     this.nominalVoltage = nominalVoltage;
     this.driveIdleMode = driveIdleMode;
     this.steerIdleMode = steerIdleMode;
-  }
-
-  public static class ClosedLoopParameters {
-    public double kP, kI, kD, kF;
-
-    public ClosedLoopParameters(double kP, double kI, double kD, double kF) {
-      this.kP = kP;
-      this.kI = kI;
-      this.kD = kD;
-      this.kF = kF;
-    }
   }
 }

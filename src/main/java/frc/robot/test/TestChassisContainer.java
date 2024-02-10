@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
+import frc.robot.classes.Structs.ClosedLoopParameters;
 import frc.robot.commands.*;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
@@ -102,14 +103,13 @@ class TestChassisContainer {
   }
 
   private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
-    ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
+    ClosedLoopParameters driveClosedLoopParams =
+        new ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
+    ClosedLoopParameters steerClosedLoopParams = new ClosedLoopParameters(18, 0, 0, 0);
     return new NeoModule(
+        driveId,
+        steerId,
         new ModuleConfig(
-            driveId,
-            steerId,
             driveClosedLoopParams,
             steerClosedLoopParams,
             RobotConstants.DRIVE_ENC_TO_METERS,

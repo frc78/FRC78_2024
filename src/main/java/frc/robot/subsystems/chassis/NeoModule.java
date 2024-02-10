@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -32,21 +33,27 @@ public class NeoModule implements SwerveModule {
 
   protected ModuleConfig config;
 
+  protected int driveID;
+  protected int steerID;
   protected CANSparkMax drive;
   protected CANSparkMax steer;
 
   protected SparkPIDController drivePID;
   protected SparkPIDController steerPID;
+  protected SimpleMotorFeedforward driveFF;
+  protected SimpleMotorFeedforward steerFF;
   private RelativeEncoder driveEnc;
   private AbsoluteEncoder steerEnc;
 
   private SwerveModuleState desiredState;
 
-  public NeoModule(ModuleConfig config) {
+  public NeoModule(int driveID, int steerID, ModuleConfig config) {
     this.config = config;
 
-    drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
-    steer = new CANSparkMax(this.config.steerID, MotorType.kBrushless);
+    this.driveID = driveID;
+    this.steerID = steerID;
+    drive = new CANSparkMax(this.driveID, MotorType.kBrushless);
+    steer = new CANSparkMax(this.steerID, MotorType.kBrushless);
 
     driveEnc = drive.getEncoder();
     steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
@@ -222,17 +229,16 @@ public class NeoModule implements SwerveModule {
 
     desiredState = state;
     SmartDashboard.putNumber(
-        config.driveID + " setting rot",
+        driveID + " setting rot",
         optimizedState.angle
             .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
     // (-pi to pi) to a zero to 1
-    SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-    SmartDashboard.putNumber(config.driveID + " getting speed", getDriveVelocity());
+    SmartDashboard.putNumber(driveID + " getting rot", steerEnc.getPosition() - Math.PI);
+    SmartDashboard.putNumber(driveID + " getting speed", getDriveVelocity());
+    SmartDashboard.putNumber(driveID + " setting speed", optimizedState.speedMetersPerSecond);
+    Logger.recordOutput(driveID + " drive meters", driveEnc.getPosition());
     SmartDashboard.putNumber(
-        config.driveID + " setting speed", optimizedState.speedMetersPerSecond);
-    Logger.recordOutput(config.driveID + " drive meters", driveEnc.getPosition());
-    SmartDashboard.putNumber(
-        config.driveID + "steer err",
+        driveID + "steer err",
         (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
   }
 
@@ -250,7 +256,7 @@ public class NeoModule implements SwerveModule {
       MutableMeasure.mutable(MetersPerSecond.of(0));
 
   public void logMotor(SysIdRoutineLog log) {
-    log.motor("motor#" + config.driveID)
+    log.motor("motor#" + driveID)
         // Log voltage
         .voltage(
             /* getAppliedOutput returns the duty cycle which is from [-1, +1].
