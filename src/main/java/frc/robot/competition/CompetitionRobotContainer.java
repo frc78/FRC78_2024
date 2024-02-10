@@ -7,6 +7,7 @@ package frc.robot.competition;
 import static frc.robot.subsystems.Shooter.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -108,6 +110,13 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
+    NamedCommands.registerCommand(
+        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
+    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
+    NamedCommands.registerCommand("Score", m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
+
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
         m_poseEstimator::resetPose, // Method to reset odometry
@@ -174,7 +183,9 @@ class CompetitionRobotContainer {
   }
 
   private void configureBindings() {
-    m_driveController.start().onTrue(m_poseEstimator.resetPose(new Pose2d()));
+    m_driveController
+        .start()
+        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     m_driveController
         .rightBumper()
         .whileTrue(

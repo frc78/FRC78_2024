@@ -50,7 +50,7 @@ class RobotConstants {
 
   public static final RateLimits RATE_LIMITS = new RateLimits(11, 30);
 
-  // WHEELS //
+  // WHEELS
   public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
   public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
@@ -80,7 +80,7 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
-  // INTAKE //
+  // INTAKE
   public static final int INTAKE_TOP_ID = 10;
   public static final int INTAKE_BOTTOM_ID = 9;
 
@@ -113,12 +113,19 @@ class RobotConstants {
           new FFConstants(0.16, 0.1065, 0.0, 0.0),
           new FFConstants(0.14, 0.1065, 0.0, 0.0));
 
-  // WRIST //
+  /** Hood's angle of elevation in degrees */
+  public static final double HOOD_ANGLE = 45.0; // TODO
+
+  // Wrist Constants
   public static final int WRIST_ID = 13;
 
-  public static final float WRIST_HIGH_LIM = 130; // 139
+  public static final float WRIST_HIGH_LIM = 139; // 139
   public static final float WRIST_LOW_LIM = 100; // 90
 
   // CANDLE //
   public static final int CANDLE_ID = 1;
+
+  // TODO auto stuff, but what for and is it needed?
+  public static final double AUTO_SHOOT_SPEED = 500;
+  public static final double AUTO_WRIST_SETPOINT = 0;
 }
