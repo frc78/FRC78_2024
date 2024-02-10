@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
@@ -26,10 +27,10 @@ public class Elevator extends SubsystemBase {
     return !zeroed;
   }
 
+  private RelativeEncoder encoder;
+
   /** Creates a new Elevator. */
   private final SparkLimitSwitch magneticLimitSwitch;
-
-  private final RelativeEncoder encoder;
 
   public Elevator() {
     elevNeoMotor1 = new CANSparkMax(11, MotorType.kBrushless);
@@ -44,13 +45,16 @@ public class Elevator extends SubsystemBase {
     encoder = elevNeoMotor1.getAlternateEncoder(8192);
     encoder.setPositionConversionFactor(5.498);
     elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
+    elevNeoMotor1.getPIDController().setP(.077);
+    elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
+    elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
     elevNeoMotor1.setInverted(true);
     elevNeoMotor2.follow(elevNeoMotor1, true);
     magneticLimitSwitch = elevNeoMotor2.getReverseLimitSwitch(Type.kNormallyOpen);
     magneticLimitSwitch.enableLimitSwitch(false);
 
-    setDefaultCommand(run(() -> elevNeoMotor1.set(0)));
+    this.setDefaultCommand(setToTarget(0));
   }
 
   private Command lowerElevatorUntilLimitReached() {
@@ -89,5 +93,13 @@ public class Elevator extends SubsystemBase {
         "reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
     SmartDashboard.putBoolean(
         "forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
+  }
+
+  /** Moves elevator to target as long as elevator is zeroed */
+  public Command setToTarget(double target) {
+    return this.run(
+        () -> {
+          if (zeroed) elevNeoMotor1.getPIDController().setReference(target, ControlType.kPosition);
+        });
   }
 }
