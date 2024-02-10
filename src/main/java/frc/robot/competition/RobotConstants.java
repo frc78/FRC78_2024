@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs;
 import frc.robot.classes.Structs.ClosedLoopParameters;
+import frc.robot.classes.Structs.FFConstants;
 
 /** This is the constants for the NEO */
 class RobotConstants {
@@ -86,6 +87,7 @@ class RobotConstants {
       new ModuleConfig(
           new ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED),
           new ClosedLoopParameters(18, 0, 0, 0),
+          new FFConstants(0.201, 2.619, 0.634),
           RobotConstants.DRIVE_ENC_TO_METERS,
           RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
           RobotConstants.STEER_ENC_POS_TO_METERS,

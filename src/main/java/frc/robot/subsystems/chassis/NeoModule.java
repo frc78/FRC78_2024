@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -41,7 +42,6 @@ public class NeoModule implements SwerveModule {
   protected SparkPIDController drivePID;
   protected SparkPIDController steerPID;
   protected SimpleMotorFeedforward driveFF;
-  protected SimpleMotorFeedforward steerFF;
   private RelativeEncoder driveEnc;
   private AbsoluteEncoder steerEnc;
 
@@ -59,8 +59,9 @@ public class NeoModule implements SwerveModule {
     steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
     drivePID = drive.getPIDController();
     steerPID = steer.getPIDController();
-    // driveFF = new SimpleMotorFeedforward(config.driveFeedforward);
-    // steerFF = new SimpleMotorFeedforward(config.steerFeedforward);
+    driveFF =
+        new SimpleMotorFeedforward(
+            config.driveFFConstants.kS, config.driveFFConstants.kV, config.driveFFConstants.kA);
 
     desiredState = new SwerveModuleState();
 
@@ -190,8 +191,12 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public void setVelocity(double velocity) {
-    drivePID.setReference(velocity, CANSparkMax.ControlType.kVelocity);
-
+    drivePID.setReference(
+        velocity,
+        CANSparkMax.ControlType.kVelocity,
+        0,
+        driveFF.calculate(velocity),
+        ArbFFUnits.kVoltage);
     desiredState.speedMetersPerSecond = velocity;
   }
 
@@ -226,7 +231,11 @@ public class NeoModule implements SwerveModule {
 
     // Sets the PID goals to the desired states
     drivePID.setReference(
-        optimizedState.speedMetersPerSecond * speedModifier, CANSparkMax.ControlType.kVelocity);
+        optimizedState.speedMetersPerSecond * speedModifier,
+        CANSparkMax.ControlType.kVelocity,
+        0,
+        driveFF.calculate(optimizedState.speedMetersPerSecond * speedModifier),
+        ArbFFUnits.kVoltage);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
