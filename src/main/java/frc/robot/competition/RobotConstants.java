@@ -8,6 +8,9 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.classes.Structs;
@@ -25,6 +28,9 @@ class RobotConstants {
   public static final int PIGEON_ID = 0;
 
   public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
+  public static final Transform3d CAM1_OFFSET =
+      new Transform3d(
+          new Translation3d(0.31, 0.0, 0.15), new Rotation3d(0, Math.toRadians(-15), 0));
 
   public static final Structs.MotionLimits MOTION_LIMITS =
       new Structs.MotionLimits(4, 3 /*TODO */, 8, 12);

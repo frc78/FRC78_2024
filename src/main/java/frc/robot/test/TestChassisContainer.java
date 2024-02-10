@@ -49,7 +49,9 @@ class TestChassisContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis, m_ATCamera, RobotConstants.CAM1_OFFSET, RobotConstants.PIGEON_ID);
 
     m_driveController = new CommandXboxController(0);
 
