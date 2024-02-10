@@ -9,11 +9,11 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.util.PIDConstants;
-import edu.wpi.first.math.trajectory.constraint.TrajectoryConstraint.MinMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.classes.Structs.FFConstants;
+import frc.robot.classes.Structs.MinMax;
 
 public class Shooter extends SubsystemBase {
 
@@ -76,17 +76,12 @@ public class Shooter extends SubsystemBase {
     setPIDReferenceBOTTOM(setPoint);
   }
 
-  public void shooterSTOP() {
-    shooterTOP.set(0);
-    shooterBOTTOM.set(0);
-  }
-
-  public Command startShooter(int setPoint) {
+  public Command setShooter(int setPoint) {
     return this.runOnce(() -> this.setPIDReferenceBOTH(setPoint));
   }
 
   public Command stopCommand() {
-    return this.runOnce(this::shooterSTOP);
+    return this.runOnce(() -> this.setPIDReferenceBOTH(0));
   }
 
   @Override
@@ -97,17 +92,14 @@ public class Shooter extends SubsystemBase {
   }
 
   public static class ShooterConfig {
-    public int flywheelTopID;
-    public int flywheelBottomID;
-    public MinMax flywheelTopMinMax;
-    public MinMax flywheelBottomMinMax;
-    public PIDConstants flywheelTopPID;
-    public PIDConstants flywheelBottomPID;
-    public FFConstants flywheelTopFF;
-    public FFConstants flywheelBottomFF;
-
-    // Hood's angle of elevation in degrees
-    public double HOOD_ANGLE;
+    public final int flywheelTopID;
+    public final int flywheelBottomID;
+    public final MinMax flywheelTopMinMax;
+    public final MinMax flywheelBottomMinMax;
+    public final PIDConstants flywheelTopPID;
+    public final PIDConstants flywheelBottomPID;
+    public final FFConstants flywheelTopFF;
+    public final FFConstants flywheelBottomFF;
 
     public ShooterConfig(
         int flywheelTopID,

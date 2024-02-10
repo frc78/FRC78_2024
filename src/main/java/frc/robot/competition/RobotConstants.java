@@ -10,7 +10,8 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import frc.robot.classes.Structs;
+import frc.robot.classes.Structs.*;
+import frc.robot.subsystems.Shooter.ShooterConfig;
 
 /** This is the constants for the NEO */
 class RobotConstants {
@@ -26,8 +27,7 @@ class RobotConstants {
 
   public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
 
-  public static final Structs.MotionLimits MOTION_LIMITS =
-      new Structs.MotionLimits(4, 3 /*TODO */, 8, 12);
+  public static final MotionLimits MOTION_LIMITS = new MotionLimits(4, 3 /*TODO */, 8, 12);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
@@ -45,10 +45,10 @@ class RobotConstants {
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
-  public static final Structs.FFConstants ROTATION_FF = new Structs.FFConstants(0.0, 0.0, 0.0);
+  public static final FFConstants ROTATION_FF = new FFConstants(0.0, 0.0, 0.0);
   public static final double ORBITAL_FF_CONSTANT = 5;
 
-  public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
+  public static final RateLimits RATE_LIMITS = new RateLimits(11, 30);
 
   // WHEELS //
   public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
@@ -119,6 +119,17 @@ class RobotConstants {
   public static final double FLYWHEEL_BOTTOM_S = 0.14;
   public static final double FLYWHEEL_BOTTOM_V = 0.1065;
   public static final double FLYWHEEL_BOTTOM_FF = 0;
+
+  public static final ShooterConfig SHOOTER_CONFIG =
+      new ShooterConfig(
+          14,
+          15,
+          new MinMax(-1, 1),
+          new MinMax(-1, 1),
+          new PIDConstants(0, 0, 0),
+          new PIDConstants(0, 0, 0),
+          new FFConstants(0.16, 0.1065, 0.0),
+          new FFConstants(0.14, 0.1065, 0.0));
 
   // WRIST //
   public static final int WRIST_ID = 13;
