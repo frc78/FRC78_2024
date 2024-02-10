@@ -113,9 +113,6 @@ class RobotConstants {
           new FFConstants(0.16, 0.1065, 0.0, 0.0),
           new FFConstants(0.14, 0.1065, 0.0, 0.0));
 
-  /** Hood's angle of elevation in degrees */
-  public static final double HOOD_ANGLE = 45.0; // TODO
-
   // Wrist Constants
   public static final int WRIST_ID = 13;
 

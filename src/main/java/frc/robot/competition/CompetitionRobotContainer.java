@@ -111,9 +111,9 @@ class CompetitionRobotContainer {
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "SetShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
+        "SetWrist", m_Shooter.setShooter(RobotConstants.AUTO_WRIST_SETPOINT));
     NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
     NamedCommands.registerCommand("Score", m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
