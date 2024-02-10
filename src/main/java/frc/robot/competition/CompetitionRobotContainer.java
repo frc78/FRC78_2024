@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
@@ -229,7 +230,11 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
 
-    m_manipController.start().whileTrue(m_Elevator.zeroElevator());
+    // Zero the elevator when the robot leaves disabled mode and has not been zeroed
+    RobotModeTriggers.disabled()
+        .negate()
+        .and(m_Elevator::hasNotBeenZeroed)
+        .onTrue(m_Elevator.zeroElevator());
 
     m_manipController
         .leftTrigger(0.5)
