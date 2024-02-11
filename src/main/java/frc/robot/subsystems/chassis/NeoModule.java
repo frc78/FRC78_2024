@@ -25,7 +25,6 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
 import org.littletonrobotics.junction.Logger;
@@ -242,16 +241,17 @@ public class NeoModule implements SwerveModule {
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
-    SmartDashboard.putNumber(
-        driveID + " setting rot",
-        optimizedState.angle
-            .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
     // (-pi to pi) to a zero to 1
-    SmartDashboard.putNumber(driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-    SmartDashboard.putNumber(driveID + " getting speed", getDriveVelocity());
-    SmartDashboard.putNumber(driveID + " setting speed", optimizedState.speedMetersPerSecond);
+    Logger.recordOutput(
+        driveID + " Setting",
+        new SwerveModuleState(
+            optimizedState.speedMetersPerSecond * speedModifier, optimizedState.angle));
+    Logger.recordOutput(
+        driveID + " Getting",
+        new SwerveModuleState(
+            getDriveVelocity(), new Rotation2d(steerEnc.getPosition() - Math.PI)));
     Logger.recordOutput(driveID + " drive meters", driveEnc.getPosition());
-    SmartDashboard.putNumber(
+    Logger.recordOutput(
         driveID + "steer err",
         (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
   }
