@@ -33,7 +33,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public Command fire() {
-    return this.run(() -> feedMotor.set(0.5));
+    return this.run(() -> feedMotor.set(0.5)).until(() -> !isNoteQueued());
   }
 
   public boolean isNoteQueued() {
