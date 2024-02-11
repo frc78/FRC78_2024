@@ -4,8 +4,6 @@
 
 package frc.robot.competition;
 
-import static frc.robot.subsystems.Shooter.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -272,15 +270,15 @@ class CompetitionRobotContainer {
     // Sets elevator and wrist to Amp score position
     m_manipController
         .y()
-        .onTrue(m_Wrist.setGoal(19).alongWith(m_Elevator.setGoal(13.9)))
+        .onTrue(m_Wrist.setGoal(19).alongWith(m_Elevator.setGoalCommand(13.9)))
         .onFalse(m_Wrist.stow().alongWith(m_Elevator.stow()));
 
     m_manipController
         .a()
-        .onTrue(m_Elevator.setGoal(RobotConstants.ELEVATOR_CLIMB_HEIGHT))
+        .onTrue(m_Elevator.setGoalCommand(RobotConstants.ELEVATOR_CLIMB_HEIGHT))
         .onFalse(m_Elevator.stow());
 
-    m_manipController.b().onTrue(m_Elevator.setGoal(2)).onFalse(m_Elevator.stow());
+    m_manipController.b().onTrue(m_Elevator.setGoalCommand(2)).onFalse(m_Elevator.stow());
 
     m_manipController.x().onTrue(m_Wrist.setGoal(38)).onFalse(m_Wrist.stow());
 

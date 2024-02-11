@@ -4,13 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static com.revrobotics.CANSparkBase.ControlType.kPosition;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
@@ -20,7 +20,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Measure;
@@ -61,18 +60,18 @@ public class Elevator extends SubsystemBase {
   private final double kDt = 0.02;
   private double appliedOutput = 0;
 
+  private final double STOW_POSITION = 0.0;
+
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final SparkPIDController controller;
-  private final ProfiledPIDController profiledPid =
-      new ProfiledPIDController(
-          180,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(13), InchesPerSecond.per(Second).of(40)),
-          kDt);
 
-  private final double STOW_POSITION = 0;
+  private final TrapezoidProfile motionProfile =
+      new TrapezoidProfile(
+          new TrapezoidProfile.Constraints(
+              InchesPerSecond.of(13), InchesPerSecond.per(Second).of(40)));
+
+  private final TrapezoidProfile.State goal = new TrapezoidProfile.State(0, 0);
+  private final TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
   public Elevator() {
     elevNeoMotor1 = new CANSparkMax(11, MotorType.kBrushless);
@@ -90,7 +89,7 @@ public class Elevator extends SubsystemBase {
     // Inches per second
     encoder.setVelocityConversionFactor(inchesPerRevolution / 60);
     controller = elevNeoMotor1.getPIDController();
-    controller.setP(.144);
+    controller.setP(180);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
@@ -120,7 +119,9 @@ public class Elevator extends SubsystemBase {
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1)).until(() -> !reverseLimitSwitch.get());
+    return run(() -> elevNeoMotor1.set(-.1))
+        .until(() -> !reverseLimitSwitch.get())
+        .finallyDo(() -> elevNeoMotor1.set(0));
   }
 
   private void configureLeaderBeforeSysId() {
@@ -165,7 +166,8 @@ public class Elevator extends SubsystemBase {
     return runOnce(
         () -> {
           encoder.setPosition(0);
-          profiledPid.setGoal(0);
+          goal.position = 0;
+          goal.velocity = 0;
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 15);
@@ -177,6 +179,7 @@ public class Elevator extends SubsystemBase {
   public Command zeroElevator() {
     return lowerElevatorUntilLimitReached()
         .andThen(configureMotorsAfterZeroing())
+        .andThen(stow())
         .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming);
   }
 
@@ -188,10 +191,12 @@ public class Elevator extends SubsystemBase {
         "Elevator/reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
     Logger.recordOutput(
         "Elevator/forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
-    Logger.recordOutput("Elevator/PIDoutput", profiledPid.getPositionError());
-    Logger.recordOutput("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
     Logger.recordOutput("Elevator/AppliedVoltage", appliedOutput);
-    Logger.recordOutput("Elevator/Goal", profiledPid.getSetpoint().position);
+    Logger.recordOutput("Elevator/Goal", goal.position);
+  }
+
+  private void setGoal(double goal) {
+    this.goal.position = Units.inchesToMeters(goal);
   }
 
   /**
@@ -199,16 +204,16 @@ public class Elevator extends SubsystemBase {
    *
    * @param goal Goal height for the elevator in inches.
    */
-  public Command setGoal(double goal) {
-    return runOnce(() -> profiledPid.setGoal(Units.inchesToMeters(goal)));
+  public Command setGoalCommand(double goal) {
+    return runOnce(() -> setGoal(goal));
   }
 
-  public void holdPosition() {
-    profiledPid.setGoal(encoder.getPosition());
+  private void holdPosition() {
+    setGoal(encoder.getPosition());
   }
 
   public Command stow() {
-    return setGoal(STOW_POSITION);
+    return setGoalCommand(STOW_POSITION);
   }
 
   /**
@@ -217,10 +222,11 @@ public class Elevator extends SubsystemBase {
    */
   private void moveElevator() {
     if (!zeroed) return;
+    currentState.position = Units.inchesToMeters(encoder.getPosition());
+    currentState.velocity = InchesPerSecond.of(encoder.getVelocity()).in(MetersPerSecond);
+    TrapezoidProfile.State nextSetPoint = motionProfile.calculate(kDt, currentState, goal);
     double ff =
-        feedforward.calculate(
-            MetersPerSecond.of(profiledPid.getSetpoint().velocity).in(InchesPerSecond));
-    double setpoint = profiledPid.calculate(Units.inchesToMeters(encoder.getPosition()));
-    controller.setReference(setpoint, kPosition, 0, ff);
+        feedforward.calculate(MetersPerSecond.of(nextSetPoint.velocity).in(InchesPerSecond));
+    controller.setReference(nextSetPoint.position, CANSparkBase.ControlType.kPosition, 0, ff);
   }
 }
