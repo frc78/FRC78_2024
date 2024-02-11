@@ -14,8 +14,6 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkLimitSwitch;
-import com.revrobotics.SparkLimitSwitch.Type;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -23,6 +21,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
   private CANSparkMax elevNeoMotor2;
+
+  private DigitalInput reverseLimitSwitch = new DigitalInput(0);
   private boolean zeroed = false;
 
   public boolean hasNotBeenZeroed() {
@@ -38,9 +39,6 @@ public class Elevator extends SubsystemBase {
   }
 
   private RelativeEncoder encoder;
-
-  /** Creates a new Elevator. */
-  private final SparkLimitSwitch magneticLimitSwitch;
 
   private final double kS = 0.035369;
   private final double kV = 0.52479;
@@ -80,14 +78,12 @@ public class Elevator extends SubsystemBase {
 
     elevNeoMotor1.setInverted(true);
     elevNeoMotor2.follow(elevNeoMotor1, true);
-    magneticLimitSwitch = elevNeoMotor2.getReverseLimitSwitch(Type.kNormallyOpen);
-    magneticLimitSwitch.enableLimitSwitch(false);
 
     this.setDefaultCommand(setToTarget(0));
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1)).until(magneticLimitSwitch::isPressed);
+    return run(() -> elevNeoMotor1.set(-.1)).until(reverseLimitSwitch::get);
   }
 
   private Command configureMotorsAfterZeroing() {
@@ -126,7 +122,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", magneticLimitSwitch.isPressed());
+    SmartDashboard.putBoolean("limit pressed", reverseLimitSwitch.get());
     SmartDashboard.putBoolean("zeroed", zeroed);
     SmartDashboard.putNumber("position", encoder.getPosition());
     SmartDashboard.putBoolean(
