@@ -55,8 +55,8 @@ public class Shooter extends SubsystemBase {
     shooterBottomVV = new VelocityVoltage(0).withSlot(0);
   }
 
-  public boolean isAtSpeed(double threshold){
-    return (shooterTOP.getVelocity().getValueAsDouble()>=shooterTopVV.Velocity*threshold);
+  public boolean isAtSpeed(double threshold) {
+    return (shooterTOP.getVelocity().getValueAsDouble() >= shooterTopVV.Velocity * threshold);
   }
 
   public void setPIDReferenceTOP(double setPoint) {

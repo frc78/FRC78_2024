@@ -13,8 +13,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -203,16 +203,18 @@ class CompetitionRobotContainer {
             RobotConstants.DRIVE_IDLE,
             RobotConstants.STEER_IDLE));
   }
-Command shortRumble(XboxController controller){
-    return Commands.runOnce(()->controller.setRumble(RumbleType.kBothRumble, 1))
-    .andThen(new WaitCommand(.5)).andThen(Commands.runOnce(()->controller.setRumble(RumbleType.kBothRumble, 0)));
-}
+
+  Command shortRumble(XboxController controller) {
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
+        .andThen(new WaitCommand(.5))
+        .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
+  }
+
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
         .onFalse(shortRumble(m_driveController.getHID()));
-    new Trigger(()->m_Shooter.isAtSpeed(.9))
-        .onTrue(shortRumble(m_manipController.getHID()));
+    new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
