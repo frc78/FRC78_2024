@@ -76,7 +76,7 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-    elevNeoMotor1.setInverted(true);
+    elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
     this.setDefaultCommand(setToTarget(0));
