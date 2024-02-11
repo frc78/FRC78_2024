@@ -41,22 +41,4 @@ public class Structs {
       this.maxAngularAcceleration = maxAngularAcceleration;
     }
   }
-
-  public static class ClosedLoopParameters {
-    public double kP, kI, kD, kF;
-
-    public ClosedLoopParameters(double kP, double kI, double kD, double kF) {
-      this.kP = kP;
-      this.kI = kI;
-      this.kD = kD;
-      this.kF = kF;
-    }
-
-    public ClosedLoopParameters(double kP, double kI, double kD) {
-      this.kP = kP;
-      this.kI = kI;
-      this.kD = kD;
-      this.kF = 0;
-    }
-  }
 }
