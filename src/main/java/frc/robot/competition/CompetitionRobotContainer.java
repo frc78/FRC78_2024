@@ -132,8 +132,10 @@ class CompetitionRobotContainer {
 
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
-    NamedCommands.registerCommand("Score", m_feeder.fire());
+    NamedCommands.registerCommand("Intake", m_intake.intakeCommand());
+    NamedCommands.registerCommand(
+        "Score",
+        m_feeder.fire().alongWith(m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED)));
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter

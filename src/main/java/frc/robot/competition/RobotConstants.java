@@ -17,11 +17,10 @@ import frc.robot.classes.Structs.FFConstants;
 
 /** This is the constants for the NEO */
 class RobotConstants {
-  public static final double WHEEL_WIDTH =
-      Units.inchesToMeters(18.75); // Make sure this is from the wheel's center
+  public static final double WHEEL_WIDTH = 0.426; // Make sure this is from the wheel's center
   // of rotation
   public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4); // TODO measure more precisely
+      Units.inchesToMeters(4) * 1.274; // TODO measure more precisely
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
@@ -34,10 +33,10 @@ class RobotConstants {
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
-          new PIDConstants(5, 0.0, 0.0), // Translation PID constants
-          new PIDConstants(5, 0.0, 0.0), // Rotation PID constants
+          new PIDConstants(2, 0.0, 0.0), // Translation PID constants
+          new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
           1, // Max module speed, in m/s
-          RobotConstants.ROBOT_RADIUS, // Drive base radius in meters
+          RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
   // TODO Since the above and below are both PID constants for moving the robot to

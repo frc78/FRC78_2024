@@ -234,10 +234,10 @@ public class NeoModule implements SwerveModule {
     // Sets the PID goals to the desired states
     drivePID.setReference(
         optimizedState.speedMetersPerSecond * speedModifier,
-        CANSparkMax.ControlType.kVelocity,
+        CANSparkMax.ControlType.kVelocity /*,
         0,
         driveFF.calculate(optimizedState.speedMetersPerSecond * speedModifier),
-        ArbFFUnits.kVoltage);
+        ArbFFUnits.kVoltage*/);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
