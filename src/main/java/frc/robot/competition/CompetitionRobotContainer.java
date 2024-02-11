@@ -128,11 +128,14 @@ class CompetitionRobotContainer {
     m_feedback = new Feedback(1);
 
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "StartShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
     NamedCommands.registerCommand("Score", m_feeder.fire());
     NamedCommands.registerCommand(
-        "ScoreFromW1", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED).alongWith());
+        "ScoreFromW2",
+        m_Shooter
+            .startShooter(RobotConstants.AUTO_SHOOT_SPEED)
+            .alongWith(m_Wrist.setToTarget(125)));
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
