@@ -70,20 +70,20 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor2.setIdleMode(IdleMode.kBrake);
 
     encoder = elevNeoMotor1.getAlternateEncoder(8192);
-    encoder.setPositionConversionFactor(5.498);
+    encoder.setPositionConversionFactor(1.29 * Math.PI / 25);
     elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
     elevNeoMotor1.getPIDController().setP(.077);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-    elevNeoMotor1.setInverted(true);
+    elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
     this.setDefaultCommand(setToTarget(0));
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1)).until(reverseLimitSwitch::get);
+    return run(() -> elevNeoMotor1.set(-.1)).until(() -> !reverseLimitSwitch.get());
   }
 
   private Command configureMotorsAfterZeroing() {
@@ -122,7 +122,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", reverseLimitSwitch.get());
+    SmartDashboard.putBoolean("limit pressed", !reverseLimitSwitch.get());
     SmartDashboard.putBoolean("zeroed", zeroed);
     SmartDashboard.putNumber("position", encoder.getPosition());
     SmartDashboard.putBoolean(

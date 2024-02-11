@@ -5,14 +5,15 @@
 package frc.robot.classes;
 
 import com.revrobotics.CANSparkBase;
+import frc.robot.classes.Structs.ClosedLoopParameters;
+import frc.robot.classes.Structs.FFConstants;
 
 /** Add your docs here. */
 public class ModuleConfig {
-  public final int driveID;
-  public final int steerID;
 
   public final ClosedLoopParameters driveClosedLoopParameters;
   public final ClosedLoopParameters steerClosedLoopParameters;
+  public final FFConstants driveFFConstants;
 
   public double drivePositionConversionFactor;
   public double driveVelocityConversionFactor;
@@ -31,10 +32,9 @@ public class ModuleConfig {
   public final CANSparkBase.IdleMode steerIdleMode;
 
   public ModuleConfig(
-      int driveID,
-      int steerID,
       ClosedLoopParameters driveClosedLoopParameters,
       ClosedLoopParameters steerClosedLoopParameters,
+      FFConstants driveFFConstants,
       double drivePositionConversionFactor,
       double driveVelocityConversionFactor,
       double steerPositionConversionFactor,
@@ -49,10 +49,9 @@ public class ModuleConfig {
       double nominalVoltage,
       CANSparkBase.IdleMode driveIdleMode,
       CANSparkBase.IdleMode steerIdleMode) {
-    this.driveID = driveID;
-    this.steerID = steerID;
     this.driveClosedLoopParameters = driveClosedLoopParameters;
     this.steerClosedLoopParameters = steerClosedLoopParameters;
+    this.driveFFConstants = driveFFConstants;
     this.drivePositionConversionFactor = drivePositionConversionFactor;
     this.driveVelocityConversionFactor = driveVelocityConversionFactor;
     this.steerPositionConversionFactor = steerPositionConversionFactor;
@@ -67,16 +66,5 @@ public class ModuleConfig {
     this.nominalVoltage = nominalVoltage;
     this.driveIdleMode = driveIdleMode;
     this.steerIdleMode = steerIdleMode;
-  }
-
-  public static class ClosedLoopParameters {
-    public double kP, kI, kD, kF;
-
-    public ClosedLoopParameters(double kP, double kI, double kD, double kF) {
-      this.kP = kP;
-      this.kI = kI;
-      this.kD = kD;
-      this.kF = kF;
-    }
   }
 }
