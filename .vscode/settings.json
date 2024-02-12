@@ -34,5 +34,6 @@
     "editor.codeActionsOnSave": {
       "source.fixAll.spotlessGradle": "always"
     }
-  }
+  },
+  "wpilib.autoSaveOnDeploy": true
 }

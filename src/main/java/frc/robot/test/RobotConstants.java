@@ -17,7 +17,7 @@ class RobotConstants {
   public static final double WHEEL_WIDTH =
       Units.inchesToMeters(18.75); // Make sure this is from the wheel's center of rotation
   public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4); // TODO measure more precisely
+      Units.inchesToMeters(4.15); // TODO measure more precisely
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
@@ -39,11 +39,12 @@ class RobotConstants {
   // TODO Since the above and below are both PID constants for moving the robot to a target pose,
   // perhaps we could use just one set of constants for both Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(5, 0.0, 0.0);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
   public static final Structs.FFConstants ROTATION_FF = new Structs.FFConstants(0.0, 0.0, 0.0);
+  public static final double ORBITAL_FF_CONSTANT = 3;
 
   public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
 

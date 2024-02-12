@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.44286935907205,
-        "y": 7.57636755083034
+        "x": 6.503303216130242,
+        "y": 7.091268430155908
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.3751998742092724,
-        "y": 6.340704186170278
+        "x": 1.6793642730142608,
+        "y": 6.426706339126964
       },
       "prevControl": {
-        "x": 3.7512343215162627,
-        "y": 7.013084654740738
+        "x": 3.2274030262346245,
+        "y": 6.692531175538542
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "AmpScore"
     }
   ],
   "rotationTargets": [],

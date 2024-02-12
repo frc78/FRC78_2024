@@ -5,6 +5,7 @@
 package frc.robot.classes;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants;
 
 /** Utility class */
@@ -38,8 +39,18 @@ public class Util {
   public static double modifyJoystick(double value) {
     // Deadband
     value = MathUtil.applyDeadband(value, Constants.JOYSTICK_DEADBAND);
+    // value = Math.pow(value, 1.5) * Math.signum(value);
     // Square the axis
     // value = Math.copySign(value * value, value);
     return value;
+  }
+
+  public static Translation2d normalize(Translation2d vector) {
+    return new Translation2d(vector.getX() / vector.getNorm(), vector.getY() / vector.getNorm());
+  }
+
+  /*Returns right-hand perpendicular vector */
+  public static Translation2d perpendicular(Translation2d vector) {
+    return new Translation2d(vector.getY(), -vector.getX());
   }
 }

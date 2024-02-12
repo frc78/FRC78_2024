@@ -25,6 +25,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
+import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
@@ -210,9 +211,13 @@ public class NeoModule implements SwerveModule {
   public void setState(SwerveModuleState state) {
     // Optimize the reference state to avoid spinning further than 90 degrees.
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
+    double speedModifier =
+        Math.abs(Math.cos(((optimizedState.angle.getRadians()) - getSteerPosition().getRadians())));
+    Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+    drivePID.setReference(
+        optimizedState.speedMetersPerSecond * speedModifier, CANSparkMax.ControlType.kVelocity);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
@@ -222,8 +227,13 @@ public class NeoModule implements SwerveModule {
             .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
     // (-pi to pi) to a zero to 1
     SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-    SmartDashboard.putNumber(config.driveID + "getting speed", getDriveVelocity());
-    SmartDashboard.putNumber(config.driveID + "setting speed", optimizedState.speedMetersPerSecond);
+    SmartDashboard.putNumber(config.driveID + " getting speed", getDriveVelocity());
+    SmartDashboard.putNumber(
+        config.driveID + " setting speed", optimizedState.speedMetersPerSecond);
+    Logger.recordOutput(config.driveID + " drive meters", driveEnc.getPosition());
+    SmartDashboard.putNumber(
+        config.driveID + "steer err",
+        (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
   }
 
   public void openLoopDiffDrive(double voltage) {

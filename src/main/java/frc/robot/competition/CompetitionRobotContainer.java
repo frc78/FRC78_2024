@@ -7,6 +7,7 @@ package frc.robot.competition;
 import static frc.robot.subsystems.Shooter.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -15,17 +16,22 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
+import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Feedback;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.ShooterConfig;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
@@ -44,8 +50,10 @@ class CompetitionRobotContainer {
   private final Shooter m_Shooter;
   private final Wrist m_Wrist;
   private final Feeder m_feeder;
+  private final Feedback m_feedback;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
+  private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
 
@@ -68,6 +76,7 @@ class CompetitionRobotContainer {
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
+    m_testController = new CommandXboxController(2);
     // Put on port 5 because we only want to use this during tests
     sysIdController = new CommandXboxController(5);
 
@@ -87,6 +96,7 @@ class CompetitionRobotContainer {
 
     m_Elevator = new Elevator();
 
+    // TODO needs to be cleaned up, should probably be added to structs and created in constants
     ShooterConfig shooterConfig = new ShooterConfig();
     shooterConfig.FLYWHEEL_TOP_ID = RobotConstants.FLYWHEEL_TOP_ID;
     shooterConfig.FLYWHEEL_BOTTOM_ID = RobotConstants.FLYWHEEL_BOTTOM_ID;
@@ -114,6 +124,15 @@ class CompetitionRobotContainer {
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
     m_feeder = new Feeder();
+
+    m_feedback = new Feedback(1);
+
+    NamedCommands.registerCommand(
+        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
+    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
+    NamedCommands.registerCommand("Score", m_feeder.fire());
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -181,21 +200,21 @@ class CompetitionRobotContainer {
   }
 
   private void configureBindings() {
-    m_driveController.start().onTrue(m_poseEstimator.resetPose(new Pose2d()));
+    m_driveController
+        .start()
+        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     m_driveController
         .rightBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
-                m_driveController::getLeftX,
-                m_driveController::getLeftY,
-                m_driveController::getRightX,
-                m_driveController::getLeftTriggerAxis,
-                m_driveController::getRightTriggerAxis,
+                m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.TRANSLATION_PID,
                 RobotConstants.ROTATION_PID,
-                RobotConstants.MOTION_LIMITS.maxSpeed,
-                m_poseEstimator));
+                RobotConstants.MOTION_LIMITS,
+                m_poseEstimator,
+                () -> Constants.ORBIT_RADIUS,
+                RobotConstants.ORBITAL_FF_CONSTANT));
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -223,26 +242,34 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
 
-    m_manipController.y().whileTrue(m_Elevator.moveElevatorUp());
-    m_manipController.x().whileTrue(m_Elevator.moveElevatorDown());
+    // Zero the elevator when the robot leaves disabled mode and has not been zeroed
+    RobotModeTriggers.disabled()
+        .negate()
+        .and(m_Elevator::hasNotBeenZeroed)
+        .onTrue(m_Elevator.zeroElevator());
 
     m_manipController
         .leftTrigger(0.5)
         .whileTrue(m_Shooter.startShooter(500))
         .whileFalse(m_Shooter.stopCommand());
 
-    m_manipController.a().whileTrue(m_Wrist.moveWristUp());
+    m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
-    m_manipController.b().whileTrue(m_Wrist.moveWristDown());
+    m_manipController
+        .y()
+        .whileTrue(
+            m_Wrist
+                .setToTarget(110)
+                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(125));
 
     m_manipController
         .rightBumper()
         .whileTrue(
             m_intake.intakeCommand().alongWith(m_feeder.runFeed()).until(m_feeder::isNoteQueued));
 
-    m_manipController
-        .leftBumper()
-        .whileTrue(m_intake.outtakeCommand().alongWith(m_feeder.reverseFeed()));
+    m_manipController.leftBumper().whileTrue(m_feeder.reverseFeed());
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.fire());
 
