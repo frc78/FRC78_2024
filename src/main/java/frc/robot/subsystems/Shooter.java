@@ -30,7 +30,8 @@ public class Shooter extends SubsystemBase {
     shooterTOP = new TalonFX(config.flywheelTopID);
     shooterBOTTOM = new TalonFX(config.flywheelBottomID);
 
-    // TODO might have to reset to factory defaults
+    shooterTOP.getConfigurator().apply(new TalonFXConfiguration());
+    shooterBOTTOM.getConfigurator().apply(new TalonFXConfiguration());
 
     var shooterTopConfig = new Slot0Configs();
     shooterTOP.setInverted(config.flywheelTopInverted);
