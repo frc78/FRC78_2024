@@ -50,8 +50,8 @@ class RobotConstants {
 
   public static final Structs.RateLimits RATE_LIMITS = new Structs.RateLimits(11, 30);
 
-  // WHEELS
-  public static final double DRIVE_GEAR_RATIO = (6.75); // TODO need to update for L3
+  // WHEELS //
+  public static final double DRIVE_GEAR_RATIO = (5.3571);
   public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
       (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
