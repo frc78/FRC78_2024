@@ -115,8 +115,8 @@ class RobotConstants {
   // Wrist Constants
   public static final int WRIST_ID = 13;
 
-  public static final float WRIST_HIGH_LIM = 139; // 139
-  public static final float WRIST_LOW_LIM = 100; // 90
+  public static final float WRIST_HIGH_LIM = 50;
+  public static final float WRIST_LOW_LIM = 0;
 
   // CANDLE //
   public static final int CANDLE_ID = 1;
@@ -124,5 +124,5 @@ class RobotConstants {
   // TODO auto stuff, but what for and is it needed?
   public static final double AUTO_SHOOT_SPEED = 500;
   public static final double AUTO_WRIST_SETPOINT = 0;
-  public static final double WRIST_W2_TARGET = 125;
+  public static final double WRIST_W2_TARGET = 34;
 }
