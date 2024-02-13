@@ -30,7 +30,6 @@ import frc.robot.subsystems.Feedback;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.ShooterConfig;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
@@ -99,43 +98,34 @@ class CompetitionRobotContainer {
 
     m_Elevator = new Elevator();
 
-    // TODO needs to be cleaned up, should probably be added to structs and created in constants
-    ShooterConfig shooterConfig = new ShooterConfig();
-    shooterConfig.FLYWHEEL_TOP_ID = RobotConstants.FLYWHEEL_TOP_ID;
-    shooterConfig.FLYWHEEL_BOTTOM_ID = RobotConstants.FLYWHEEL_BOTTOM_ID;
-    shooterConfig.FLYWHEEL_TOP_MIN = RobotConstants.FLYWHEEL_TOP_MIN;
-    shooterConfig.FLYWHEEL_TOP_MAX = RobotConstants.FLYWHEEL_TOP_MAX;
-    shooterConfig.FLYWHEEL_TOP_P = RobotConstants.FLYWHEEL_TOP_P;
-    shooterConfig.FLYWHEEL_TOP_I = RobotConstants.FLYWHEEL_TOP_I;
-    shooterConfig.FLYWHEEL_TOP_D = RobotConstants.FLYWHEEL_TOP_D;
-    shooterConfig.FLYWHEEL_TOP_S = RobotConstants.FLYWHEEL_TOP_S;
-    shooterConfig.FLYWHEEL_TOP_V = RobotConstants.FLYWHEEL_TOP_V;
-    shooterConfig.FLYWHEEL_TOP_FF = RobotConstants.FLYWHEEL_TOP_FF;
-    shooterConfig.FLYWHEEL_BOTTOM_MIN = RobotConstants.FLYWHEEL_BOTTOM_MIN;
-    shooterConfig.FLYWHEEL_BOTTOM_MAX = RobotConstants.FLYWHEEL_BOTTOM_MAX;
-    shooterConfig.FLYWHEEL_BOTTOM_P = RobotConstants.FLYWHEEL_BOTTOM_P;
-    shooterConfig.FLYWHEEL_BOTTOM_I = RobotConstants.FLYWHEEL_BOTTOM_I;
-    shooterConfig.FLYWHEEL_BOTTOM_D = RobotConstants.FLYWHEEL_BOTTOM_D;
-    shooterConfig.FLYWHEEL_BOTTOM_S = RobotConstants.FLYWHEEL_BOTTOM_S;
-    shooterConfig.FLYWHEEL_BOTTOM_V = RobotConstants.FLYWHEEL_BOTTOM_V;
-    shooterConfig.FLYWHEEL_BOTTOM_FF = RobotConstants.FLYWHEEL_BOTTOM_FF;
-
-    m_Shooter = new Shooter(shooterConfig);
+    m_Shooter = new Shooter(RobotConstants.SHOOTER_CONFIG);
 
     m_Wrist =
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
-    m_feeder = new Feeder();
+    m_feeder =
+        new Feeder(
+            RobotConstants.FEED_ID,
+            RobotConstants.FEED_SENSOR_ID,
+            RobotConstants.TOF_RANGE,
+            RobotConstants.FEED_SENSOR_THRESHOLD);
 
-    m_feedback = new Feedback(1);
+    m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "ScoreFromW2",
+        m_Shooter
+            .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET)));
     NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
+        "SetShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "SetWrist", m_Shooter.setShooter(RobotConstants.AUTO_WRIST_SETPOINT));
     NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
-    NamedCommands.registerCommand("Score", m_feeder.fire());
+    NamedCommands.registerCommand(
+        "Score",
+        m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -226,8 +216,8 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.startShooter(500))
-        .whileFalse(m_Shooter.stopCommand());
+        .whileTrue(m_Shooter.setShooter(500))
+        .whileFalse(m_Shooter.setShooter(0));
 
     m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
@@ -243,11 +233,14 @@ class CompetitionRobotContainer {
     m_manipController
         .rightBumper()
         .whileTrue(
-            m_intake.intakeCommand().alongWith(m_feeder.runFeed()).until(m_feeder::isNoteQueued));
+            m_intake
+                .intakeCommand()
+                .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+                .until(m_feeder::isNoteQueued));
 
-    m_manipController.leftBumper().whileTrue(m_feeder.reverseFeed());
+    m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
-    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.fire());
+    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));

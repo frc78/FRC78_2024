@@ -2,47 +2,35 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2415351306893094,
-      "y": 4.253197382585242
+      "x": 1.4376744281438871,
+      "y": 5.566684809560096
     },
-    "rotation": -42.917434720269135
+    "rotation": -0.9724548987537153
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "StartShooter"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "SourceSide.SpeakerNote"
+                  "name": "StartShooter"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.5
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake"
+                  "name": "Score"
                 }
               }
             ]
@@ -55,7 +43,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "W1.Score"
+                  "pathName": "Center.CenterNote"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
                 }
               },
               {
@@ -66,16 +60,10 @@
               }
             ]
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
         }
       ]
     }
   },
-  "folder": "2NoteAutos",
+  "folder": "Single Note Autos",
   "choreoAuto": false
 }
