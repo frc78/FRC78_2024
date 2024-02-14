@@ -5,17 +5,19 @@
 package frc.robot.subsystems;
 
 import static com.revrobotics.CANSparkBase.*;
+import static com.revrobotics.CANSparkBase.ControlType.*;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,8 +29,6 @@ public class Wrist extends SubsystemBase {
 
   private CANSparkMax wristNeo;
   private AbsoluteEncoder encoder;
-  private double stowPos = 50;
-  private double target = 0;
 
   private final SysIdRoutine sysIdRoutine =
       new SysIdRoutine(
@@ -39,8 +39,25 @@ public class Wrist extends SubsystemBase {
               this,
               "wrist"));
 
+  private double STOW_ANGLE;
+
+  /** The goal position of the wrist, in degrees */
+  private double goal = STOW_ANGLE;
+
+  private SparkPIDController controller;
+
+  // TODO tune the wrist
+  private ArmFeedforward feedforward = new ArmFeedforward(0, 0, 0, 0);
+
+  /**
+   * The center of mass for the wrist does not perfectly line up with 0º. We need to add this offset
+   * so that the current encoder position lines up with the phase of gravity
+   */
+  private double kGPhaseOffset = 0;
+
   /** Creates a new Wrist. */
   public Wrist(int WRIST_ID, float WRIST_HIGH_LIM, float WRIST_LOW_LIM) {
+    this.STOW_ANGLE = WRIST_HIGH_LIM;
     wristNeo = new CANSparkMax(WRIST_ID, MotorType.kBrushless);
 
     wristNeo.restoreFactoryDefaults();
@@ -50,8 +67,8 @@ public class Wrist extends SubsystemBase {
     encoder = wristNeo.getAbsoluteEncoder(Type.kDutyCycle);
     encoder.setPositionConversionFactor(360);
     encoder.setVelocityConversionFactor(360.0 / 60.0);
-    wristNeo.getPIDController().setFeedbackDevice(encoder);
-    wristNeo.getPIDController().setP(.03);
+    this.controller = wristNeo.getPIDController();
+    controller.setP(.03);
 
     encoder.setInverted(true);
     encoder.setZeroOffset(0);
@@ -61,19 +78,14 @@ public class Wrist extends SubsystemBase {
 
     wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
     wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
-  }
 
-  public Command setToTarget(double target) {
-    this.target = target;
-    return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition));
-  }
+    wristNeo.setPeriodicFramePeriod(CANSparkLowLevel.PeriodicFrame.kStatus5, 20);
 
-  public Command stow() {
-    return setToTarget(stowPos);
+    setDefaultCommand(run(this::moveWrist));
   }
 
   public boolean isAtTarget() {
-    return Math.abs(target - encoder.getPosition()) < 2;
+    return Math.abs(goal - encoder.getPosition()) < 2;
   }
 
   private void configureMotorsBeforeSysId() {
@@ -107,7 +119,40 @@ public class Wrist extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return runOnce(this::configureMotorsBeforeSysId)
         .andThen(sysIdRoutine.dynamic(direction))
-        .finallyDo(this::configureMotorsAfterSysId);
+        .finallyDo(
+            () -> {
+              configureMotorsAfterSysId();
+              holdPosition();
+            });
+  }
+
+  /**
+   * Moves the wrist to a position when the command is scheduled, and resets to stow when the
+   * command ends.
+   *
+   * <p>This will work with both whileTrue and toggleOnTrue for joystick bindings
+   *
+   * @param goal Goal angle for the wrist in degrees.
+   */
+  public Command setGoal(double goal) {
+    return runOnce(() -> this.goal = goal);
+  }
+
+  private void holdPosition() {
+    this.goal = encoder.getPosition();
+  }
+
+  public Command stow() {
+    return setGoal(STOW_ANGLE);
+  }
+
+  /**
+   * This method actually moves the wrist. The default command will move the wrist to the current
+   * goal
+   */
+  private void moveWrist() {
+    double ff = feedforward.calculate(encoder.getPosition() + kGPhaseOffset, 0);
+    controller.setReference(goal, kPosition, 0, ff);
   }
 
   @Override
