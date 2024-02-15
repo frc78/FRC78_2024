@@ -26,7 +26,7 @@ class RobotConstants {
 
   public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
 
-  public static final MotionLimits MOTION_LIMITS = new MotionLimits(4, 3 /*TODO */, 8, 12);
+  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 8, 12);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
