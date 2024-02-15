@@ -206,7 +206,7 @@ class CompetitionRobotContainer {
         .onTrue(shortRumble(m_driveController.getHID()))
         .onTrue(m_feedback.multi(Color.kOrange))
         .onFalse(shortRumble(m_driveController.getHID()))
-        .onFalse(m_feedback.multi(Color.kWhite));
+        .onFalse(m_feedback.multi(Color.kRed));
     new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
     m_driveController
         .start()
