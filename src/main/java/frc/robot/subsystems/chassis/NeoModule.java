@@ -47,6 +47,7 @@ public class NeoModule implements SwerveModule {
   private AbsoluteEncoder steerEnc;
 
   private SwerveModuleState desiredState;
+  private SwerveModuleState gettingState;
 
   public NeoModule(int driveID, int steerID, ModuleConfig config, FFConstants ffConstants) {
     this.config = config;
@@ -63,6 +64,7 @@ public class NeoModule implements SwerveModule {
     driveFF = new SimpleMotorFeedforward(ffConstants.kS, ffConstants.kV, ffConstants.kA);
 
     desiredState = new SwerveModuleState();
+    gettingState = new SwerveModuleState();
 
     initialize();
   }
@@ -228,31 +230,28 @@ public class NeoModule implements SwerveModule {
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
     double speedModifier =
         Math.abs(Math.cos(((optimizedState.angle.getRadians()) - getSteerPosition().getRadians())));
+    optimizedState.speedMetersPerSecond *= speedModifier;
     Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
     drivePID.setReference(
-        optimizedState.speedMetersPerSecond * speedModifier,
+        optimizedState.speedMetersPerSecond,
         CANSparkMax.ControlType.kVelocity,
         0,
-        driveFF.calculate(optimizedState.speedMetersPerSecond * speedModifier),
+        driveFF.calculate(optimizedState.speedMetersPerSecond),
         ArbFFUnits.kVoltage);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
+    gettingState.speedMetersPerSecond = getDriveVelocity();
+    gettingState.angle = getSteerPosition();
     // (-pi to pi) to a zero to 1
-    Logger.recordOutput(
-        driveID + " Setting",
-        new SwerveModuleState(
-            optimizedState.speedMetersPerSecond * speedModifier, optimizedState.angle));
-    Logger.recordOutput(
-        driveID + " Getting",
-        new SwerveModuleState(
-            getDriveVelocity(), new Rotation2d(steerEnc.getPosition() - Math.PI)));
+    Logger.recordOutput(driveID + " Setting", optimizedState);
+    Logger.recordOutput(driveID + " Getting", gettingState);
     Logger.recordOutput(driveID + " drive meters", driveEnc.getPosition());
     Logger.recordOutput(
         driveID + "steer err",
-        (optimizedState.angle.getRotations()) - getSteerPosition().getRotations());
+        optimizedState.angle.getRotations() - gettingState.angle.getRotations());
   }
 
   public void openLoopDiffDrive(double voltage) {
