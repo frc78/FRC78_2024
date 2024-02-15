@@ -40,10 +40,10 @@ public class Elevator extends SubsystemBase {
 
   private RelativeEncoder encoder;
 
-  private final double kS = 0.035369;
-  private final double kV = 0.52479;
-  private final double kA = 0.029988;
-  private final double kG = 0.029988;
+  private final double kS = 0.070936;
+  private final double kV = 0.79005;
+  private final double kA = 0.086892;
+  private final double kG = 0.088056;
   // Command loop runs at 50Hz, 20ms period
   private final double kDt = 0.02;
 
@@ -52,11 +52,11 @@ public class Elevator extends SubsystemBase {
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final ProfiledPIDController profiledPid =
       new ProfiledPIDController(
-          5.6495,
           0,
-          0.15652,
+          0,
+          0,
           new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(8), InchesPerSecond.per(Second).of(6)),
+              InchesPerSecond.of(16), InchesPerSecond.per(Second).of(80)),
           kDt);
 
   public Elevator() {
@@ -69,21 +69,21 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setIdleMode(IdleMode.kBrake);
     elevNeoMotor2.setIdleMode(IdleMode.kBrake);
 
-    encoder = elevNeoMotor1.getAlternateEncoder(8192);
-    encoder.setPositionConversionFactor(5.498);
+    encoder = elevNeoMotor1.getEncoder();
+    encoder.setPositionConversionFactor((1.29 * Math.PI) / 25);
     elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
-    elevNeoMotor1.getPIDController().setP(.077);
+    elevNeoMotor1.getPIDController().setP(.144);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-    elevNeoMotor1.setInverted(true);
+    elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
     this.setDefaultCommand(setToTarget(0));
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1)).until(reverseLimitSwitch::get);
+    return run(() -> elevNeoMotor1.set(-.1)).until(() -> !reverseLimitSwitch.get());
   }
 
   private Command configureMotorsAfterZeroing() {
@@ -93,9 +93,10 @@ public class Elevator extends SubsystemBase {
           profiledPid.setGoal(0);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
-          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 14);
+          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 15);
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
           zeroed = true;
+          this.setDefaultCommand(setToTarget(.25));
         });
   }
 
@@ -122,7 +123,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", reverseLimitSwitch.get());
+    SmartDashboard.putBoolean("limit pressed", !reverseLimitSwitch.get());
     SmartDashboard.putBoolean("zeroed", zeroed);
     SmartDashboard.putNumber("position", encoder.getPosition());
     SmartDashboard.putBoolean(
@@ -134,7 +135,7 @@ public class Elevator extends SubsystemBase {
 
   /** Moves elevator to target as long as elevator is zeroed */
   public Command setToTarget(double target) {
-    return runOnce(() -> profiledPid.setGoal(target))
+    return runOnce(() -> profiledPid.setGoal(Units.inchesToMeters(target)))
         .andThen(
             run(
                 () -> {
