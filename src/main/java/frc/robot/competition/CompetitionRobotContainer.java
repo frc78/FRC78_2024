@@ -265,7 +265,7 @@ class CompetitionRobotContainer {
                 .setToTarget(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(14));
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(38));
 
     m_manipController
         .rightBumper()
