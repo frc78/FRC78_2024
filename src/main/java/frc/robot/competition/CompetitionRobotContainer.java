@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -203,7 +204,9 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onFalse(shortRumble(m_driveController.getHID()));
+        .onTrue(m_feedback.multi(Color.kOrange))
+        .onFalse(shortRumble(m_driveController.getHID()))
+        .onFalse(m_feedback.multi(Color.kWhite));
     new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
     m_driveController
         .start()

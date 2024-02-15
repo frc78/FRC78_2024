@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Feedback extends SubsystemBase {
@@ -20,9 +21,13 @@ public class Feedback extends SubsystemBase {
     bracelet.setLEDs(255, 0, 0);
   }
 
-  public void multi(Color color) {
-    bracelet.setLEDs(
-        ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
+  public Command multi(Color color) {
+    return this.runOnce(
+        () ->
+            bracelet.setLEDs(
+                ((int) (color.red * 255)),
+                ((int) (color.green * 255)),
+                ((int) (color.blue * 255))));
   }
 
   public void off() {
