@@ -35,10 +35,14 @@ class TestChassisContainer {
 
   TestChassisContainer() {
 
-    NeoModule frontLeft = new NeoModule(1, 2, RobotConstants.MODULE_CONFIG);
-    NeoModule frontRight = new NeoModule(3, 4, RobotConstants.MODULE_CONFIG);
-    NeoModule backLeft = new NeoModule(5, 6, RobotConstants.MODULE_CONFIG);
-    NeoModule backRight = new NeoModule(7, 8, RobotConstants.MODULE_CONFIG);
+    NeoModule frontLeft =
+        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
+    NeoModule frontRight =
+        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
+    NeoModule backLeft =
+        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
+    NeoModule backRight =
+        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 

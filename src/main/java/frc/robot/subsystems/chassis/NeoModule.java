@@ -27,6 +27,7 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
+import frc.robot.classes.Structs.FFConstants;
 import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
@@ -47,7 +48,7 @@ public class NeoModule implements SwerveModule {
 
   private SwerveModuleState desiredState;
 
-  public NeoModule(int driveID, int steerID, ModuleConfig config) {
+  public NeoModule(int driveID, int steerID, ModuleConfig config, FFConstants ffConstants) {
     this.config = config;
 
     this.driveID = driveID;
@@ -59,9 +60,7 @@ public class NeoModule implements SwerveModule {
     steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
     drivePID = drive.getPIDController();
     steerPID = steer.getPIDController();
-    driveFF =
-        new SimpleMotorFeedforward(
-            config.driveFFConstants.kS, config.driveFFConstants.kV, config.driveFFConstants.kA);
+    driveFF = new SimpleMotorFeedforward(ffConstants.kS, ffConstants.kV, ffConstants.kA);
 
     desiredState = new SwerveModuleState();
 
@@ -253,7 +252,7 @@ public class NeoModule implements SwerveModule {
     Logger.recordOutput(driveID + " drive meters", driveEnc.getPosition());
     Logger.recordOutput(
         driveID + "steer err",
-        (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
+        (optimizedState.angle.getRotations()) - getSteerPosition().getRotations());
   }
 
   public void openLoopDiffDrive(double voltage) {

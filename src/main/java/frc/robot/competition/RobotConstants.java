@@ -12,8 +12,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs.*;
-import frc.robot.classes.Structs.ClosedLoopParameters;
-import frc.robot.classes.Structs.FFConstants;
 import frc.robot.subsystems.Shooter.ShooterConfig;
 
 /** This is the constants for the NEO */
@@ -82,11 +80,17 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
+  public static final FFConstants MODULE_FF[] = {
+    new FFConstants(0.1929, 2.591, 0.5843),
+    new FFConstants(0.1979, 2.6267, 0.7183),
+    new FFConstants(0.1872, 2.6374, 0.7290),
+    new FFConstants(0.2263, 2.613, 0.5051)
+  };
+
   public static final ModuleConfig MODULE_CONFIG =
       new ModuleConfig(
-          new ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED),
+          new ClosedLoopParameters(0.1, 0, 0, 1),
           new ClosedLoopParameters(18, 0, 0, 0),
-          new FFConstants(0.201, 2.619, 0.634),
           RobotConstants.DRIVE_ENC_TO_METERS,
           RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
           RobotConstants.STEER_ENC_POS_TO_METERS,

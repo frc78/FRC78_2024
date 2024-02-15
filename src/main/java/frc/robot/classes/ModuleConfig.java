@@ -6,14 +6,12 @@ package frc.robot.classes;
 
 import com.revrobotics.CANSparkBase;
 import frc.robot.classes.Structs.ClosedLoopParameters;
-import frc.robot.classes.Structs.FFConstants;
 
 /** Add your docs here. */
 public class ModuleConfig {
 
   public final ClosedLoopParameters driveClosedLoopParameters;
   public final ClosedLoopParameters steerClosedLoopParameters;
-  public final FFConstants driveFFConstants;
 
   public double drivePositionConversionFactor;
   public double driveVelocityConversionFactor;
@@ -34,7 +32,6 @@ public class ModuleConfig {
   public ModuleConfig(
       ClosedLoopParameters driveClosedLoopParameters,
       ClosedLoopParameters steerClosedLoopParameters,
-      FFConstants driveFFConstants,
       double drivePositionConversionFactor,
       double driveVelocityConversionFactor,
       double steerPositionConversionFactor,
@@ -51,7 +48,6 @@ public class ModuleConfig {
       CANSparkBase.IdleMode steerIdleMode) {
     this.driveClosedLoopParameters = driveClosedLoopParameters;
     this.steerClosedLoopParameters = steerClosedLoopParameters;
-    this.driveFFConstants = driveFFConstants;
     this.drivePositionConversionFactor = drivePositionConversionFactor;
     this.driveVelocityConversionFactor = driveVelocityConversionFactor;
     this.steerPositionConversionFactor = steerPositionConversionFactor;
