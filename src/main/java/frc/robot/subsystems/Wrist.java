@@ -34,15 +34,15 @@ public class Wrist extends SubsystemBase {
     wristNeo.getPIDController().setP(.03);
 
     encoder.setInverted(true);
-    encoder.setZeroOffset(340);
+    encoder.setZeroOffset(0);
 
     wristNeo.setSoftLimit(SoftLimitDirection.kForward, WRIST_HIGH_LIM);
     wristNeo.setSoftLimit(SoftLimitDirection.kReverse, WRIST_LOW_LIM);
 
-    wristNeo.enableSoftLimit(SoftLimitDirection.kForward, false);
-    wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, false);
+    wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
+    wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-    this.setDefaultCommand(setToTarget(139));
+    this.setDefaultCommand(setToTarget(WRIST_HIGH_LIM));
   }
 
   public Command setToTarget(double target) {
