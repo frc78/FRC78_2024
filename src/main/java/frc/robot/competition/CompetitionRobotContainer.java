@@ -204,7 +204,7 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(m_feedback.multi(Color.kOrange))
+        .onTrue(m_feedback.multi(Color.kDarkMagenta))
         .onFalse(shortRumble(m_driveController.getHID()))
         .onFalse(m_feedback.multi(Color.kRed));
     new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
