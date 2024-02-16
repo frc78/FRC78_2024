@@ -61,6 +61,7 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
+  private final Command PickUpNote;
 
   CompetitionRobotContainer() {
 
@@ -116,22 +117,26 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
+    PickUpNote =
+        m_intake
+            .intakeCommand()
+            .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+            .until(m_feeder::isNoteQueued);
+
+    NamedCommands.registerCommand("Intake", PickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
             .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET)));
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand("SetWrist", m_Wrist.setToTarget(38));
     NamedCommands.registerCommand(
         "Score",
-        m_feeder
-            .setFeed(RobotConstants.FEED_FIRE_SPEED)
-            .until(
-                () ->
-                    !m_feeder
-                        .isNoteQueued())); // Need  to add and then to stop the feed and shooter
+        m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -266,22 +271,14 @@ class CompetitionRobotContainer {
 
     m_manipController
         .y()
-        .whileTrue(
-            m_Wrist
-                .setToTarget(19)
-                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+        .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+        .onFalse(m_Wrist.stow()); // Sets to AMP // sets to STOW
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(38));
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
-    m_manipController
-        .rightBumper()
-        .whileTrue(
-            m_intake
-                .intakeCommand()
-                .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
-                .until(m_feeder::isNoteQueued));
+    m_manipController.rightBumper().whileTrue(PickUpNote);
 
     m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
