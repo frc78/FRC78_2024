@@ -87,6 +87,8 @@ class RobotConstants {
 
   public static final double INTAKE_SPEED_OUT = -0.5;
 
+  public static final double ELEVATOR_CLIMB_HEIGHT = 16;
+
   // FEED //
   public static final int FEED_ID = 16;
   public static final int FEED_SENSOR_ID = 17;
