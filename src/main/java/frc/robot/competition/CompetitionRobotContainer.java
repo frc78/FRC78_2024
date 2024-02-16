@@ -258,19 +258,17 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setShooter(500))
+        .whileTrue(m_Shooter.setShooter(4250))
         .whileFalse(m_Shooter.setShooter(0));
-
-    m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
     m_manipController
         .y()
         .whileTrue(
             m_Wrist
-                .setToTarget(110)
+                .setToTarget(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(125));
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(38));
 
     m_manipController
         .rightBumper()
