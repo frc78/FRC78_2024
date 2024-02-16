@@ -55,14 +55,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public boolean isAtTarget() {
-    double currError = target - encoder.getPosition();
-    if (currError < 2) {
-      return true;
-    } else if (currError > -2) {
-      return true;
-    } else {
-      return false;
-    }
+    return Math.abs(target - encoder.getPosition()) < 2;
   }
 
   @Override

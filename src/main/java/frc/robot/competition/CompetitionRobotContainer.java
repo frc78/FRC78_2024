@@ -61,7 +61,7 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
-  private final Command PickUpNote;
+  private final Command pickUpNote;
 
   CompetitionRobotContainer() {
 
@@ -117,13 +117,13 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
-    PickUpNote =
+    pickUpNote =
         m_intake
             .intakeCommand()
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
 
-    NamedCommands.registerCommand("Intake", PickUpNote);
+    NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
@@ -132,7 +132,6 @@ class CompetitionRobotContainer {
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand("SetWrist", m_Wrist.setToTarget(38));
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
@@ -269,16 +268,17 @@ class CompetitionRobotContainer {
         .whileTrue(m_Shooter.setShooter(4250))
         .whileFalse(m_Shooter.setShooter(0));
 
+    // Sets elevator and wrist to Amp score position
     m_manipController
         .y()
         .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
-        .onFalse(m_Wrist.stow()); // Sets to AMP // sets to STOW
+        .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
     m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
-    m_manipController.rightBumper().whileTrue(PickUpNote);
+    m_manipController.rightBumper().whileTrue(pickUpNote);
 
     m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
