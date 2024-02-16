@@ -124,7 +124,7 @@ class RobotConstants {
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
-  public static final double AUTO_SHOOT_SPEED = 500;
+  public static final double AUTO_SHOOT_SPEED = 5000;
   public static final double AUTO_WRIST_SETPOINT = 0;
-  public static final double WRIST_W2_TARGET = 34;
+  public static final double WRIST_W2_TARGET = 35;
 }

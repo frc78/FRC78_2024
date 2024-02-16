@@ -24,11 +24,11 @@ public class Feeder extends SubsystemBase {
     this.sensorThreshold = sensorThreshold;
 
     // If no commands are using this subsystem, stop the motor
-    setDefaultCommand(this.run(() -> feedMotor.set(0)));
+
   }
 
   public Command setFeed(double speed) {
-    return this.run(() -> feedMotor.set(speed));
+    return startEnd(() -> feedMotor.set(speed), () -> feedMotor.set(0));
   }
 
   public boolean isNoteQueued() {
