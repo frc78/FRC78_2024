@@ -18,7 +18,7 @@ class RobotConstants {
   public static final double WHEEL_WIDTH = 0.426; // Make sure this is from the wheel's center
   // of rotation
   public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4) * 1.274; // TODO measure more precisely
+      Units.inchesToMeters(4); // TODO measure more precisely
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
