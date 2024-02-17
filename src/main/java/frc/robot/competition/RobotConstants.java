@@ -18,8 +18,7 @@ import frc.robot.subsystems.Shooter.ShooterConfig;
 class RobotConstants {
   public static final double WHEEL_WIDTH = 0.426; // Make sure this is from the wheel's center
   // of rotation
-  public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4) * 1.274; // TODO measure more precisely
+  public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
@@ -33,7 +32,7 @@ class RobotConstants {
       new HolonomicPathFollowerConfig(
           new PIDConstants(2, 0.0, 0.0), // Translation PID constants
           new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
-          1, // Max module speed, in m/s
+          MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
