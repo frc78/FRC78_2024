@@ -46,17 +46,18 @@ public class Elevator extends SubsystemBase {
   private final double kG = 0.088056;
   // Command loop runs at 50Hz, 20ms period
   private final double kDt = 0.02;
+  private double appliedOutput = 0;
 
   private final Measure<Velocity<Distance>> manualSpeed = InchesPerSecond.of(1);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final ProfiledPIDController profiledPid =
       new ProfiledPIDController(
-          0,
+          8,
           0,
           0,
           new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(16), InchesPerSecond.per(Second).of(80)),
+              InchesPerSecond.of(13), InchesPerSecond.per(Second).of(40)),
           kDt);
 
   public Elevator() {
@@ -123,28 +124,35 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", !reverseLimitSwitch.get());
-    SmartDashboard.putBoolean("zeroed", zeroed);
-    SmartDashboard.putNumber("position", encoder.getPosition());
+    SmartDashboard.putBoolean("Elevator/limit pressed", !reverseLimitSwitch.get());
+    SmartDashboard.putBoolean("Elevator/zeroed", zeroed);
+    SmartDashboard.putNumber("Elevator/position", encoder.getPosition());
     SmartDashboard.putBoolean(
-        "reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
+        "Elevator/reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
     SmartDashboard.putBoolean(
-        "forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
-    SmartDashboard.putNumber("Elevator Profile Velocity", profiledPid.getSetpoint().velocity);
+        "Elevator/forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
+    SmartDashboard.putNumber("Elevator/PIDoutput", profiledPid.getPositionError());
+    SmartDashboard.putNumber("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
+    SmartDashboard.putNumber("Elevator/AppliedVoltage", appliedOutput);
+    SmartDashboard.putNumber("Elevator/Goal", profiledPid.getSetpoint().position);
   }
 
   /** Moves elevator to target as long as elevator is zeroed */
   public Command setToTarget(double target) {
-    return runOnce(() -> profiledPid.setGoal(Units.inchesToMeters(target)))
+    return runOnce(
+            () -> {
+              profiledPid.setGoal(Units.inchesToMeters(target));
+            })
         .andThen(
             run(
                 () -> {
                   if (!zeroed) return;
-                  elevNeoMotor1.setVoltage(
-                      profiledPid.calculate(Units.metersToInches(encoder.getPosition()))
+                  appliedOutput =
+                      profiledPid.calculate(Units.inchesToMeters(encoder.getPosition()))
                           + feedforward.calculate(
                               MetersPerSecond.of(profiledPid.getSetpoint().velocity)
-                                  .in(InchesPerSecond)));
+                                  .in(InchesPerSecond));
+                  elevNeoMotor1.setVoltage(appliedOutput);
                 }));
   }
 }

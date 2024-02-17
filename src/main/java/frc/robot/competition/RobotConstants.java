@@ -114,6 +114,8 @@ class RobotConstants {
 
   public static final double INTAKE_SPEED_OUT = -0.5;
 
+  public static final double ELEVATOR_CLIMB_HEIGHT = 16;
+
   // FEED //
   public static final int FEED_ID = 16;
   public static final int FEED_SENSOR_ID = 17;
@@ -149,7 +151,7 @@ class RobotConstants {
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
-  public static final double AUTO_SHOOT_SPEED = 500;
+  public static final double AUTO_SHOOT_SPEED = 5000;
   public static final double AUTO_WRIST_SETPOINT = 0;
-  public static final double WRIST_W2_TARGET = 34;
+  public static final double WRIST_W2_TARGET = 35;
 }

@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -59,6 +60,7 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
+  private final Command pickUpNote;
 
   CompetitionRobotContainer() {
 
@@ -121,19 +123,25 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
+    pickUpNote =
+        m_intake
+            .intakeCommand()
+            .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+            .until(m_feeder::isNoteQueued);
+
+    NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
             .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET)));
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.setShooter(RobotConstants.AUTO_WRIST_SETPOINT));
-    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
+        "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -182,7 +190,9 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onFalse(shortRumble(m_driveController.getHID()));
+        .onTrue(m_feedback.multi(Color.kDarkMagenta))
+        .onFalse(shortRumble(m_driveController.getHID()))
+        .onFalse(m_feedback.multi(Color.kRed));
     new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
     m_driveController
         .start()
@@ -237,22 +247,17 @@ class CompetitionRobotContainer {
         .whileTrue(m_Shooter.setShooter(4250))
         .whileFalse(m_Shooter.setShooter(0));
 
+    // Sets elevator and wrist to Amp score position
     m_manipController
         .y()
-        .whileTrue(
-            m_Wrist
-                .setToTarget(19)
-                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+        .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+        .onFalse(m_Wrist.stow());
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(14));
+    m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController
-        .rightBumper()
-        .whileTrue(
-            m_intake
-                .intakeCommand()
-                .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
-                .until(m_feeder::isNoteQueued));
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
+
+    m_manipController.rightBumper().whileTrue(pickUpNote);
 
     m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
