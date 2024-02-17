@@ -141,6 +141,7 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setShooter(0));
     // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
