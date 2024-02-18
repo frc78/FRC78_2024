@@ -9,17 +9,22 @@ public class Structs {
 
   /** Struct for feed forward constants. Contains 3 doubles of kS, kV, and kA */
   public static class FFConstants {
-    public double kS, kV, kA;
+    public final double kS, kV, kA, kFF;
 
-    public FFConstants(double kS, double kV, double kA) {
+    public FFConstants(double kS, double kV, double kA, double kFF) {
       this.kS = kS;
       this.kV = kV;
       this.kA = kA;
+      this.kFF = kFF;
+    }
+
+    public FFConstants(double kS, double kV, double kA) {
+      this(kS, kV, kA, 0);
     }
   }
 
   public static class RateLimits {
-    public double translationRateLimit, rotationRateLimit;
+    public final double translationRateLimit, rotationRateLimit;
 
     public RateLimits(double translationRateLimit, double rotationRateLimit) {
       this.translationRateLimit = translationRateLimit;
@@ -28,7 +33,7 @@ public class Structs {
   }
 
   public static class MotionLimits {
-    public double maxSpeed, maxAcceleration, maxAngularSpeed, maxAngularAcceleration;
+    public final double maxSpeed, maxAcceleration, maxAngularSpeed, maxAngularAcceleration;
 
     public MotionLimits(
         double maxSpeed,
@@ -39,6 +44,44 @@ public class Structs {
       this.maxAcceleration = maxAcceleration;
       this.maxAngularSpeed = maxAngularSpeed;
       this.maxAngularAcceleration = maxAngularAcceleration;
+    }
+  }
+
+  public static class ClosedLoopParameters {
+    public double kP, kI, kD, kF;
+
+    public ClosedLoopParameters(double kP, double kI, double kD, double kF) {
+      this.kP = kP;
+      this.kI = kI;
+      this.kD = kD;
+      this.kF = kF;
+    }
+
+    public ClosedLoopParameters(double kP, double kI, double kD) {
+      this.kP = kP;
+      this.kI = kI;
+      this.kD = kD;
+      this.kF = 0;
+    }
+  }
+
+  public static class Range {
+    public double min, max;
+
+    public Range(double min, double max) {
+      this.min = min;
+      this.max = max;
+    }
+  }
+
+  public static class Range2D<T> {
+    public T xMin, yMin, xMax, yMax;
+
+    public Range2D(T xMin, T yMin, T xMax, T yMax) {
+      this.xMin = xMin;
+      this.yMin = yMin;
+      this.xMax = xMax;
+      this.yMax = yMax;
     }
   }
 }

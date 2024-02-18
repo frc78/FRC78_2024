@@ -13,15 +13,20 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
-import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
@@ -31,7 +36,6 @@ import frc.robot.subsystems.Feedback;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.ShooterConfig;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
@@ -56,13 +60,21 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
+  private final Command pickUpNote;
 
   CompetitionRobotContainer() {
 
-    NeoModule frontLeft = makeSwerveModule(1, 2);
-    NeoModule frontRight = makeSwerveModule(3, 4);
-    NeoModule backLeft = makeSwerveModule(5, 6);
-    NeoModule backRight = makeSwerveModule(7, 8);
+    NeoModule frontLeft =
+        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
+
+    NeoModule frontRight =
+        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
+
+    NeoModule backLeft =
+        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
+
+    NeoModule backRight =
+        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
@@ -98,43 +110,41 @@ class CompetitionRobotContainer {
 
     m_Elevator = new Elevator();
 
-    // TODO needs to be cleaned up, should probably be added to structs and created in constants
-    ShooterConfig shooterConfig = new ShooterConfig();
-    shooterConfig.FLYWHEEL_TOP_ID = RobotConstants.FLYWHEEL_TOP_ID;
-    shooterConfig.FLYWHEEL_BOTTOM_ID = RobotConstants.FLYWHEEL_BOTTOM_ID;
-    shooterConfig.FLYWHEEL_TOP_MIN = RobotConstants.FLYWHEEL_TOP_MIN;
-    shooterConfig.FLYWHEEL_TOP_MAX = RobotConstants.FLYWHEEL_TOP_MAX;
-    shooterConfig.FLYWHEEL_TOP_P = RobotConstants.FLYWHEEL_TOP_P;
-    shooterConfig.FLYWHEEL_TOP_I = RobotConstants.FLYWHEEL_TOP_I;
-    shooterConfig.FLYWHEEL_TOP_D = RobotConstants.FLYWHEEL_TOP_D;
-    shooterConfig.FLYWHEEL_TOP_S = RobotConstants.FLYWHEEL_TOP_S;
-    shooterConfig.FLYWHEEL_TOP_V = RobotConstants.FLYWHEEL_TOP_V;
-    shooterConfig.FLYWHEEL_TOP_FF = RobotConstants.FLYWHEEL_TOP_FF;
-    shooterConfig.FLYWHEEL_BOTTOM_MIN = RobotConstants.FLYWHEEL_BOTTOM_MIN;
-    shooterConfig.FLYWHEEL_BOTTOM_MAX = RobotConstants.FLYWHEEL_BOTTOM_MAX;
-    shooterConfig.FLYWHEEL_BOTTOM_P = RobotConstants.FLYWHEEL_BOTTOM_P;
-    shooterConfig.FLYWHEEL_BOTTOM_I = RobotConstants.FLYWHEEL_BOTTOM_I;
-    shooterConfig.FLYWHEEL_BOTTOM_D = RobotConstants.FLYWHEEL_BOTTOM_D;
-    shooterConfig.FLYWHEEL_BOTTOM_S = RobotConstants.FLYWHEEL_BOTTOM_S;
-    shooterConfig.FLYWHEEL_BOTTOM_V = RobotConstants.FLYWHEEL_BOTTOM_V;
-    shooterConfig.FLYWHEEL_BOTTOM_FF = RobotConstants.FLYWHEEL_BOTTOM_FF;
-
-    m_Shooter = new Shooter(shooterConfig);
+    m_Shooter = new Shooter(RobotConstants.SHOOTER_CONFIG);
 
     m_Wrist =
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
-    m_feeder = new Feeder();
+    m_feeder =
+        new Feeder(
+            RobotConstants.FEED_ID,
+            RobotConstants.FEED_SENSOR_ID,
+            RobotConstants.TOF_RANGE,
+            RobotConstants.FEED_SENSOR_THRESHOLD);
 
-    m_feedback = new Feedback(1);
+    m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
+    pickUpNote =
+        m_intake
+            .intakeCommand()
+            .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+            .until(m_feeder::isNoteQueued);
+
+    NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.startShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "ScoreFromW2",
+        m_Shooter
+            .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
     NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.startShooter(RobotConstants.AUTO_WRIST_SETPOINT));
-    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
-    NamedCommands.registerCommand("Score", m_feeder.fire());
+        "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
+    NamedCommands.registerCommand(
+        "Score",
+        m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setShooter(0));
+    // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -174,34 +184,19 @@ class CompetitionRobotContainer {
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
-  private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
-    ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
-    return new NeoModule(
-        new ModuleConfig(
-            driveId,
-            steerId,
-            driveClosedLoopParams,
-            steerClosedLoopParams,
-            RobotConstants.DRIVE_ENC_TO_METERS,
-            RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
-            RobotConstants.STEER_ENC_POS_TO_METERS,
-            RobotConstants.STEER_ENC_VEL_TO_METERS,
-            RobotConstants.DRIVE_INVERTED,
-            RobotConstants.STEER_INVERTED,
-            RobotConstants.STEER_ENC_INVERTED,
-            RobotConstants.STEER_ENC_PID_MIN,
-            RobotConstants.STEER_ENC_PID_MAX,
-            RobotConstants.DRIVE_CURRENT_LIMIT,
-            RobotConstants.STEER_CURRENT_LIMIT,
-            RobotConstants.NOMINAL_VOLTAGE,
-            RobotConstants.DRIVE_IDLE,
-            RobotConstants.STEER_IDLE));
+  Command shortRumble(XboxController controller) {
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
+        .andThen(new WaitCommand(.5))
+        .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
   }
 
   private void configureBindings() {
+    new Trigger(m_feeder::isNoteQueued)
+        .onTrue(shortRumble(m_driveController.getHID()))
+        .onTrue(m_feedback.multi(Color.kDarkMagenta))
+        .onFalse(shortRumble(m_driveController.getHID()))
+        .onFalse(m_feedback.multi(Color.kRed));
+    new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -252,28 +247,24 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.startShooter(500))
-        .whileFalse(m_Shooter.stopCommand());
+        .whileTrue(m_Shooter.setShooter(4250))
+        .whileFalse(m_Shooter.setShooter(0));
 
-    m_testController.a().whileTrue(m_Wrist.setToTarget(90));
-
+    // Sets elevator and wrist to Amp score position
     m_manipController
         .y()
-        .whileTrue(
-            m_Wrist
-                .setToTarget(110)
-                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+        .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+        .onFalse(m_Wrist.stow());
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(125));
+    m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController
-        .rightBumper()
-        .whileTrue(
-            m_intake.intakeCommand().alongWith(m_feeder.runFeed()).until(m_feeder::isNoteQueued));
+    m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
-    m_manipController.leftBumper().whileTrue(m_feeder.reverseFeed());
+    m_manipController.rightBumper().whileTrue(pickUpNote);
 
-    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.fire());
+    m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
+
+    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));

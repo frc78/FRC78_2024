@@ -13,7 +13,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs;
+import frc.robot.classes.Structs.ClosedLoopParameters;
+import frc.robot.classes.Structs.FFConstants;
 
 /** This is the constants for the NEO */
 class RobotConstants {
@@ -82,4 +85,30 @@ class RobotConstants {
 
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
+
+  public static final FFConstants MODULE_FF[] = {
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0)
+  };
+
+  public static final ModuleConfig MODULE_CONFIG =
+      new ModuleConfig(
+          new ClosedLoopParameters(0.1, 0, 0, 0),
+          new ClosedLoopParameters(18, 0, 0, 0),
+          RobotConstants.DRIVE_ENC_TO_METERS,
+          RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
+          RobotConstants.STEER_ENC_POS_TO_METERS,
+          RobotConstants.STEER_ENC_VEL_TO_METERS,
+          RobotConstants.DRIVE_INVERTED,
+          RobotConstants.STEER_INVERTED,
+          RobotConstants.STEER_ENC_INVERTED,
+          RobotConstants.STEER_ENC_PID_MIN,
+          RobotConstants.STEER_ENC_PID_MAX,
+          RobotConstants.DRIVE_CURRENT_LIMIT,
+          RobotConstants.STEER_CURRENT_LIMIT,
+          RobotConstants.NOMINAL_VOLTAGE,
+          RobotConstants.DRIVE_IDLE,
+          RobotConstants.STEER_IDLE);
 }

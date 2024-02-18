@@ -16,6 +16,12 @@
           "data": {
             "pathName": "Center.CenterNote"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "W2.CLine"
+          }
         }
       ]
     }

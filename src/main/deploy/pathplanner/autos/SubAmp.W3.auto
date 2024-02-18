@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2728086408553774,
-      "y": 6.700349553080058
+      "x": 1.2962637734799283,
+      "y": 6.590892267498821
     },
-    "rotation": -143.67317404787988
+    "rotation": 35.53767779197434
   },
   "command": {
     "type": "sequential",
@@ -77,6 +77,24 @@
           "type": "named",
           "data": {
             "name": "Score"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "W3.CLine"
           }
         }
       ]
