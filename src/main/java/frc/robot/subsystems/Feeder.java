@@ -19,6 +19,9 @@ public class Feeder extends SubsystemBase {
   /** Creates a new Feed. */
   public Feeder(int feedID, int sensorID, Range2D<Integer> TOFRange, double sensorThreshold) {
     feedMotor = new TalonFX(feedID);
+
+    feedMotor.optimizeBusUtilization();
+
     feedSensor = new TimeOfFlight(sensorID);
     feedSensor.setRangeOfInterest(TOFRange.xMin, TOFRange.yMin, TOFRange.xMax, TOFRange.yMax);
     this.sensorThreshold = sensorThreshold;

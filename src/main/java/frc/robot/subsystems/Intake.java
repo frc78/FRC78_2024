@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,6 +25,23 @@ public class Intake extends SubsystemBase {
 
     intakeTop.restoreFactoryDefaults();
     intakeBottom.restoreFactoryDefaults();
+
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65535);
+    intakeTop.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65535);
+    intakeBottom.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 65535);
 
     this.intakeSpeed = intakeSpeed;
     this.outtakeSpeed = outtakeSpeed;

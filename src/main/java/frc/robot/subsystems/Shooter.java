@@ -56,6 +56,9 @@ public class Shooter extends SubsystemBase {
 
     shooterTopVV = new VelocityVoltage(0).withSlot(0);
     shooterBottomVV = new VelocityVoltage(0).withSlot(0);
+
+    shooterTOP.optimizeBusUtilization();
+    shooterBOTTOM.optimizeBusUtilization();
   }
 
   public boolean isAtSpeed(double threshold) {
