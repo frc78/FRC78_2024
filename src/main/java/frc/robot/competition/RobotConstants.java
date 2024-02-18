@@ -57,10 +57,11 @@ class RobotConstants {
 
   // WHEELS //
   public static final double DRIVE_GEAR_RATIO = (5.3571);
-  public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
+  public static final double STEER_GEAR_RATIO = 150 / 7;
+  public static final double NEO_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
-      (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
-          / DRIVE_GEAR_RATIO; // Converted for wheel
+      (NEO_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI)) / DRIVE_GEAR_RATIO; // Converted for wheel
+  public static final double STEER_FREESPEED = (NEO_FREESPEED_RPS) / STEER_GEAR_RATIO;
 
   public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
   public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
@@ -95,7 +96,7 @@ class RobotConstants {
   public static final ModuleConfig MODULE_CONFIG =
       new ModuleConfig(
           new ClosedLoopParameters(0.1, 0, 0, 0),
-          new ClosedLoopParameters(18, 0, 0, 0),
+          new ClosedLoopParameters(20, 0, 1, 1 / STEER_FREESPEED),
           RobotConstants.DRIVE_ENC_TO_METERS,
           RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
           RobotConstants.STEER_ENC_POS_TO_METERS,
