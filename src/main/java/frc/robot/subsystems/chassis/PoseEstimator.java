@@ -10,6 +10,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.IOException;
@@ -25,6 +26,8 @@ public class PoseEstimator {
   private final Chassis chassis;
 
   private final SwerveDrivePoseEstimator poseEstimator;
+  private Transform2d vel;
+  private Pose2d lastPose;
   private PhotonCamera ATCam1;
   private Pigeon2 pigeon;
   private PhotonPoseEstimator photonEstimator;
@@ -44,6 +47,9 @@ public class PoseEstimator {
             Rotation2d.fromDegrees(getGyroRot()),
             chassis.getPositions(),
             new Pose2d());
+
+    vel = new Transform2d();
+    lastPose = new Pose2d();
 
     try {
       aprilTagFieldLayout =
@@ -65,13 +71,21 @@ public class PoseEstimator {
       Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
     }
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions());
+    Pose2d currentPose = poseEstimator.getEstimatedPosition();
+    vel = currentPose.minus(lastPose);
+
+    lastPose = currentPose;
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
-    Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
+    Logger.recordOutput("Estimated Pose", currentPose);
   }
 
   public Pose2d getFusedPose() {
     return poseEstimator.getEstimatedPosition();
+  }
+
+  public Transform2d getEstimatedVel() {
+    return vel.div(0.02); // How consistent is this update rate?
   }
 
   public void resetPose(Pose2d pose) {

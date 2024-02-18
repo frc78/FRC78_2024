@@ -3,6 +3,8 @@ package frc.robot.commands;
 import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.FFConstants;
@@ -57,9 +59,11 @@ public class AlignToPose extends Command {
 
   @Override
   public void initialize() {
-    xController.reset();
-    yController.reset();
-    thetaController.reset();
+    Pose2d pose = targetPose.get();
+    Transform2d vel = poseEstimator.getEstimatedVel();
+    xController.reset(pose.getTranslation().getX(), vel.getX());
+    yController.reset(pose.getTranslation().getY(), vel.getY());
+    thetaController.reset(pose.getRotation().getRadians(), vel.getRotation().getRadians());
   }
 
   @Override
@@ -67,16 +71,14 @@ public class AlignToPose extends Command {
     Pose2d getPose = targetPose.get();
     Pose2d currentPose = poseEstimator.getFusedPose();
 
-    var xOutput =
-        xController.calculate(
-            currentPose.getTranslation().getX(), targetPose.getTranslation().getX());
-    var yOutput =
-        yController.calculate(
-            currentPose.getTranslation().getY(), targetPose.getTranslation().getY());
-    var thetaOutput =
+    double xOutput =
+        xController.calculate(currentPose.getTranslation().getX(), getPose.getTranslation().getX());
+    double yOutput =
+        yController.calculate(currentPose.getTranslation().getY(), getPose.getTranslation().getY());
+    double thetaOutput =
         thetaController.calculate(
-            currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+            currentPose.getRotation().getRadians(), getPose.getRotation().getRadians());
 
-    chassis.drive(xOutput, yOutput, thetaOutput);
+    chassis.driveRobotRelative(new ChassisSpeeds(xOutput, yOutput, thetaOutput));
   }
 }
