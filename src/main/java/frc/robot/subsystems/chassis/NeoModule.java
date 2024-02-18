@@ -11,10 +11,13 @@ import static edu.wpi.first.units.Units.Volts;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.SparkPIDController.ArbFFUnits;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -22,9 +25,9 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
+import frc.robot.classes.Structs.FFConstants;
 import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
@@ -32,28 +35,36 @@ public class NeoModule implements SwerveModule {
 
   protected ModuleConfig config;
 
+  protected int driveID;
+  protected int steerID;
   protected CANSparkMax drive;
   protected CANSparkMax steer;
 
   protected SparkPIDController drivePID;
   protected SparkPIDController steerPID;
+  protected SimpleMotorFeedforward driveFF;
   private RelativeEncoder driveEnc;
   private AbsoluteEncoder steerEnc;
 
   private SwerveModuleState desiredState;
+  private SwerveModuleState gettingState;
 
-  public NeoModule(ModuleConfig config) {
+  public NeoModule(int driveID, int steerID, ModuleConfig config, FFConstants ffConstants) {
     this.config = config;
 
-    drive = new CANSparkMax(this.config.driveID, MotorType.kBrushless);
-    steer = new CANSparkMax(this.config.steerID, MotorType.kBrushless);
+    this.driveID = driveID;
+    this.steerID = steerID;
+    drive = new CANSparkMax(this.driveID, MotorType.kBrushless);
+    steer = new CANSparkMax(this.steerID, MotorType.kBrushless);
 
     driveEnc = drive.getEncoder();
     steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
     drivePID = drive.getPIDController();
     steerPID = steer.getPIDController();
+    driveFF = new SimpleMotorFeedforward(ffConstants.kS, ffConstants.kV, ffConstants.kA);
 
     desiredState = new SwerveModuleState();
+    gettingState = new SwerveModuleState();
 
     initialize();
   }
@@ -114,6 +125,8 @@ public class NeoModule implements SwerveModule {
 
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
+
+    steer.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
@@ -181,8 +194,12 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public void setVelocity(double velocity) {
-    drivePID.setReference(velocity, CANSparkMax.ControlType.kVelocity);
-
+    drivePID.setReference(
+        velocity,
+        CANSparkMax.ControlType.kVelocity,
+        0,
+        driveFF.calculate(velocity),
+        ArbFFUnits.kVoltage);
     desiredState.speedMetersPerSecond = velocity;
   }
 
@@ -213,28 +230,28 @@ public class NeoModule implements SwerveModule {
     SwerveModuleState optimizedState = SwerveModuleState.optimize(state, getSteerPosition());
     double speedModifier =
         Math.abs(Math.cos(((optimizedState.angle.getRadians()) - getSteerPosition().getRadians())));
+    optimizedState.speedMetersPerSecond *= speedModifier;
     Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
     drivePID.setReference(
-        optimizedState.speedMetersPerSecond * speedModifier, CANSparkMax.ControlType.kVelocity);
-
+        optimizedState.speedMetersPerSecond,
+        CANSparkMax.ControlType.kVelocity,
+        0,
+        driveFF.calculate(optimizedState.speedMetersPerSecond),
+        ArbFFUnits.kVoltage);
     steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
 
     desiredState = state;
-    SmartDashboard.putNumber(
-        config.driveID + " setting rot",
-        optimizedState.angle
-            .getRotations()); // Changed this to divide by 2 pi and ad o.5 to map the joystick input
+    gettingState.speedMetersPerSecond = getDriveVelocity();
+    gettingState.angle = getSteerPosition();
     // (-pi to pi) to a zero to 1
-    SmartDashboard.putNumber(config.driveID + " getting rot", steerEnc.getPosition() - Math.PI);
-    SmartDashboard.putNumber(config.driveID + " getting speed", getDriveVelocity());
-    SmartDashboard.putNumber(
-        config.driveID + " setting speed", optimizedState.speedMetersPerSecond);
-    Logger.recordOutput(config.driveID + " drive meters", driveEnc.getPosition());
-    SmartDashboard.putNumber(
-        config.driveID + "steer err",
-        (optimizedState.angle.getRadians()) - getSteerPosition().getRadians());
+    Logger.recordOutput(driveID + " Setting", optimizedState);
+    Logger.recordOutput(driveID + " Getting", gettingState);
+    Logger.recordOutput(driveID + " drive meters", driveEnc.getPosition());
+    Logger.recordOutput(
+        driveID + "steer err",
+        optimizedState.angle.getRotations() - gettingState.angle.getRotations());
   }
 
   public void openLoopDiffDrive(double voltage) {
@@ -251,7 +268,7 @@ public class NeoModule implements SwerveModule {
       MutableMeasure.mutable(MetersPerSecond.of(0));
 
   public void logMotor(SysIdRoutineLog log) {
-    log.motor("motor#" + config.driveID)
+    log.motor("motor#" + driveID)
         // Log voltage
         .voltage(
             /* getAppliedOutput returns the duty cycle which is from [-1, +1].

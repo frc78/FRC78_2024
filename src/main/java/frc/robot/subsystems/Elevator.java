@@ -53,7 +53,7 @@ public class Elevator extends SubsystemBase {
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final ProfiledPIDController profiledPid =
       new ProfiledPIDController(
-          8,
+          180,
           0,
           0,
           new TrapezoidProfile.Constraints(
