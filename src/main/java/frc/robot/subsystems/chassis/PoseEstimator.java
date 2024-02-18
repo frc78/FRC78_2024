@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.io.IOException;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -68,7 +67,7 @@ public class PoseEstimator {
     }
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions());
 
-    SmartDashboard.putNumber("gyroYaw", getGyroRot());
+    Logger.recordOutput("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
