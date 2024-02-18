@@ -10,6 +10,7 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs.*;
 import frc.robot.subsystems.Shooter.ShooterConfig;
 
@@ -17,8 +18,7 @@ import frc.robot.subsystems.Shooter.ShooterConfig;
 class RobotConstants {
   public static final double WHEEL_WIDTH = 0.426; // Make sure this is from the wheel's center
   // of rotation
-  public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4) * 1.274; // TODO measure more precisely
+  public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
@@ -32,7 +32,7 @@ class RobotConstants {
       new HolonomicPathFollowerConfig(
           new PIDConstants(2, 0.0, 0.0), // Translation PID constants
           new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
-          1, // Max module speed, in m/s
+          RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
@@ -78,6 +78,32 @@ class RobotConstants {
 
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
+
+  public static final FFConstants MODULE_FF[] = {
+    new FFConstants(0.1929, 2.591, 0.5843),
+    new FFConstants(0.1979, 2.6267, 0.7183),
+    new FFConstants(0.1872, 2.6374, 0.7290),
+    new FFConstants(0.2263, 2.613, 0.5051)
+  };
+
+  public static final ModuleConfig MODULE_CONFIG =
+      new ModuleConfig(
+          new ClosedLoopParameters(0.1, 0, 0, 0),
+          new ClosedLoopParameters(18, 0, 0, 0),
+          RobotConstants.DRIVE_ENC_TO_METERS,
+          RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
+          RobotConstants.STEER_ENC_POS_TO_METERS,
+          RobotConstants.STEER_ENC_VEL_TO_METERS,
+          RobotConstants.DRIVE_INVERTED,
+          RobotConstants.STEER_INVERTED,
+          RobotConstants.STEER_ENC_INVERTED,
+          RobotConstants.STEER_ENC_PID_MIN,
+          RobotConstants.STEER_ENC_PID_MAX,
+          RobotConstants.DRIVE_CURRENT_LIMIT,
+          RobotConstants.STEER_CURRENT_LIMIT,
+          RobotConstants.NOMINAL_VOLTAGE,
+          RobotConstants.DRIVE_IDLE,
+          RobotConstants.STEER_IDLE);
 
   // INTAKE
   public static final int INTAKE_TOP_ID = 10;
