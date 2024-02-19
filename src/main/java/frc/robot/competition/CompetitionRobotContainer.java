@@ -267,6 +267,8 @@ class CompetitionRobotContainer {
 
     m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
+    m_testController.x().whileTrue(m_feedback.rainbows());
+
     m_manipController
         .y()
         .whileTrue(

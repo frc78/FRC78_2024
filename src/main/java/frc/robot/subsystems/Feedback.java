@@ -5,6 +5,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdle.LEDStripType;
+import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.RainbowAnimation;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +18,25 @@ public class Feedback extends SubsystemBase {
 
   public Feedback(int candleID) {
     bracelet = new CANdle(candleID);
+    CANdleConfiguration config = new CANdleConfiguration();
+    config.stripType = LEDStripType.RGB; // set the strip type to RGB
+    config.brightnessScalar = 0.5; // dim the LEDs to half brightness
+    bracelet.configAllSettings(config);
+    this.off();
+  }
+
+  public Command rainbows() {
+    return this.run(this::animate);
+  }
+
+  public void animate() {
+    RainbowAnimation rb = new RainbowAnimation();
+    bracelet.clearAnimation(1);
+    rb.setBrightness(255);
+    rb.setLedOffset(0);
+    rb.setNumLed(300);
+    rb.setSpeed(255);
+    bracelet.animate(rb, 1);
   }
 
   public void red() {
