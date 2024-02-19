@@ -90,12 +90,6 @@
           "data": {
             "name": "StopShooter"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "W3.CLine"
-          }
         }
       ]
     }
