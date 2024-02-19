@@ -53,7 +53,16 @@ class TestChassisContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis,
+            m_ATCamera,
+            RobotConstants.CAM1_OFFSET,
+            RobotConstants.PIGEON_ID,
+            RobotConstants.STATE_STD_DEVS,
+            RobotConstants.VISION_STD_DEVS,
+            RobotConstants.SINGLE_TAG_STD_DEVS,
+            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
 
@@ -129,6 +138,16 @@ class TestChassisContainer {
                 () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
                 m_chassis));
 
+    m_driveController
+        .pov(0)
+        .whileTrue(
+            new AlignToPose(
+                m_chassis,
+                Constants.AMP_TRANSFORM,
+                m_poseEstimator,
+                RobotConstants.TRANSLATION_PID,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.MOTION_LIMITS));
     m_driveController
         .a()
         .or(m_driveController.b())

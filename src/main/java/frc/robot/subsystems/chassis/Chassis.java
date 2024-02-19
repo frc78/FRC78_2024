@@ -60,11 +60,26 @@ public class Chassis extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    SwerveModuleState[] realStates = {
+      modules[0].getRealState(),
+      modules[1].getRealState(),
+      modules[2].getRealState(),
+      modules[3].getRealState()
+    };
+    SwerveModuleState[] optimizedStates = {
+      modules[0].getOptimizedState(),
+      modules[1].getOptimizedState(),
+      modules[2].getOptimizedState(),
+      modules[3].getOptimizedState()
+    };
+
     for (int i = 0; i < modules.length; i++) {
       modules[i].setState(states[i]);
     }
 
-    Logger.recordOutput("ModuleSet", states);
+    Logger.recordOutput("Setting States", states);
+    Logger.recordOutput("Optimized States", optimizedStates);
+    Logger.recordOutput("Real States", realStates);
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
