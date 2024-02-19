@@ -9,6 +9,8 @@ import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -21,13 +23,35 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 public class Robot extends LoggedRobot {
-  Thread visionThread;
+  private Thread visionThread;
+  private PowerDistribution m_pdp;
   private Command m_autonomousCommand;
 
   private CompetitionRobotContainer m_robotContainer;
 
   @Override
   public void robotInit() {
+
+    if (isReal()) {
+      Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+      m_pdp = new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+    } else {
+      setUseTiming(false); // Run as fast as possible
+      String logPath =
+          LogFileUtil
+              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+      Logger.addDataReceiver(
+          new WPILOGWriter(
+              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    }
+
+    Logger.start();
+    m_robotContainer = new CompetitionRobotContainer();
+
+    // Driver camera
+
     visionThread =
         new Thread(
             () -> {
@@ -52,22 +76,6 @@ public class Robot extends LoggedRobot {
             });
     visionThread.setDaemon(true);
     visionThread.start();
-
-    if (isReal()) {
-      Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    } else {
-      setUseTiming(false); // Run as fast as possible
-      String logPath =
-          LogFileUtil
-              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      Logger.addDataReceiver(
-          new WPILOGWriter(
-              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-    }
-
-    Logger.start();
-    m_robotContainer = new CompetitionRobotContainer();
   }
 
   @Override
