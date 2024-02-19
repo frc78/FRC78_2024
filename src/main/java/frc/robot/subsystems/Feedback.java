@@ -40,16 +40,17 @@ public class Feedback extends SubsystemBase {
   }
 
   public void red() {
+    bracelet.clearAnimation(1);
     bracelet.setLEDs(255, 0, 0);
   }
 
   public Command multi(Color color) {
     return this.runOnce(
-        () ->
-            bracelet.setLEDs(
-                ((int) (color.red * 255)),
-                ((int) (color.green * 255)),
-                ((int) (color.blue * 255))));
+        () -> {
+          bracelet.clearAnimation(1);
+          bracelet.setLEDs(
+              ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
+        });
   }
 
   public void off() {
