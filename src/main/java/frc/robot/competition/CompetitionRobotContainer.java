@@ -216,7 +216,7 @@ class CompetitionRobotContainer {
                 m_chassis));
 
     m_driveController
-        .rightBumper()
+        .leftBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
