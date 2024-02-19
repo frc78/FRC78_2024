@@ -130,6 +130,16 @@ class TestChassisContainer {
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
     m_driveController
+        .pov(0)
+        .whileTrue(
+            new AlignToPose(
+                m_chassis,
+                Constants.AMP_TRANSFORM,
+                m_poseEstimator,
+                RobotConstants.TRANSLATION_PID,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.MOTION_LIMITS));
+    m_driveController
         .a()
         .or(m_driveController.b())
         .or(m_driveController.x())

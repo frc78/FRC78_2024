@@ -102,12 +102,16 @@ public class PoseEstimator {
 
     poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions());
     Pose2d currentPose = poseEstimator.getEstimatedPosition();
-    vel = currentPose.minus(lastPose);
+    vel = currentPose.minus(lastPose); // Why is this robot relative?
+    vel =
+        new Transform2d(
+            vel.getTranslation().rotateBy(currentPose.getRotation()), vel.getRotation());
 
     lastPose = currentPose;
 
     SmartDashboard.putNumber("gyroYaw", getGyroRot());
     Logger.recordOutput("Estimated Pose", currentPose);
+    Logger.recordOutput("Estimated Velocity", getEstimatedVel());
   }
 
   public Optional<EstimatedRobotPose> getEstimatedVisionPose() {

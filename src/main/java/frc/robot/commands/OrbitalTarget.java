@@ -138,9 +138,4 @@ public class OrbitalTarget extends Command {
 
     chassis.driveRobotRelative(speeds);
   }
-
-  @Override
-  public void end(boolean interrupted) {
-    chassis.driveRobotRelative(new ChassisSpeeds());
-  }
 }
