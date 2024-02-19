@@ -143,7 +143,7 @@ class CompetitionRobotContainer {
         "ScoreFromW2",
         m_Shooter
             .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
@@ -260,14 +260,14 @@ class CompetitionRobotContainer {
     // Sets elevator and wrist to Amp score position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+        .whileTrue(m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
     m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
+    m_manipController.x().whileTrue(m_Wrist.setToTargetCmd(38)).onFalse(m_Wrist.stow());
 
     m_manipController.rightBumper().whileTrue(pickUpNote);
 
