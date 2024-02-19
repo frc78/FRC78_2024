@@ -4,7 +4,12 @@
 
 package frc.robot.constants;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.function.Supplier;
 
 /** This is the constants file for all of the common constants */
 public final class Constants {
@@ -16,6 +21,16 @@ public final class Constants {
 
   public static final Translation2d BLUE_ORBIT_POSE = new Translation2d(0.5, 5.5);
   public static final Translation2d RED_ORBIT_POSE = new Translation2d(16, 5.5);
+  public static final Transform2d BLUE_AMP =
+      new Transform2d(1.83, 7.47, Rotation2d.fromDegrees(90));
+  public static final Transform2d RED_AMP =
+      new Transform2d(14.65, 7.47, Rotation2d.fromDegrees(90));
+  public static final Supplier<Transform2d> AMP_TRANSFORM =
+      () ->
+          DriverStation.getAlliance().isPresent()
+              ? (DriverStation.getAlliance().get() == Alliance.Red ? RED_AMP : BLUE_AMP)
+              : BLUE_AMP;
+
   public static final double ORBIT_RADIUS = 2;
   public static final double ORBIT_RADIUS_MARGIN = 1.0;
 }
