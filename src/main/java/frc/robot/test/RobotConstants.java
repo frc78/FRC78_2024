@@ -89,7 +89,7 @@ class RobotConstants {
 
   public static final ModuleConfig MODULE_CONFIG =
       new ModuleConfig(
-          new ClosedLoopParameters(0.1, 0, 0, 0),
+          new ClosedLoopParameters(0.1, 0, 0, 1 / DRIVE_WHEEL_FREESPEED),
           new ClosedLoopParameters(18, 0, 0, 0),
           RobotConstants.DRIVE_ENC_TO_METERS,
           RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
