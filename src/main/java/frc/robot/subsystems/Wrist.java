@@ -9,11 +9,11 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -45,14 +45,7 @@ public class Wrist extends SubsystemBase {
     wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
     wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65535);
-    wristNeo.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 65535);
+    Util.setRevStatusRates(wristNeo, 10, 65535, 20, 65535, 65535, 200, 65535, 250);
   }
 
   public Command setToTarget(double target) {

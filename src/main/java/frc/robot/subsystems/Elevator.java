@@ -12,7 +12,6 @@ import com.revrobotics.CANSparkBase.FaultID;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -27,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
 
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
@@ -81,22 +81,8 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 5);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65535);
-    elevNeoMotor1.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus1, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 65535);
-    elevNeoMotor2.setPeriodicFramePeriod(PeriodicFrame.kStatus7, 65535);
+    Util.setRevStatusRates(elevNeoMotor1, 5, 65535, 20, 65535, 65535, 200, 65535, 250);
+    Util.setRevStatusRates(elevNeoMotor2, 5, 65535, 20, 65535, 65535, 200, 65535, 250);
 
     this.setDefaultCommand(setToTarget(0));
   }
