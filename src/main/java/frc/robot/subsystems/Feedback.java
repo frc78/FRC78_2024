@@ -21,17 +21,6 @@ public class Feedback extends SubsystemBase {
     bracelet.setLEDs(255, 0, 0);
   }
 
-  public void FireAnimation(double brightness, double speed, int numLed, double sparking, double cooling) {
-    return this.runOnce(
-      () ->
-        bracelet.setLEDs(
-          ((double) (brightness.setBrightness(1)))
-          ((double) (speed.setSpeed(0.5)))
-          ((int) (numLed.setAll))
-          ((double) (sparking.setSparking(1)))
-          ((double) (cooling.setCooling(1)))));
-  }
-
   public Command multi(Color color) {
     return this.runOnce(
         () ->
