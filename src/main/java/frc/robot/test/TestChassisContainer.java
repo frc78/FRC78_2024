@@ -118,7 +118,7 @@ class TestChassisContainer {
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     m_driveController
-        .rightBumper()
+        .leftBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
