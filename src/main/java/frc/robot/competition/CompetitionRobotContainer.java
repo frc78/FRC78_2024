@@ -144,7 +144,7 @@ class CompetitionRobotContainer {
         m_Shooter
             .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
             .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
-            .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
@@ -264,6 +264,8 @@ class CompetitionRobotContainer {
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
+
+    m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
 
     m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
