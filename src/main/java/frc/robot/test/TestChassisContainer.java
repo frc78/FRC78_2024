@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
 import frc.robot.commands.*;
@@ -129,6 +130,14 @@ class TestChassisContainer {
                 m_poseEstimator,
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
+
+    m_driveController
+        .rightBumper()
+        .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
     m_driveController
         .pov(0)
         .whileTrue(
