@@ -8,6 +8,10 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.classes.ModuleConfig;
@@ -24,7 +28,12 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
+  public static final String AT_CAMERA_NAME = "NULL";
+
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
+  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
   public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 8, 12);
 
