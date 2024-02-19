@@ -5,7 +5,7 @@
       "x": 1.2962637734799283,
       "y": 6.590892267498821
     },
-    "rotation": 35.53767779197434
+    "rotation": 41.933514498874146
   },
   "command": {
     "type": "sequential",
@@ -30,7 +30,7 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
@@ -49,51 +49,26 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "AmpTarget1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartShooter"
-                }
-              }
-            ]
+            "name": "AmpSetUp"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0.5
+            "pathName": "W3.AmpScr"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShooter"
+            "name": "ScoreInAmp"
           }
         }
       ]
     }
   },
-  "folder": "2NoteAutos",
+  "folder": "AmpAutos",
   "choreoAuto": false
 }
