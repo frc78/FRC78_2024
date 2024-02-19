@@ -61,6 +61,7 @@ class CompetitionRobotContainer {
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
   private final Command pickUpNote;
+  private final Command AmpSetUp;
 
   CompetitionRobotContainer() {
 
@@ -128,6 +129,7 @@ class CompetitionRobotContainer {
             .intakeCommand()
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
+    AmpSetUp = (m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)));
 
     NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
@@ -142,6 +144,10 @@ class CompetitionRobotContainer {
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setShooter(0));
+    NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
+    NamedCommands.registerCommand(
+        "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
+    NamedCommands.registerCommand("stow", m_Wrist.stow());
     // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
