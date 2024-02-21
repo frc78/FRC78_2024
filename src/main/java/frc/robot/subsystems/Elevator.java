@@ -84,7 +84,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean elevatorIsStowed() {
-    return encoder.getPosition() <= .5;
+    return zeroed && encoder.getPosition() <= .5;
   }
 
   private Command lowerElevatorUntilLimitReached() {
