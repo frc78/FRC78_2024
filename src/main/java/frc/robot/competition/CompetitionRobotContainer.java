@@ -136,6 +136,7 @@ class CompetitionRobotContainer {
     pickUpNote =
         m_intake
             .intakeCommand()
+            .onlyWhile(m_Elevator::elevatorIsStowed)
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
 
