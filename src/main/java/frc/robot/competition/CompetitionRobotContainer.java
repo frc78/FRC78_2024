@@ -55,7 +55,7 @@ class CompetitionRobotContainer {
   private final Shooter m_Shooter;
   private final Wrist m_Wrist;
   private final Feeder m_feeder;
-  private final Feedback m_feedback;
+  final Feedback m_feedback;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController m_testController;
@@ -257,8 +257,10 @@ class CompetitionRobotContainer {
     RobotModeTriggers.disabled()
         .negate()
         .and(m_Elevator::hasNotBeenZeroed)
-        .onTrue(m_Elevator.zeroElevator())
-        .onTrue(m_feedback.multi(Color.kRed));
+        .onTrue(m_Elevator.zeroElevator());
+
+    RobotModeTriggers.teleop().onTrue(m_feedback.multi(Color.kRed));
+    RobotModeTriggers.disabled().onTrue(Commands.runOnce(() -> m_feedback.off()));//multi(Color.kRed));
 
     m_manipController
         .leftTrigger(0.5)
@@ -268,7 +270,8 @@ class CompetitionRobotContainer {
     m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
-    m_testController.b().whileTrue(m_feedback.multi(Color.kBlue));
+    m_testController.b().whileTrue(m_feedback.multi(Color.kBlue)); 
+    m_testController.y().onTrue(Commands.runOnce(() -> m_feedback.off()));
 
     m_manipController
         .y()

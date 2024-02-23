@@ -26,7 +26,7 @@ public class Feedback extends SubsystemBase {
   }
 
   public Command rainbows() {
-    return this.run(this::animate);
+    return this.startEnd(this::animate,this::off);
   }
 
   public void animate() {
@@ -41,7 +41,8 @@ public class Feedback extends SubsystemBase {
 
   public void red() {
     bracelet.clearAnimation(1);
-    bracelet.setLEDs(255, 0, 0);
+    //bracelet.setLEDs(255, 0, 0);
+    bracelet.setLEDs(0, 255, 0); 
   }
 
   public Command multi(Color color) {
@@ -49,11 +50,24 @@ public class Feedback extends SubsystemBase {
         () -> {
           bracelet.clearAnimation(1);
           bracelet.setLEDs(
-              ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
+              ((int) (color.red * 255)),
+              ((int) (color.green * 255)),
+              ((int) (color.blue * 255)),
+              127,
+              0,
+              8);
+          bracelet.setLEDs(
+              ((int) (color.green * 255)),
+              ((int) (color.red * 255)),
+              ((int) (color.blue * 255)),
+              127,
+              8,
+              250);
         });
   }
 
   public void off() {
+    bracelet.clearAnimation(1);
     bracelet.setLEDs(0, 0, 0);
   }
 

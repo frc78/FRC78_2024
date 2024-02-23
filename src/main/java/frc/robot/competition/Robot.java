@@ -9,6 +9,7 @@ import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -77,10 +78,16 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    // m_robotContainer.m_feedback.multi(Color.kRed); 
+    m_robotContainer.m_feedback.red(); 
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    // m_robotContainer.m_feedback.multi(Color.kRed); 
+
+  }
 
   @Override
   public void disabledExit() {}
@@ -115,6 +122,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopExit() {
     m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
+    // m_robotContainer.m_feedback.multi(Color.kRed);  
+    // m_robotContainer.m_feedback.red(); 
   }
 
   @Override
