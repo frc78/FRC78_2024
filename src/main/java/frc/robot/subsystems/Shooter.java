@@ -73,11 +73,13 @@ public class Shooter extends SubsystemBase {
         shooterBottomVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kFF));
   }
 
+  /*Sets RPM */
   public void setPIDReferenceBOTH(double setPoint) {
     setPIDReferenceTOP(setPoint);
     setPIDReferenceBOTTOM(setPoint);
   }
 
+  /*Sets RPM */
   public Command setShooter(double setPoint) {
     return this.runOnce(() -> this.setPIDReferenceBOTH(setPoint));
   }

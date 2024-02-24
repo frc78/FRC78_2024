@@ -59,6 +59,10 @@ public class Util {
     return Math.max(range.min, Math.min(range.max, x));
   }
 
+  public static double clamp(double x, double min, double max) {
+    return Math.max(min, Math.min(max, x));
+  }
+
   public static double lerp(double x, Range range) {
     return range.min + (range.max - range.min) * x;
   }

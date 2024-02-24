@@ -22,10 +22,12 @@ public class VarShootPrime extends Command {
   private Supplier<Translation2d> speakerTranslation;
 
   // Translation of where the note exits in the XZ plane (side view)
-  private Translation2d shooterXZTrans;
+  private final Translation2d shooterXZTrans;
 
-  private Range velRange; // Range of velocity from min distance to max distance
-  private Range distRange; // Range of distance from min distance to max distance
+  private final Range velRange; // Range of velocity from min distance to max distance
+  private final Range distRange; // Range of distance from min distance to max distance
+  private final double thetaCoeff;
+  private final double RPM_MPS;
 
   /** Creates a new VarShootPrime. */
   public VarShootPrime(
@@ -34,13 +36,18 @@ public class VarShootPrime extends Command {
       PoseEstimator poseEstimator,
       Translation2d shooterXZTrans,
       Range velRange,
-      Range distRange) {
+      Range distRange,
+      double thetaCoeff,
+      double RPM_MPS) {
     this.wrist = wrist;
     this.shooter = shooter;
     this.poseEstimator = poseEstimator;
     this.speakerTranslation = Constants.SPEAKER_TRANSLATION;
     this.shooterXZTrans = shooterXZTrans;
     this.velRange = velRange;
+    this.distRange = distRange;
+    this.thetaCoeff = thetaCoeff;
+    this.RPM_MPS = RPM_MPS;
 
     addRequirements(wrist, shooter);
   }
@@ -49,17 +56,14 @@ public class VarShootPrime extends Command {
   public void execute() {
     Pose2d pose = poseEstimator.getFusedPose();
 
+    // Distance and height to speaker
     double h = Constants.SPEAKER_HEIGHT - shooterXZTrans.getY();
-    double l =
-        poseEstimator.getFusedPose().getTranslation().getDistance(speakerTranslation.get())
-            - shooterXZTrans.getX();
-    double v =
-        Util.clamp(
-            Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange),
-            velRange); // Extra clamp just in case
+    double l = pose.getTranslation().getDistance(speakerTranslation.get()) - shooterXZTrans.getX();
+    // Calculate velocity based on lerping within the velocity range based on the distance range
+    double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double theta = calcTheta(Constants.GRAVITY, l, h, v);
-    wrist.setToTarget(theta);
-    shooter.setPIDReferenceBOTH(v);
+    wrist.setToTarget(theta * thetaCoeff);
+    shooter.setPIDReferenceBOTH(v / RPM_MPS);
   }
 
   // Source? It was revealed to me by a wise tree in a dream

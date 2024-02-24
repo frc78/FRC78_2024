@@ -30,6 +30,7 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
+import frc.robot.commands.VarShootPrime;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Feedback;
@@ -204,9 +205,11 @@ class CompetitionRobotContainer {
         .onFalse(shortRumble(m_driveController.getHID()))
         .onFalse(m_feedback.multi(Color.kRed));
     new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
+
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
+
     m_driveController
         .rightBumper()
         .whileTrue(
@@ -263,11 +266,24 @@ class CompetitionRobotContainer {
         .whileTrue(m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)))
         .onFalse(m_Wrist.stow());
 
+    m_manipController
+        .x()
+        .onTrue(
+            new VarShootPrime(
+                m_Wrist,
+                m_Shooter,
+                m_poseEstimator,
+                RobotConstants.SHOOT_POINT,
+                RobotConstants.DISTANCE_RANGE,
+                RobotConstants.VELOCITY_RANGE,
+                RobotConstants.THETA_COEFF,
+                RobotConstants.SHOOTER_RPM_TO_MPS));
+
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
     m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
 
-    m_manipController.x().whileTrue(m_Wrist.setToTargetCmd(38)).onFalse(m_Wrist.stow());
+    // m_manipController.x().whileTrue(m_Wrist.setToTargetCmd(38)).onFalse(m_Wrist.stow());
 
     m_manipController.rightBumper().whileTrue(pickUpNote);
 

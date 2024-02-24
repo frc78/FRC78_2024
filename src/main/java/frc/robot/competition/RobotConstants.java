@@ -12,6 +12,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -169,4 +170,13 @@ class RobotConstants {
   public static final double AUTO_SHOOT_SPEED = 5000;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
+
+  // AUTO WRIST
+  public static final Translation2d SHOOT_POINT = new Translation2d();
+  public static final double SHOOTER_RPM_TO_MPS =
+      (Math.PI * Units.inchesToMeters(2.5)) / 60; // Guess based on shooter wheel size
+  public static final Range VELOCITY_RANGE =
+      new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5000);
+  public static final Range DISTANCE_RANGE = new Range(1, 3);
+  public static final double THETA_COEFF = 1;
 }
