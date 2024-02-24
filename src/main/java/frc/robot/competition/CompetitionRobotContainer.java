@@ -284,8 +284,6 @@ class CompetitionRobotContainer {
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
-    m_manipController.leftTrigger().whileTrue(m_chassis.turnToNoteCommand());
-
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
     sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
