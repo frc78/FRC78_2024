@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.classes.Structs.Range2D;
@@ -20,7 +21,8 @@ public class Feeder extends SubsystemBase {
   public Feeder(int feedID, int sensorID, Range2D<Integer> TOFRange, double sensorThreshold) {
     feedMotor = new TalonFX(feedID);
     feedSensor = new TimeOfFlight(sensorID);
-    feedSensor.setRangeOfInterest(TOFRange.xMin, TOFRange.yMin, TOFRange.xMax, TOFRange.yMax);
+    // feedSensor.setRangeOfInterest(TOFRange.xMin, TOFRange.yMin, TOFRange.xMax, TOFRange.yMax);
+    feedSensor.setRangingMode(RangingMode.Short, 10);
     this.sensorThreshold = sensorThreshold;
 
     // If no commands are using this subsystem, stop the motor
@@ -38,5 +40,6 @@ public class Feeder extends SubsystemBase {
   @Override
   public void periodic() {
     Logger.recordOutput("Feed Sensor", feedSensor.getRange());
+    Logger.recordOutput("Feed Sensor Sigma", feedSensor.getRangeSigma());
   }
 }

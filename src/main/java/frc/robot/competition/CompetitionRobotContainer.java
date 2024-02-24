@@ -251,26 +251,30 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setShooter(4250))
+        .whileTrue(m_Shooter.setShooter(5500))
         .whileFalse(m_Shooter.setShooter(0));
 
     // Sets elevator and wrist to Amp score position
-    m_manipController
-        .y()
-        .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
-        .onFalse(m_Wrist.stow());
+    // m_manipController
+    // .y()
+    // .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+    // .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
+    m_manipController.b().whileTrue(m_intake.outtakeCommand().alongWith(m_feeder.setFeed(-0.3)));
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
+    // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
     m_manipController.rightBumper().whileTrue(pickUpNote);
 
     m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
+
+    m_testController.a().onTrue(m_Wrist.incrementUp());
+
+    m_testController.b().onTrue(m_Wrist.incrementDown());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));

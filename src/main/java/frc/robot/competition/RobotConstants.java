@@ -121,7 +121,7 @@ class RobotConstants {
 
   // Time of flight sensor range of interest
   public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
-  public static final double FEED_SENSOR_THRESHOLD = 160;
+  public static final double FEED_SENSOR_THRESHOLD = 200;
 
   public static final double FEED_INTAKE_SPEED = 0.3;
   public static final double FEED_OUTTAKE_SPEED = -1;
@@ -152,7 +152,7 @@ class RobotConstants {
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
-  public static final double AUTO_SHOOT_SPEED = 5000;
+  public static final double AUTO_SHOOT_SPEED = 500;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
 }
