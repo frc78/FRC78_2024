@@ -6,14 +6,15 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.Range;
-import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class VarShootPrime extends Command {
   private Wrist wrist;
@@ -60,16 +61,32 @@ public class VarShootPrime extends Command {
     double h = Constants.SPEAKER_HEIGHT - shooterXZTrans.getY();
     double l = pose.getTranslation().getDistance(speakerTranslation.get()) - shooterXZTrans.getX();
     // Calculate velocity based on lerping within the velocity range based on the distance range
-    double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
+    // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
+    double v = velRange.max;
     double theta = calcTheta(Constants.GRAVITY, l, h, v);
-    wrist.setToTarget(theta * thetaCoeff);
+    theta *= thetaCoeff;
+    theta = Units.radiansToDegrees(theta);
+    wrist.setToTarget(theta);
+    Logger.recordOutput("VarShootPrime theta", theta);
+    Logger.recordOutput("VarShootPrime h", h);
+    Logger.recordOutput("VarShootPrime v", v);
+    Logger.recordOutput("VarShootPrime l", l);
+    Logger.recordOutput("REAL VALUES PROBABLY", calcTheta(9.81, 2, 2, 10));
+
     shooter.setPIDReferenceBOTH(v / RPM_MPS);
   }
 
   // Source? It was revealed to me by a wise tree in a dream
   private double calcTheta(double g, double l, double h, double v) {
-    double nominator = v * v - Math.sqrt(Math.pow(v, 4) - g * ((g * l * l) + (2 * h * v * v)));
+    double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
+    Logger.recordOutput("sqrt", sqrt);
+    double nominator = (v * v) - Math.sqrt(sqrt);
     double denominator = g * l;
     return Math.atan(nominator / denominator);
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    shooter.setPIDReferenceBOTH(0);
   }
 }

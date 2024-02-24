@@ -38,6 +38,12 @@ public class Chassis extends SubsystemBase {
     getPositions = new SwerveModulePosition[4];
   }
 
+  public void setBrake(Boolean y) {
+    for (SwerveModule module : modules) {
+      module.setBrake(y);
+    }
+  }
+
   public SwerveModulePosition[] getPositions() {
     for (int i = 0; i < modules.length; i++) {
       getPositions[i] = modules[i].getPosition();
