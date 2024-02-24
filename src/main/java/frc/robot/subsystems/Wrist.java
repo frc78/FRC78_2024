@@ -19,6 +19,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -88,6 +89,14 @@ public class Wrist extends SubsystemBase {
     setDefaultCommand(run(this::moveWrist));
   }
 
+  public Command incrementAngle() {
+    return runOnce(() -> goal += 1);
+  }
+
+  public Command decrementAngle() {
+    return runOnce(() -> goal -= 1);
+  }
+
   public boolean isAtTarget() {
     return Math.abs(goal - encoder.getPosition()) < 2;
   }
@@ -149,5 +158,6 @@ public class Wrist extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
+    SmartDashboard.putNumber("wrist/goal", goal);
   }
 }

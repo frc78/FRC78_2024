@@ -290,6 +290,9 @@ class CompetitionRobotContainer {
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
 
+    m_manipController.povDown().onTrue(m_Wrist.decrementAngle());
+    m_manipController.povUp().onTrue(m_Wrist.incrementAngle());
+
     // The routine automatically stops the motors at the end of the command
     sysIdController
         .a()
