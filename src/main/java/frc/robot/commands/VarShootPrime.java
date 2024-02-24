@@ -71,17 +71,20 @@ public class VarShootPrime extends Command {
     Logger.recordOutput("VarShootPrime h", h);
     Logger.recordOutput("VarShootPrime v", v);
     Logger.recordOutput("VarShootPrime l", l);
-    Logger.recordOutput("REAL VALUES PROBABLY", calcTheta(9.81, 2, 2, 10));
+    Logger.recordOutput("REAL VALUES PROBABLY", Units.radiansToDegrees(calcTheta(9.81, 2, 2, 10)));
 
     shooter.setPIDReferenceBOTH(v / RPM_MPS);
   }
 
   // Source? It was revealed to me by a wise tree in a dream
+  // JK this https://en.wikipedia.org/wiki/Projectile_motion
   private double calcTheta(double g, double l, double h, double v) {
     double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
     Logger.recordOutput("sqrt", sqrt);
     double nominator = (v * v) - Math.sqrt(sqrt);
     double denominator = g * l;
+    Logger.recordOutput("denominator", denominator);
+
     return Math.atan(nominator / denominator);
   }
 
