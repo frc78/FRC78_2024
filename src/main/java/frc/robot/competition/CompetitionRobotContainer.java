@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -136,6 +137,7 @@ class CompetitionRobotContainer {
     pickUpNote =
         m_intake
             .intakeCommand()
+            .onlyWhile(m_Elevator::elevatorIsStowed)
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
 
@@ -212,6 +214,13 @@ class CompetitionRobotContainer {
 
     m_driveController
         .rightBumper()
+        .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
+    m_driveController
+        .leftBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
