@@ -45,7 +45,7 @@ public class Wrist extends SubsystemBase {
     wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
     wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
-    Util.setRevStatusRates(wristNeo, 10, 20, 20, 65535, 65535, 100, 65535, 250);
+    Util.setRevStatusRates(wristNeo, 10, 20, 65535, 65535, 65535, 20, 65535, 65535);
   }
 
   public Command setToTarget(double target) {

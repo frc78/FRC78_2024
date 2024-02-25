@@ -57,6 +57,9 @@ public class Shooter extends SubsystemBase {
     shooterTopVV = new VelocityVoltage(0).withSlot(0);
     shooterBottomVV = new VelocityVoltage(0).withSlot(0);
 
+    shooterTOP.getVelocity().setUpdateFrequency(50);
+    shooterBOTTOM.getVelocity().setUpdateFrequency(50);
+
     shooterTOP.optimizeBusUtilization();
     shooterBOTTOM.optimizeBusUtilization();
   }

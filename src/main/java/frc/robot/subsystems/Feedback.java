@@ -16,11 +16,12 @@ public class Feedback extends SubsystemBase {
 
   public Feedback(int candleID) {
     bracelet = new CANdle(candleID);
-    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 0);
-    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_4_ControlTelem, 0);
-    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_5_PixelPulseTrain, 0);
-    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_6_BottomPixels, 0);
-    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_7_TopPixels, 0);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_4_ControlTelem, 255);
+    bracelet.setStatusFramePeriod(
+        CANdleStatusFrame.CANdleStatusFrame_Status_5_PixelPulseTrain, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_6_BottomPixels, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_7_TopPixels, 255);
   }
 
   public void red() {

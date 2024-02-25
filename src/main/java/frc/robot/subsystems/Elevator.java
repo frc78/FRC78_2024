@@ -81,8 +81,8 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
-    Util.setRevStatusRates(elevNeoMotor1, 5, 20, 20, 65535, 65535, 500, 65535, 250);
-    Util.setRevStatusRates(elevNeoMotor2, 100, 500, 500, 65535, 65535, 500, 65535, 250);
+    Util.setRevStatusRates(elevNeoMotor1, 5, 20, 20, 65535, 65535, 65535, 65535, 65535);
+    Util.setRevStatusRates(elevNeoMotor2, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
 
     this.setDefaultCommand(setToTarget(0));
   }
