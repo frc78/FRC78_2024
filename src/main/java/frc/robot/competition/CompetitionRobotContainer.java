@@ -277,16 +277,17 @@ class CompetitionRobotContainer {
 
     m_manipController
         .x()
-        .onTrue(
+        .whileTrue(
             new VarShootPrime(
                 m_Wrist,
                 m_Shooter,
                 m_poseEstimator,
                 RobotConstants.SHOOT_POINT,
-                RobotConstants.DISTANCE_RANGE,
                 RobotConstants.VELOCITY_RANGE,
-                RobotConstants.THETA_COEFF,
-                RobotConstants.SHOOTER_RPM_TO_MPS));
+                RobotConstants.DISTANCE_RANGE,
+                RobotConstants.HEIGHT_LENGTH_COEFF,
+                RobotConstants.SHOOTER_RPM_TO_MPS,
+                55));
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 

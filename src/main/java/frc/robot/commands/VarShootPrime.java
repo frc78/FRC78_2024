@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.Range;
+import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
@@ -27,8 +28,9 @@ public class VarShootPrime extends Command {
 
   private final Range velRange; // Range of velocity from min distance to max distance
   private final Range distRange; // Range of distance from min distance to max distance
-  private final double thetaCoeff;
+  private final double heightLengthCoeff;
   private final double RPM_MPS;
+  private final double wristStow;
 
   /** Creates a new VarShootPrime. */
   public VarShootPrime(
@@ -39,7 +41,8 @@ public class VarShootPrime extends Command {
       Range velRange,
       Range distRange,
       double thetaCoeff,
-      double RPM_MPS) {
+      double RPM_MPS,
+      double wristStow) {
     this.wrist = wrist;
     this.shooter = shooter;
     this.poseEstimator = poseEstimator;
@@ -47,8 +50,9 @@ public class VarShootPrime extends Command {
     this.shooterXZTrans = shooterXZTrans;
     this.velRange = velRange;
     this.distRange = distRange;
-    this.thetaCoeff = thetaCoeff;
+    this.heightLengthCoeff = thetaCoeff;
     this.RPM_MPS = RPM_MPS;
+    this.wristStow = wristStow;
 
     addRequirements(wrist, shooter);
   }
@@ -58,16 +62,18 @@ public class VarShootPrime extends Command {
     Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    double h = Constants.SPEAKER_HEIGHT - shooterXZTrans.getY();
     double l = pose.getTranslation().getDistance(speakerTranslation.get()) - shooterXZTrans.getX();
+    double h = (Constants.SPEAKER_HEIGHT - shooterXZTrans.getY());
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = velRange.max;
     double theta = calcTheta(Constants.GRAVITY, l, h, v);
-    theta *= thetaCoeff;
     theta = Units.radiansToDegrees(theta);
+    double modify = Util.lerp(l, distRange) * heightLengthCoeff;
+    theta += modify;
     wrist.setToTarget(theta);
     Logger.recordOutput("VarShootPrime theta", theta);
+    Logger.recordOutput("VarShootPrime modify", modify);
     Logger.recordOutput("VarShootPrime h", h);
     Logger.recordOutput("VarShootPrime v", v);
     Logger.recordOutput("VarShootPrime l", l);
@@ -92,5 +98,6 @@ public class VarShootPrime extends Command {
   @Override
   public void end(boolean interrupted) {
     shooter.setPIDReferenceBOTH(0);
+    wrist.setToTarget(wristStow);
   }
 }

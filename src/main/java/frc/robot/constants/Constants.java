@@ -20,9 +20,9 @@ public final class Constants {
   public static final double DOWN_ADJUST = 0.25;
 
   // TODO should revise and precisely measure these values, they are estimates
-  public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(0.5, 5.5);
-  public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16, 5.5);
-  public static final double SPEAKER_HEIGHT = 2;
+  public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(0, 5.5);
+  public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16.5, 5.5);
+  public static final double SPEAKER_HEIGHT = 2.1;
   public static final Supplier<Translation2d> SPEAKER_TRANSLATION =
       () ->
           DriverStation.getAlliance().isPresent()
