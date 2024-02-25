@@ -71,7 +71,8 @@ public class VarShootPrime extends Command {
     Logger.recordOutput("VarShootPrime h", h);
     Logger.recordOutput("VarShootPrime v", v);
     Logger.recordOutput("VarShootPrime l", l);
-    Logger.recordOutput("REAL VALUES PROBABLY", Units.radiansToDegrees(calcTheta(9.81, 2, 2, 10)));
+    Logger.recordOutput(
+        "REAL VALUES PROBABLY", Units.radiansToDegrees(calcTheta(9.81, 2, 1.4, 18)));
 
     shooter.setPIDReferenceBOTH(v / RPM_MPS);
   }
