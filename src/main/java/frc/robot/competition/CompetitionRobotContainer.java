@@ -241,9 +241,10 @@ class CompetitionRobotContainer {
                           : Constants.BLUE_ORBIT_POSE;
                   double angle =
                       target
-                          .minus(m_poseEstimator.getFusedPose().getTranslation())
-                          .getAngle()
-                          .getRadians();
+                              .minus(m_poseEstimator.getFusedPose().getTranslation())
+                              .getAngle()
+                              .getRadians()
+                          + Math.PI;
                   return angle;
                 },
                 m_baseDrive::calculateChassisSpeeds,

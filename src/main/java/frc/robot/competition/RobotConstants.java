@@ -35,7 +35,7 @@ class RobotConstants {
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
           new Translation3d(-4.75, 15.602, 15.602).times(Units.inchesToMeters(1)),
-          new Rotation3d(0, Math.toRadians(-30), 0)); // TODO
+          new Rotation3d(0, Math.toRadians(-30), Math.PI)); // TODO
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
   public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
