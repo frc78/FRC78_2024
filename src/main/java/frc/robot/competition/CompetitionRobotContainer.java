@@ -217,7 +217,7 @@ class CompetitionRobotContainer {
                 m_chassis));
 
     m_driveController
-        .leftBumper()
+        .pov(180)
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -229,7 +229,7 @@ class CompetitionRobotContainer {
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
     m_driveController
-        .pov(180)
+        .leftBumper()
         .whileTrue(
             new FieldOrientedWithCardinal(
                 m_chassis,
@@ -245,6 +245,9 @@ class CompetitionRobotContainer {
                               .getAngle()
                               .getRadians()
                           + Math.PI;
+                  //   angle *=
+                  //       m_poseEstimator.getEstimatedVel().getY()
+                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
                   return angle;
                 },
                 m_baseDrive::calculateChassisSpeeds,

@@ -19,8 +19,8 @@ public final class Constants {
   public static final double UP_ADJUST = 0.5;
   public static final double DOWN_ADJUST = 0.25;
 
-  public static final Translation2d BLUE_ORBIT_POSE = new Translation2d(0.5, 5.5);
-  public static final Translation2d RED_ORBIT_POSE = new Translation2d(16, 5.5);
+  public static final Translation2d BLUE_ORBIT_POSE = new Translation2d(0, 5.5);
+  public static final Translation2d RED_ORBIT_POSE = new Translation2d(16.5, 5.5);
   public static final Transform2d BLUE_AMP =
       new Transform2d(1.83, 7.47, Rotation2d.fromDegrees(90));
   public static final Transform2d RED_AMP =

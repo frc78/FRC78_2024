@@ -42,7 +42,7 @@ class RobotConstants {
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
   public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 8, 12);
+  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 12, 18);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
@@ -56,7 +56,7 @@ class RobotConstants {
   // a target pose, perhaps we could use just one set of constants for both
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(4.5, 0.0, 0.085);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
@@ -170,4 +170,6 @@ class RobotConstants {
   public static final double AUTO_SHOOT_SPEED = 5000;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
+
+  public static final double SPEAKER_AIM_VEL_COEFF = 0.0; // Multiplies m/s into radians
 }
