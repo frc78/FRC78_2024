@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -84,7 +85,16 @@ class CompetitionRobotContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis,
+            m_ATCamera,
+            RobotConstants.CAM1_OFFSET,
+            RobotConstants.PIGEON_ID,
+            RobotConstants.STATE_STD_DEVS,
+            RobotConstants.VISION_STD_DEVS,
+            RobotConstants.SINGLE_TAG_STD_DEVS,
+            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -126,6 +136,7 @@ class CompetitionRobotContainer {
     pickUpNote =
         m_intake
             .intakeCommand()
+            .onlyWhile(m_Elevator::elevatorIsStowed)
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
 
@@ -135,7 +146,7 @@ class CompetitionRobotContainer {
         m_Shooter
             .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
             .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
-            .andThen(Commands.waitUntil(m_Wrist::isAtTarget)));
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
@@ -201,6 +212,13 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
+    m_driveController
+        .leftBumper()
+        .whileTrue(
             new OrbitalTarget(
                 m_chassis,
                 m_baseDrive::calculateChassisSpeeds,
@@ -255,6 +273,8 @@ class CompetitionRobotContainer {
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
+
+    m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
 
     m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 

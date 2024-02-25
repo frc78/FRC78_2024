@@ -8,6 +8,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -83,9 +84,10 @@ public class OrbitalTarget extends Command {
   @Override
   public void initialize() {
     Pose2d robotPose = poseEstimator.getFusedPose();
-    xController.reset(robotPose.getX());
-    yController.reset(robotPose.getY());
-    rotController.reset(robotPose.getRotation().getRadians());
+    Transform2d vel = poseEstimator.getEstimatedVel();
+    xController.reset(robotPose.getX(), vel.getX());
+    yController.reset(robotPose.getY(), vel.getY());
+    rotController.reset(robotPose.getRotation().getRadians(), vel.getRotation().getRadians());
   }
 
   @Override
@@ -135,10 +137,5 @@ public class OrbitalTarget extends Command {
     speeds.vyMetersPerSecond += speedsSupplier.get().vyMetersPerSecond;
 
     chassis.driveRobotRelative(speeds);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 }
