@@ -4,6 +4,8 @@
 
 package frc.robot.classes;
 
+import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.constants.Constants;
@@ -52,5 +54,25 @@ public class Util {
   /*Returns right-hand perpendicular vector */
   public static Translation2d perpendicular(Translation2d vector) {
     return new Translation2d(vector.getY(), -vector.getX());
+  }
+
+  public static void setRevStatusRates(
+      CANSparkBase motor,
+      int status0,
+      int status1,
+      int status2,
+      int status3,
+      int status4,
+      int status5,
+      int status6,
+      int status7) {
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus0, status0);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus1, status1);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, status2);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, status3);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, status4);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, status5);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, status6);
+    motor.setPeriodicFramePeriod(PeriodicFrame.kStatus7, status7);
   }
 }

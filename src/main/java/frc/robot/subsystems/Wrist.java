@@ -13,6 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -43,6 +44,8 @@ public class Wrist extends SubsystemBase {
 
     wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
     wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
+
+    Util.setRevStatusRates(wristNeo, 10, 20, 65535, 65535, 65535, 20, 65535, 65535);
   }
 
   public Command setToTarget(double target) {

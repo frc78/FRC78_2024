@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
@@ -79,6 +80,9 @@ public class Elevator extends SubsystemBase {
 
     elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
+
+    Util.setRevStatusRates(elevNeoMotor1, 5, 20, 20, 65535, 65535, 65535, 65535, 65535);
+    Util.setRevStatusRates(elevNeoMotor2, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
 
     this.setDefaultCommand(setToTarget(0));
   }
