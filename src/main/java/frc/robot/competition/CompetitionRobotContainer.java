@@ -229,6 +229,28 @@ class CompetitionRobotContainer {
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
     m_driveController
+        .pov(180)
+        .whileTrue(
+            new FieldOrientedWithCardinal(
+                m_chassis,
+                m_poseEstimator,
+                () -> {
+                  Translation2d target =
+                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                          ? Constants.RED_ORBIT_POSE
+                          : Constants.BLUE_ORBIT_POSE;
+                  double angle =
+                      target
+                          .minus(m_poseEstimator.getFusedPose().getTranslation())
+                          .getAngle()
+                          .getRadians();
+                  return angle;
+                },
+                m_baseDrive::calculateChassisSpeeds,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.ROTATION_CONSTRAINTS,
+                RobotConstants.ROTATION_FF));
+    m_driveController
         .a()
         .or(m_driveController.b())
         .or(m_driveController.x())
