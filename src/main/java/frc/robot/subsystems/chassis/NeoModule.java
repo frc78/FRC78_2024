@@ -12,7 +12,6 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
@@ -29,6 +28,7 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs.FFConstants;
+import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
@@ -129,7 +129,8 @@ public class NeoModule implements SwerveModule {
     drive.setIdleMode(config.driveIdleMode);
     steer.setIdleMode(config.steerIdleMode);
 
-    steer.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 20);
+    Util.setRevStatusRates(steer, 10, 20, 65535, 65535, 65535, 20, 65535, 65535);
+    Util.setRevStatusRates(drive, 10, 20, 20, 65535, 65535, 65535, 65535, 65535);
 
     // Save the SPARK MAX configurations. If a SPARK MAX browns out during
     // operation, it will maintain the above configurations.
