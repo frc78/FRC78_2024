@@ -176,7 +176,7 @@ class RobotConstants {
   public static final double SHOOTER_RPM_TO_MPS =
       (Math.PI * Units.inchesToMeters(2.5)) / 60; // Guess based on shooter wheel size
   public static final Range VELOCITY_RANGE =
-      new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5000);
+      new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
   public static final Range DISTANCE_RANGE = new Range(1, 3);
   public static final double THETA_COEFF = 1;
 }
