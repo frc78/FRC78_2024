@@ -112,17 +112,15 @@ public class Wrist extends SubsystemBase {
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
     return runOnce(this::configureMotorsBeforeSysId)
         .andThen(sysIdRoutine.quasistatic(direction))
-        .finallyDo(this::configureMotorsAfterSysId);
+        .andThen(holdPosition())
+        .andThen(this::configureMotorsAfterSysId);
   }
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return runOnce(this::configureMotorsBeforeSysId)
         .andThen(sysIdRoutine.dynamic(direction))
-        .finallyDo(
-            () -> {
-              configureMotorsAfterSysId();
-              holdPosition();
-            });
+        .andThen(holdPosition())
+        .andThen(this::configureMotorsAfterSysId);
   }
 
   /**
@@ -137,8 +135,8 @@ public class Wrist extends SubsystemBase {
     return runOnce(() -> this.goal = goal);
   }
 
-  private void holdPosition() {
-    this.goal = encoder.getPosition();
+  private Command holdPosition() {
+    return runOnce(() -> this.goal = encoder.getPosition());
   }
 
   public Command stow() {
