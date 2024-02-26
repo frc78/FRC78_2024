@@ -34,6 +34,9 @@ public class Wrist extends SubsystemBase {
     encoder = wristNeo.getAbsoluteEncoder(Type.kDutyCycle);
     encoder.setPositionConversionFactor(360);
     wristNeo.getPIDController().setFeedbackDevice(encoder);
+    wristNeo.getPIDController().setPositionPIDWrappingEnabled(true);
+    wristNeo.getPIDController().setPositionPIDWrappingMinInput(0);
+    wristNeo.getPIDController().setPositionPIDWrappingMaxInput(360);
     wristNeo.getPIDController().setP(.03);
 
     encoder.setInverted(true);
