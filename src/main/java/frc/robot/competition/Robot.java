@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -28,6 +30,8 @@ public class Robot extends LoggedRobot {
 
   private CompetitionRobotContainer m_robotContainer;
 
+  private static final boolean REPLAY_MODE = false;
+
   @Override
   public void robotInit() {
 
@@ -36,16 +40,15 @@ public class Robot extends LoggedRobot {
       Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
       m_pdp = new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
-    } else {
-      //      setUseTiming(false); // Run as fast as possible
-      //      String logPath =
-      //          LogFileUtil
-      //              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the
-      // user)
-      //      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-      //      Logger.addDataReceiver(
-      //          new WPILOGWriter(
-      //              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+    } else if (REPLAY_MODE) {
+      setUseTiming(false); // Run as fast as possible
+      String logPath =
+          LogFileUtil
+              .findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+      Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+      Logger.addDataReceiver(
+          new WPILOGWriter(
+              LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
     }
 
     Logger.start();
