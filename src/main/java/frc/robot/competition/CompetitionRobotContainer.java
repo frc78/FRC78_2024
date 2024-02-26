@@ -4,8 +4,6 @@
 
 package frc.robot.competition;
 
-import static frc.robot.subsystems.Shooter.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,6 +19,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -85,7 +84,16 @@ class CompetitionRobotContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis,
+            m_ATCamera,
+            RobotConstants.CAM1_OFFSET,
+            RobotConstants.PIGEON_ID,
+            RobotConstants.STATE_STD_DEVS,
+            RobotConstants.VISION_STD_DEVS,
+            RobotConstants.SINGLE_TAG_STD_DEVS,
+            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -139,11 +147,11 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
-            .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
+            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
             .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
@@ -152,6 +160,7 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
+
     // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
@@ -211,6 +220,13 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
+    m_driveController
+        .leftBumper()
+        .whileTrue(
             new OrbitalTarget(
                 m_chassis,
                 m_baseDrive::calculateChassisSpeeds,
@@ -257,6 +273,7 @@ class CompetitionRobotContainer {
         .leftTrigger(0.5)
         .whileTrue(m_Shooter.setShooter(5500))
         .whileFalse(m_Shooter.setShooter(0));
+
 
     // Sets elevator and wrist to Amp score position
     // m_manipController

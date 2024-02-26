@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
 
 public class Intake extends SubsystemBase {
 
@@ -24,6 +25,9 @@ public class Intake extends SubsystemBase {
 
     intakeTop.restoreFactoryDefaults();
     intakeBottom.restoreFactoryDefaults();
+
+    Util.setRevStatusRates(intakeTop, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
+    Util.setRevStatusRates(intakeBottom, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
 
     this.intakeSpeed = intakeSpeed;
     this.outtakeSpeed = outtakeSpeed;

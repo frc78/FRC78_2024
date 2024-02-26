@@ -53,6 +53,49 @@
         "artifactId": "photontargeting-java",
         "version": "v2024.2.7"
       }
+=======
+        {
+            "groupId": "org.photonvision",
+            "artifactId": "photonlib-cpp",
+            "version": "v2024.2.7",
+            "libName": "photonlib",
+            "headerClassifier": "headers",
+            "sharedLibrary": true,
+            "skipInvalidPlatforms": true,
+            "binaryPlatforms": [
+                "windowsx86-64",
+                "linuxathena",
+                "linuxx86-64",
+                "osxuniversal"
+            ]
+        },
+        {
+            "groupId": "org.photonvision",
+            "artifactId": "photontargeting-cpp",
+            "version": "v2024.2.7",
+            "libName": "photontargeting",
+            "headerClassifier": "headers",
+            "sharedLibrary": true,
+            "skipInvalidPlatforms": true,
+            "binaryPlatforms": [
+                "windowsx86-64",
+                "linuxathena",
+                "linuxx86-64",
+                "osxuniversal"
+            ]
+        }
+    ],
+    "javaDependencies": [
+        {
+            "groupId": "org.photonvision",
+            "artifactId": "photonlib-java",
+            "version": "v2024.2.7"
+        },
+        {
+            "groupId": "org.photonvision",
+            "artifactId": "photontargeting-java",
+            "version": "v2024.2.7"
+        }
     ]
   }
   
