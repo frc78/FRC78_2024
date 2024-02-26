@@ -4,8 +4,6 @@
 
 package frc.robot.competition;
 
-import static frc.robot.subsystems.Shooter.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -145,15 +143,15 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
-            .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
+            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
             .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
-    NamedCommands.registerCommand("StopShooter", m_Shooter.setShooter(0));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
@@ -266,8 +264,8 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setShooter(4250))
-        .whileFalse(m_Shooter.setShooter(0));
+        .onTrue(m_Shooter.setSpeed(4250))
+        .onFalse(m_Shooter.setSpeed(0));
 
     // Sets elevator and wrist to Amp score position
     m_manipController
