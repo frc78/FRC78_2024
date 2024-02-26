@@ -22,10 +22,11 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
@@ -80,7 +81,14 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
+    Util.setRevStatusRates(elevNeoMotor1, 5, 20, 20, 65535, 65535, 65535, 65535, 65535);
+    Util.setRevStatusRates(elevNeoMotor2, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
+
     this.setDefaultCommand(setToTarget(0));
+  }
+
+  public boolean elevatorIsStowed() {
+    return zeroed && encoder.getPosition() <= .5;
   }
 
   private Command lowerElevatorUntilLimitReached() {
@@ -124,17 +132,17 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    SmartDashboard.putBoolean("Elevator/limit pressed", !reverseLimitSwitch.get());
-    SmartDashboard.putBoolean("Elevator/zeroed", zeroed);
-    SmartDashboard.putNumber("Elevator/position", encoder.getPosition());
-    SmartDashboard.putBoolean(
+    Logger.recordOutput("Elevator/limit pressed", !reverseLimitSwitch.get());
+    Logger.recordOutput("Elevator/zeroed", zeroed);
+    Logger.recordOutput("Elevator/position", encoder.getPosition());
+    Logger.recordOutput(
         "Elevator/reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
-    SmartDashboard.putBoolean(
+    Logger.recordOutput(
         "Elevator/forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
-    SmartDashboard.putNumber("Elevator/PIDoutput", profiledPid.getPositionError());
-    SmartDashboard.putNumber("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
-    SmartDashboard.putNumber("Elevator/AppliedVoltage", appliedOutput);
-    SmartDashboard.putNumber("Elevator/Goal", profiledPid.getSetpoint().position);
+    Logger.recordOutput("Elevator/PIDoutput", profiledPid.getPositionError());
+    Logger.recordOutput("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
+    Logger.recordOutput("Elevator/AppliedVoltage", appliedOutput);
+    Logger.recordOutput("Elevator/Goal", profiledPid.getSetpoint().position);
   }
 
   /** Moves elevator to target as long as elevator is zeroed */

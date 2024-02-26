@@ -13,7 +13,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -61,12 +60,26 @@ public class Chassis extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    SwerveModuleState[] realStates = {
+      modules[0].getRealState(),
+      modules[1].getRealState(),
+      modules[2].getRealState(),
+      modules[3].getRealState()
+    };
+    SwerveModuleState[] optimizedStates = {
+      modules[0].getOptimizedState(),
+      modules[1].getOptimizedState(),
+      modules[2].getOptimizedState(),
+      modules[3].getOptimizedState()
+    };
+
     for (int i = 0; i < modules.length; i++) {
       modules[i].setState(states[i]);
-      SmartDashboard.putNumber(i + " Rot", states[i].angle.getRotations());
     }
 
-    Logger.recordOutput("ModuleSet", states);
+    Logger.recordOutput("Setting States", states);
+    Logger.recordOutput("Optimized States", optimizedStates);
+    Logger.recordOutput("Real States", realStates);
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
