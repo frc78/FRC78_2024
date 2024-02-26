@@ -127,6 +127,10 @@ class CompetitionRobotContainer {
     pickUpNote =
         m_intake
             .intakeCommand()
+            .alongWith(
+                m_Wrist.setToTarget(
+                    55)) // new intake angle (stow is 55 as well, but calling it here due to auto
+            // using other positions)
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
     AmpSetUp = (m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)));

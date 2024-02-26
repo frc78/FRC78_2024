@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 1.2962637734799283,
-        "y": 6.590892267498821
+        "x": 2.711390108494503,
+        "y": 6.989629522116187
       },
       "prevControl": {
-        "x": 2.844302526700293,
-        "y": 6.856717103910398
+        "x": 4.259428861714867,
+        "y": 7.255454358527764
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "AmpSideStart"
+      "linkedName": "W3"
     }
   ],
   "rotationTargets": [],
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 33.9590598196763,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
