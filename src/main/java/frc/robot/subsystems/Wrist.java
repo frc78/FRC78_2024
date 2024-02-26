@@ -86,20 +86,14 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command enableCoastMode() {
-    return Commands.runOnce(
-            () -> {
-              wristNeo.setIdleMode(IdleMode.kCoast);
-            })
+    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kCoast))
         .andThen(new PrintCommand("Coast Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Coast");
   }
 
   public Command enableBrakeMode() {
-    return Commands.runOnce(
-            () -> {
-              wristNeo.setIdleMode(IdleMode.kBrake);
-            })
+    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kBrake))
         .andThen(new PrintCommand("Brake Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Brake");
