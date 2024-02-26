@@ -80,7 +80,7 @@ public class VarShootPrime extends Command {
     Logger.recordOutput(
         "REAL VALUES PROBABLY", Units.radiansToDegrees(calcTheta(9.81, 2, 1.4, 18)));
 
-    shooter.setPIDReferenceBOTH(v / RPM_MPS);
+    shooter.setSpeed(v / RPM_MPS);
   }
 
   // Source? It was revealed to me by a wise tree in a dream
@@ -97,7 +97,7 @@ public class VarShootPrime extends Command {
 
   @Override
   public void end(boolean interrupted) {
-    shooter.setPIDReferenceBOTH(0);
+    shooter.setSpeed(0);
     wrist.setToTarget(wristStow);
   }
 }
