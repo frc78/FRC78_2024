@@ -62,8 +62,8 @@ public class Chassis extends SubsystemBase {
   }
 
   public void turnToNote() {
-    double rotationSpeed = 0.08;
-    double movementSpeed = 0.1;
+    double rotationSpeed = 0.1;
+    double movementSpeed = 0.08;
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry tx = table.getEntry("tx");
@@ -74,12 +74,12 @@ public class Chassis extends SubsystemBase {
     double errorx = 0 - x;
     double errory = 0 + y;
 
-    double rotation = errorx * rotationSpeed;
-    double movement = errory * movementSpeed;
+    double movement = errorx * movementSpeed;
+    double rotation = errory * rotationSpeed;
 
     driveRobotRelative(
         new ChassisSpeeds(
-            0, movement, rotation)); // Needs to change, limelight is mounted on the side.
+            rotation, 0, movement)); // Needs to change, limelight is mounted on the side.
   }
 
   public Command turnToNoteCommand() {
