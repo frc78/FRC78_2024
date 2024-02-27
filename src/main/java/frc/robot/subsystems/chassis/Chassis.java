@@ -74,12 +74,10 @@ public class Chassis extends SubsystemBase {
     double errorx = 0 - x;
     double errory = 0 + y;
 
-    double movement = errorx * movementSpeed;
-    double rotation = errory * rotationSpeed;
+    double rotation = errorx * rotationSpeed;
+    double movement = errory * movementSpeed;
 
-    driveRobotRelative(
-        new ChassisSpeeds(
-            rotation, 0, movement)); // Needs to change, limelight is mounted on the side.
+    driveRobotRelative(new ChassisSpeeds(movement, 0, rotation));
   }
 
   public Command turnToNoteCommand() {
