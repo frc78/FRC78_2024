@@ -56,8 +56,9 @@ public class Wrist extends SubsystemBase {
   public void setToTarget(double target) {
     this.target = target;
     wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-  public Command incrementUp() {
+  }
 
+  public Command incrementUp() {
     return runOnce(
         () -> {
           target++;
