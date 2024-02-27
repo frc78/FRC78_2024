@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
@@ -82,7 +83,7 @@ class CompetitionRobotContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics);
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
     m_poseEstimator =
         new PoseEstimator(
@@ -276,16 +277,19 @@ class CompetitionRobotContainer {
     m_manipController
         .x()
         .whileTrue(
-            new VarShootPrime(
-                m_Wrist,
-                m_Shooter,
-                m_poseEstimator,
-                RobotConstants.SHOOT_POINT,
-                RobotConstants.VELOCITY_RANGE,
-                RobotConstants.DISTANCE_RANGE,
-                RobotConstants.HEIGHT_LENGTH_COEFF,
-                RobotConstants.SHOOTER_RPM_TO_MPS,
-                55));
+            new SequentialCommandGroup(
+                new VarShootPrime(
+                    m_Wrist,
+                    m_Shooter,
+                    m_Elevator,
+                    m_poseEstimator,
+                    RobotConstants.SHOOT_POINT,
+                    RobotConstants.VELOCITY_RANGE,
+                    RobotConstants.DISTANCE_RANGE,
+                    RobotConstants.HEIGHT_LENGTH_COEFF,
+                    RobotConstants.SHOOTER_RPM_TO_MPS),
+                m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM),
+                m_Shooter.setSpeed(0)));
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 

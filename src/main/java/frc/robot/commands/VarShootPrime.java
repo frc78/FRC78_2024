@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.Range;
 import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.PoseEstimator;
@@ -20,6 +21,7 @@ import org.littletonrobotics.junction.Logger;
 public class VarShootPrime extends Command {
   private Wrist wrist;
   private Shooter shooter;
+  private Elevator elevator;
   private PoseEstimator poseEstimator;
   private Supplier<Translation2d> speakerTranslation;
 
@@ -30,21 +32,21 @@ public class VarShootPrime extends Command {
   private final Range distRange; // Range of distance from min distance to max distance
   private final double heightLengthCoeff;
   private final double RPM_MPS;
-  private final double wristStow;
 
   /** Creates a new VarShootPrime. */
   public VarShootPrime(
       Wrist wrist,
       Shooter shooter,
+      Elevator elevator,
       PoseEstimator poseEstimator,
       Translation2d shooterXZTrans,
       Range velRange,
       Range distRange,
       double thetaCoeff,
-      double RPM_MPS,
-      double wristStow) {
+      double RPM_MPS) {
     this.wrist = wrist;
     this.shooter = shooter;
+    this.elevator = elevator;
     this.poseEstimator = poseEstimator;
     this.speakerTranslation = Constants.SPEAKER_TRANSLATION;
     this.shooterXZTrans = shooterXZTrans;
@@ -52,7 +54,6 @@ public class VarShootPrime extends Command {
     this.distRange = distRange;
     this.heightLengthCoeff = thetaCoeff;
     this.RPM_MPS = RPM_MPS;
-    this.wristStow = wristStow;
 
     addRequirements(wrist, shooter);
   }
@@ -63,7 +64,9 @@ public class VarShootPrime extends Command {
 
     // Distance and height to speaker
     double l = pose.getTranslation().getDistance(speakerTranslation.get()) - shooterXZTrans.getX();
-    double h = (Constants.SPEAKER_HEIGHT - shooterXZTrans.getY());
+    double h =
+        (Constants.SPEAKER_HEIGHT - shooterXZTrans.getY())
+            - Units.inchesToMeters(elevator.getElevatorPos());
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = velRange.max;
@@ -93,11 +96,5 @@ public class VarShootPrime extends Command {
     Logger.recordOutput("denominator", denominator);
 
     return Math.atan(nominator / denominator);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    shooter.setSpeed(0);
-    wrist.setToTarget(wristStow);
   }
 }
