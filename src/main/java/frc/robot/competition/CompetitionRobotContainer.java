@@ -155,7 +155,6 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
-    NamedCommands.registerCommand("StopShooter", m_Shooter.setShooter(0));
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand(
         "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
@@ -269,11 +268,7 @@ class CompetitionRobotContainer {
         .and(m_Elevator::hasNotBeenZeroed)
         .onTrue(m_Elevator.zeroElevator());
 
-    m_manipController
-        .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setShooter(5500))
-        .whileFalse(m_Shooter.setShooter(0));
-
+    // TODO switch the variable code onto left trigger
 
     // Sets elevator and wrist to Amp score position
     // m_manipController
