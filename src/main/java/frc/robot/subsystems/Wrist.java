@@ -20,7 +20,7 @@ public class Wrist extends SubsystemBase {
 
   private CANSparkMax wristNeo;
   private AbsoluteEncoder encoder;
-  private double stowPos = 50;
+  private double stowPos = 55;
   private double target = 0;
 
   /** Creates a new Wrist. */
@@ -51,6 +51,23 @@ public class Wrist extends SubsystemBase {
   public Command setToTarget(double target) {
     this.target = target;
     return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition));
+  }
+
+  public Command incrementUp() {
+
+    return runOnce(
+        () -> {
+          target++;
+          wristNeo.getPIDController().setReference(target, ControlType.kPosition);
+        });
+  }
+
+  public Command incrementDown() {
+    return runOnce(
+        () -> {
+          target--;
+          wristNeo.getPIDController().setReference(target, ControlType.kPosition);
+        });
   }
 
   public Command stow() {
