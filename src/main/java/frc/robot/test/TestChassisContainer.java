@@ -178,7 +178,7 @@ class TestChassisContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
 
-    m_manipController.leftTrigger().whileTrue(m_chassis.turnToNoteCommand());
+    m_manipController.leftTrigger().whileTrue(new DriveToNote(m_chassis));
   }
 
   public Command getAutonomousCommand() {

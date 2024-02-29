@@ -11,9 +11,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
@@ -59,29 +56,6 @@ public class Chassis extends SubsystemBase {
   // simpler for now
   public ChassisSpeeds getRealChassisSpeed() {
     return kinematics.toChassisSpeeds(getStates());
-  }
-
-  public void turnToNote() {
-    double rotationSpeed = 0.1;
-    double movementSpeed = 0.08;
-
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tx = table.getEntry("tx");
-    NetworkTableEntry ty = table.getEntry("ty");
-
-    double x = tx.getDouble(0.0);
-    double y = ty.getDouble(0.0);
-    double errorx = 0 - x;
-    double errory = 0 + y;
-
-    double rotation = errorx * rotationSpeed;
-    double movement = errory * movementSpeed;
-
-    driveRobotRelative(new ChassisSpeeds(movement, 0, rotation));
-  }
-
-  public Command turnToNoteCommand() {
-    return run(this::turnToNote);
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
