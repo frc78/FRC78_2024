@@ -11,7 +11,10 @@ import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
@@ -49,11 +52,16 @@ public class Wrist extends SubsystemBase {
     wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
 
     Util.setRevStatusRates(wristNeo, 10, 20, 65535, 65535, 65535, 20, 65535, 65535);
+
+    SmartDashboard.putData(this);
+    SmartDashboard.putData(enableBrakeMode());
+    SmartDashboard.putData(enableCoastMode());
   }
 
   public Command setToTarget(double target) {
     this.target = target;
-    return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition));
+    return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition))
+        .withName("setGoal[" + target + "]");
   }
 
   public Command incrementUp() {
@@ -74,7 +82,21 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command stow() {
-    return setToTarget(stowPos);
+    return setToTarget(stowPos).withName("Stow");
+  }
+
+  public Command enableCoastMode() {
+    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kCoast))
+        .andThen(new PrintCommand("Coast Mode Set On Wrist"))
+        .ignoringDisable(true)
+        .withName("Enable Wrist Coast");
+  }
+
+  public Command enableBrakeMode() {
+    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kBrake))
+        .andThen(new PrintCommand("Brake Mode Set On Wrist"))
+        .ignoringDisable(true)
+        .withName("Enable Wrist Brake");
   }
 
   public boolean isAtTarget() {
