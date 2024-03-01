@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.led.CANdle;
+import com.ctre.phoenix.led.CANdleStatusFrame;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,6 +16,12 @@ public class Feedback extends SubsystemBase {
 
   public Feedback(int candleID) {
     bracelet = new CANdle(candleID);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_4_ControlTelem, 255);
+    bracelet.setStatusFramePeriod(
+        CANdleStatusFrame.CANdleStatusFrame_Status_5_PixelPulseTrain, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_6_BottomPixels, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_7_TopPixels, 255);
   }
 
   public void red() {
