@@ -204,13 +204,14 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(m_feedback.multi(Color.kBlue))
-        .onFalse(shortRumble(m_driveController.getHID()))
-        .onFalse(m_feedback.multi(Color.kRed));
+        .onTrue(m_feedback.noteInCartridge())
+        .onFalse(shortRumble(m_driveController.getHID()));
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .onTrue(shortRumble(m_manipController.getHID()))
-        .onTrue(m_feedback.multi(Color.kGreen))
-        .onFalse(m_feedback.multi(Color.kRed));
+        .onTrue(m_feedback.shooterWheelsAtSpeed());
+    new Trigger(() -> m_intake.hasNote())
+        .onTrue(m_feedback.intakeCurrentSpike())
+        .onFalse(m_feedback.turnOffLEDs()); 
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -259,8 +260,7 @@ class CompetitionRobotContainer {
         .and(m_Elevator::hasNotBeenZeroed)
         .onTrue(m_Elevator.zeroElevator());
 
-    RobotModeTriggers.teleop().onTrue(m_feedback.multi(Color.kRed));
-    RobotModeTriggers.disabled().onTrue(Commands.runOnce(() -> m_feedback.off()));//multi(Color.kRed));
+    RobotModeTriggers.disabled().onTrue(Commands.runOnce(() -> m_feedback.off()));
 
     m_manipController
         .leftTrigger(0.5)
@@ -270,8 +270,7 @@ class CompetitionRobotContainer {
     m_testController.a().whileTrue(m_Wrist.setToTarget(90));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
-    m_testController.b().whileTrue(m_feedback.multi(Color.kBlue)); 
-    m_testController.y().onTrue(Commands.runOnce(() -> m_feedback.off()));
+    m_testController.b().whileTrue(m_feedback.multi(Color.kBlue));
 
     m_manipController
         .y()

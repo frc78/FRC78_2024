@@ -42,4 +42,8 @@ public class Intake extends SubsystemBase {
   public Command outtakeCommand() {
     return this.startEnd(() -> this.setIntake(outtakeSpeed), () -> this.setIntake(0));
   }
+
+  public boolean hasNote() {
+    return false; // this will change - we need sensor implementation 
+  }
 }
