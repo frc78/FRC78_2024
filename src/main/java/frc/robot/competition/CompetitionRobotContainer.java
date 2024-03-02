@@ -54,7 +54,7 @@ class CompetitionRobotContainer {
   private final Shooter m_Shooter;
   private final Wrist m_Wrist;
   private final Feeder m_feeder;
-  private final Feedback m_feedback;
+  final Feedback m_feedback;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
   private final CommandXboxController m_testController;
@@ -221,11 +221,14 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(m_feedback.multi(Color.kDarkMagenta))
-        .onFalse(shortRumble(m_driveController.getHID()))
-        .onFalse(m_feedback.multi(Color.kRed));
-    new Trigger(() -> m_Shooter.isAtSpeed(.9)).onTrue(shortRumble(m_manipController.getHID()));
-
+        .onTrue(m_feedback.noteInCartridge())
+        .onFalse(shortRumble(m_driveController.getHID()));
+    new Trigger(() -> m_Shooter.isAtSpeed(.9))
+        .onTrue(shortRumble(m_manipController.getHID()))
+        .onTrue(m_feedback.shooterWheelsAtSpeed());
+    new Trigger(() -> m_intake.hasNote())
+        .onTrue(m_feedback.intakeCurrentSpike())
+        .onFalse(m_feedback.turnOffLEDs());
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -285,6 +288,13 @@ class CompetitionRobotContainer {
         .and(m_Elevator::hasNotBeenZeroed)
         .onTrue(m_Elevator.zeroElevator());
 
+    RobotModeTriggers.disabled()
+        .onTrue(Commands.runOnce(() -> m_feedback.disabledColorPattern()).ignoringDisable(true));
+
+    m_manipController
+        .leftTrigger(0.5)
+        .whileTrue(m_Shooter.setSpeed(500))
+        .whileFalse(m_Shooter.setSpeed(0));
     // TODO switch the variable code onto left trigger
 
     // Sets elevator and wrist to Amp score position
@@ -306,6 +316,15 @@ class CompetitionRobotContainer {
         .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
         .onFalse(m_Shooter.setSpeed(0));
 
+    m_testController.x().whileTrue(m_feedback.rainbows());
+    m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
+
+    m_manipController
+        .y()
+        .whileTrue(
+            m_Wrist
+                .setToTarget(110)
+                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
     m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
