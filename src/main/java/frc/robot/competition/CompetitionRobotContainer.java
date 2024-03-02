@@ -229,7 +229,7 @@ class CompetitionRobotContainer {
                 m_chassis));
 
     m_driveController
-        .leftBumper()
+        .pov(180)
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -240,6 +240,33 @@ class CompetitionRobotContainer {
                 m_poseEstimator,
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
+    m_driveController
+        .leftBumper()
+        .whileTrue(
+            new FieldOrientedWithCardinal(
+                m_chassis,
+                m_poseEstimator,
+                () -> {
+                  Translation2d target =
+                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                          ? Constants.RED_SPEAKER_POSE
+                          : Constants.BLUE_SPEAKER_POSE;
+                  double angle =
+                      target
+                              .minus(m_poseEstimator.getFusedPose().getTranslation())
+                              .getAngle()
+                              .getRadians()
+                          + Math.PI;
+                  Logger.recordOutput("Aiming angle", angle);
+                  //   angle *=
+                  //       m_poseEstimator.getEstimatedVel().getY()
+                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
+                  return angle;
+                },
+                m_baseDrive::calculateChassisSpeeds,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.ROTATION_CONSTRAINTS,
+                RobotConstants.ROTATION_FF));
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -324,7 +351,7 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(110)
+                .setToTargetCmd(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 

@@ -35,7 +35,7 @@ class RobotConstants {
   public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
-          new Translation3d(-4.75, 15.602, 16.102).times(Units.inchesToMeters(1)),
+          new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
           new Rotation3d(0, Math.toRadians(-30), Math.PI)); // TODO
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
@@ -43,7 +43,7 @@ class RobotConstants {
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
   public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
-  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 8, 12);
+  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 12, 18);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
@@ -57,7 +57,7 @@ class RobotConstants {
   // a target pose, perhaps we could use just one set of constants for both
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(3.5, 0.0, 0.0);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(4.5, 0.0, 0.085);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
@@ -174,6 +174,7 @@ class RobotConstants {
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
 
+  public static final double SPEAKER_AIM_VEL_COEFF = 0.0; // Multiplies m/s into radians
   // AUTO WRIST
   public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
   public static final double SHOOTER_RPM_TO_MPS =
