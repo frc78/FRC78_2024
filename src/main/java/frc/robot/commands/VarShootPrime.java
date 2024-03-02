@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
@@ -71,7 +73,7 @@ public class VarShootPrime extends Command {
     // Distance and height to speaker
     double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
     double h =
-        (Constants.SPEAKER_HEIGHT - shooterXZTrans.getY())
+        (Constants.SPEAKER_HEIGHT.in(Meters) - shooterXZTrans.getY())
             - Units.inchesToMeters(elevator.getElevatorPos());
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);

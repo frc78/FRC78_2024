@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,6 +14,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,7 +24,6 @@ import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.PoseEstimator;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -39,7 +42,7 @@ public class OrbitalTarget extends Command {
 
   private Rotation2d goalRotation;
 
-  private DoubleSupplier orbitDistance;
+  private Supplier<Measure<Distance>> orbitDistance;
 
   public OrbitalTarget(
       Chassis chassis,
@@ -48,7 +51,7 @@ public class OrbitalTarget extends Command {
       PIDConstants rotationPID,
       Structs.MotionLimits motionLimits,
       PoseEstimator poseEstimator,
-      DoubleSupplier orbitDistance,
+      Supplier<Measure<Distance>> orbitDistance,
       double rotationFFCoefficient) {
 
     this.chassis = chassis;
@@ -114,7 +117,7 @@ public class OrbitalTarget extends Command {
     /*  The goal position is normalized and scaled by the orbit distance, then added to the speaker
     position to get a goal position that is radius distance away from the speaker in the direction of the robot*/
     goalPosition = Util.normalize(goalPosition);
-    goalPosition = goalPosition.times(orbitDistance.getAsDouble());
+    goalPosition = goalPosition.times(orbitDistance.get().in(Meters));
     goalPosition = goalPosition.plus(speakerPose);
 
     xController.setGoal(goalPosition.getX());
