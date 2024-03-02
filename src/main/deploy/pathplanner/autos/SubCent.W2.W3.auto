@@ -5,7 +5,7 @@
       "x": 1.4448129467687512,
       "y": 5.566684809560096
     },
-    "rotation": 0.8550973962666805
+    "rotation": 0.9548412538721408
   },
   "command": {
     "type": "sequential",
@@ -57,7 +57,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.75
+            "waitTime": 0.5
           }
         },
         {
@@ -67,26 +67,52 @@
           }
         },
         {
-          "type": "wait",
+          "type": "parallel",
           "data": {
-            "waitTime": 0.5
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CenterNote.AmpNote"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "AmpfromCentScr"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "StartShooter"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "StopShooter"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "W2.CLine"
+            "name": "Score"
           }
         }
       ]
     }
   },
-  "folder": "2NoteAutos",
+  "folder": "The L Autos",
   "choreoAuto": false
 }

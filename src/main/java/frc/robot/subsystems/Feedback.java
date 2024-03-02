@@ -14,6 +14,7 @@ import com.ctre.phoenix.led.StrobeAnimation;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import com.ctre.phoenix.led.CANdleStatusFrame;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -104,6 +105,12 @@ public class Feedback extends SubsystemBase {
     rb.setNumLed(300);
     rb.setSpeed(255);
     bracelet.animate(rb, 1);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_1_General, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_4_ControlTelem, 255);
+    bracelet.setStatusFramePeriod(
+        CANdleStatusFrame.CANdleStatusFrame_Status_5_PixelPulseTrain, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_6_BottomPixels, 255);
+    bracelet.setStatusFramePeriod(CANdleStatusFrame.CANdleStatusFrame_Status_7_TopPixels, 255);
   }
 
   public void red() {

@@ -8,9 +8,19 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs;
+import frc.robot.classes.Structs.ClosedLoopParameters;
+import frc.robot.classes.Structs.FFConstants;
 
 /** This is the constants for the NEO */
 class RobotConstants {
@@ -23,7 +33,15 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
+  public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
+  public static final Transform3d CAM1_OFFSET =
+      new Transform3d(
+          new Translation3d(0.31, 0.0, 0.15), new Rotation3d(0, Math.toRadians(-30), 0));
+
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1);
+  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
   public static final Structs.MotionLimits MOTION_LIMITS =
       new Structs.MotionLimits(4, 3 /*TODO */, 8, 18);
@@ -50,10 +68,11 @@ class RobotConstants {
 
   // WHEELS
   public static final double DRIVE_GEAR_RATIO = (6.75);
-  public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
+  public static final double STEER_GEAR_RATIO = 150 / 7;
+  public static final double NEO_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
-      (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
-          / DRIVE_GEAR_RATIO; // Converted for wheel
+      (NEO_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI)) / DRIVE_GEAR_RATIO; // Converted for wheel
+  public static final double STEER_FREESPEED = (NEO_FREESPEED_RPS) / STEER_GEAR_RATIO;
 
   public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
   public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
@@ -76,4 +95,30 @@ class RobotConstants {
 
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
+
+  public static final FFConstants MODULE_FF[] = {
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0),
+    new FFConstants(0, 0, 0)
+  };
+
+  public static final ModuleConfig MODULE_CONFIG =
+      new ModuleConfig(
+          new ClosedLoopParameters(0.15, 0, 0, 1 / DRIVE_WHEEL_FREESPEED),
+          new ClosedLoopParameters(20, 0, 1, 1 / STEER_FREESPEED),
+          RobotConstants.DRIVE_ENC_TO_METERS,
+          RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
+          RobotConstants.STEER_ENC_POS_TO_METERS,
+          RobotConstants.STEER_ENC_VEL_TO_METERS,
+          RobotConstants.DRIVE_INVERTED,
+          RobotConstants.STEER_INVERTED,
+          RobotConstants.STEER_ENC_INVERTED,
+          RobotConstants.STEER_ENC_PID_MIN,
+          RobotConstants.STEER_ENC_PID_MAX,
+          RobotConstants.DRIVE_CURRENT_LIMIT,
+          RobotConstants.STEER_CURRENT_LIMIT,
+          RobotConstants.NOMINAL_VOLTAGE,
+          RobotConstants.DRIVE_IDLE,
+          RobotConstants.STEER_IDLE);
 }

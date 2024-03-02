@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.4448129467687512,
-      "y": 5.566684809560096
+      "x": 1.2962637734799283,
+      "y": 6.590892267498821
     },
-    "rotation": 0.8550973962666805
+    "rotation": 41.933514498874146
   },
   "command": {
     "type": "sequential",
@@ -30,13 +30,13 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "sequential",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Center.CenterNote"
+                  "pathName": "AmpSide.AmpNote"
                 }
               },
               {
@@ -51,42 +51,24 @@
         {
           "type": "named",
           "data": {
-            "name": "ScoreFromW2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.75
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShooter"
+            "name": "AmpSetUp"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "W2.CLine"
+            "pathName": "W3.AmpScr"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreInAmp"
           }
         }
       ]
     }
   },
-  "folder": "2NoteAutos",
+  "folder": "AmpAutos",
   "choreoAuto": false
 }

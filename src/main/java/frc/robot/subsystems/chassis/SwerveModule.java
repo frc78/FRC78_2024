@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
  * https://github.com/AquidneckIslandRobotics/78Offseason2023/wiki/Concepts
  */
 public interface SwerveModule {
+
   public void initialize();
 
   public void resetEncoders();
@@ -24,6 +25,10 @@ public interface SwerveModule {
   public double getDrivePosition(); // Get the relative position of the angle motor's encoder
 
   public Rotation2d getSteerPosition(); // Get the absolute position of the magnetic encoder
+
+  public SwerveModuleState getOptimizedState();
+
+  public SwerveModuleState getRealState();
 
   public SwerveModuleState getState();
 
@@ -40,4 +45,8 @@ public interface SwerveModule {
 
   /** Logs the motor position, velocity, and voltage data for SysId */
   void logMotor(SysIdRoutineLog log);
+
+  void enableBrakeMode();
+
+  void enableCoastMode();
 }

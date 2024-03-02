@@ -25,7 +25,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.classes.Util;
+import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
   private CANSparkMax elevNeoMotor1;
@@ -40,23 +43,24 @@ public class Elevator extends SubsystemBase {
 
   private RelativeEncoder encoder;
 
-  private final double kS = 0.035369;
-  private final double kV = 0.52479;
-  private final double kA = 0.029988;
-  private final double kG = 0.029988;
+  private final double kS = 0.070936;
+  private final double kV = 0.79005;
+  private final double kA = 0.086892;
+  private final double kG = 0.088056;
   // Command loop runs at 50Hz, 20ms period
   private final double kDt = 0.02;
+  private double appliedOutput = 0;
 
   private final Measure<Velocity<Distance>> manualSpeed = InchesPerSecond.of(1);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
   private final ProfiledPIDController profiledPid =
       new ProfiledPIDController(
-          5.6495,
+          180,
           0,
-          0.15652,
+          0,
           new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(8), InchesPerSecond.per(Second).of(6)),
+              InchesPerSecond.of(13), InchesPerSecond.per(Second).of(40)),
           kDt);
 
   public Elevator() {
@@ -69,21 +73,32 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.setIdleMode(IdleMode.kBrake);
     elevNeoMotor2.setIdleMode(IdleMode.kBrake);
 
-    encoder = elevNeoMotor1.getAlternateEncoder(8192);
-    encoder.setPositionConversionFactor(5.498);
+    encoder = elevNeoMotor1.getEncoder();
+    encoder.setPositionConversionFactor((1.29 * Math.PI) / 25);
     elevNeoMotor1.getPIDController().setFeedbackDevice(encoder);
-    elevNeoMotor1.getPIDController().setP(.077);
+    elevNeoMotor1.getPIDController().setP(.144);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
 
-    elevNeoMotor1.setInverted(true);
+    elevNeoMotor1.setInverted(false);
     elevNeoMotor2.follow(elevNeoMotor1, true);
 
+    Util.setRevStatusRates(elevNeoMotor1, 5, 20, 20, 65535, 65535, 65535, 65535, 65535);
+    Util.setRevStatusRates(elevNeoMotor2, 500, 65535, 65535, 65535, 65535, 65535, 65535, 65535);
+
     this.setDefaultCommand(setToTarget(0));
+    SmartDashboard.putData(enableCoastMode());
+    SmartDashboard.putData(enableBrakeMode());
+    SmartDashboard.putData("Elevator Profile", profiledPid);
+    SmartDashboard.putData(this);
+  }
+
+  public boolean elevatorIsStowed() {
+    return zeroed && encoder.getPosition() <= .5;
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1)).until(reverseLimitSwitch::get);
+    return run(() -> elevNeoMotor1.set(-.1)).until(() -> !reverseLimitSwitch.get());
   }
 
   private Command configureMotorsAfterZeroing() {
@@ -93,16 +108,18 @@ public class Elevator extends SubsystemBase {
           profiledPid.setGoal(0);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
           elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
-          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 14);
+          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 15);
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
           zeroed = true;
+          this.setDefaultCommand(setToTarget(0));
         });
   }
 
   public Command zeroElevator() {
     return lowerElevatorUntilLimitReached()
         .andThen(configureMotorsAfterZeroing())
-        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming);
+        .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
+        .withName("Zero Elevator");
   }
 
   /** Manually move elevator up by gradually moving the setpoint. */
@@ -121,29 +138,59 @@ public class Elevator extends SubsystemBase {
                 encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)));
   }
 
+  public Command enableCoastMode() {
+    return Commands.runOnce(
+            () -> {
+              elevNeoMotor1.setIdleMode(IdleMode.kCoast);
+              elevNeoMotor2.setIdleMode(IdleMode.kCoast);
+            })
+        .andThen(new PrintCommand("Coast Mode Set On Elevator"))
+        .ignoringDisable(true)
+        .withName("Enable Elevator Coast");
+  }
+
+  public Command enableBrakeMode() {
+    return Commands.runOnce(
+            () -> {
+              elevNeoMotor1.setIdleMode(IdleMode.kBrake);
+              elevNeoMotor2.setIdleMode(IdleMode.kBrake);
+            })
+        .andThen(new PrintCommand("Brake Mode Set On Elevator"))
+        .ignoringDisable(true)
+        .withName("Enable Elevator Brake");
+  }
+
   public void periodic() {
-    SmartDashboard.putBoolean("limit pressed", reverseLimitSwitch.get());
-    SmartDashboard.putBoolean("zeroed", zeroed);
-    SmartDashboard.putNumber("position", encoder.getPosition());
-    SmartDashboard.putBoolean(
-        "reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
-    SmartDashboard.putBoolean(
-        "forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
-    SmartDashboard.putNumber("Elevator Profile Velocity", profiledPid.getSetpoint().velocity);
+    Logger.recordOutput("Elevator/limit pressed", !reverseLimitSwitch.get());
+    Logger.recordOutput("Elevator/zeroed", zeroed);
+    Logger.recordOutput("Elevator/position", encoder.getPosition());
+    Logger.recordOutput(
+        "Elevator/reverse limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitRev));
+    Logger.recordOutput(
+        "Elevator/forward limit reached", elevNeoMotor1.getFault(FaultID.kSoftLimitFwd));
+    Logger.recordOutput("Elevator/PIDoutput", profiledPid.getPositionError());
+    Logger.recordOutput("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
+    Logger.recordOutput("Elevator/AppliedVoltage", appliedOutput);
+    Logger.recordOutput("Elevator/Goal", profiledPid.getSetpoint().position);
   }
 
   /** Moves elevator to target as long as elevator is zeroed */
   public Command setToTarget(double target) {
-    return runOnce(() -> profiledPid.setGoal(target))
+    return runOnce(
+            () -> {
+              profiledPid.setGoal(Units.inchesToMeters(target));
+            })
         .andThen(
             run(
                 () -> {
                   if (!zeroed) return;
-                  elevNeoMotor1.setVoltage(
-                      profiledPid.calculate(Units.metersToInches(encoder.getPosition()))
+                  appliedOutput =
+                      profiledPid.calculate(Units.inchesToMeters(encoder.getPosition()))
                           + feedforward.calculate(
                               MetersPerSecond.of(profiledPid.getSetpoint().velocity)
-                                  .in(InchesPerSecond)));
-                }));
+                                  .in(InchesPerSecond));
+                  elevNeoMotor1.setVoltage(appliedOutput);
+                }))
+        .withName("setTo[" + target + "]");
   }
 }
