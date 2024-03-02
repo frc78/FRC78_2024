@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -145,6 +146,17 @@ public class NeoModule implements SwerveModule {
   @Override
   public void resetEncoders() {
     driveEnc.setPosition(0);
+  }
+
+  @Override
+  public void setBrake(Boolean y) {
+    if (y) {
+      drive.setIdleMode(IdleMode.kBrake);
+      steer.setIdleMode(IdleMode.kBrake);
+    } else {
+      drive.setIdleMode(IdleMode.kCoast);
+      steer.setIdleMode(IdleMode.kCoast);
+    }
   }
 
   /**

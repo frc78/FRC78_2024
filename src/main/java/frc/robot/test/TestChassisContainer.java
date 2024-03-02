@@ -52,7 +52,7 @@ class TestChassisContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics);
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
     m_manipController = new CommandXboxController(0);
 
