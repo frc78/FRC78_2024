@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2962637734799283,
-      "y": 6.590892267498821
+      "x": 1.2102616205232415,
+      "y": 6.528345247166685
     },
     "rotation": 42.039063865836305
   },
@@ -15,12 +15,6 @@
           "type": "named",
           "data": {
             "name": "StartShooter"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
           }
         },
         {
@@ -51,13 +45,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "StartShooter"
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 1.0
+            "name": "Target"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
           }
         },
         {
@@ -67,7 +67,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "AmpNote.MID1"
+                  "pathName": "W3.C5"
                 }
               },
               {
@@ -86,7 +86,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "MID1.AMPside"
+                  "pathName": "C5.4NoteScore"
                 }
               },
               {
@@ -96,6 +96,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Target"
           }
         },
         {
