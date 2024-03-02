@@ -318,6 +318,16 @@ class CompetitionRobotContainer {
     sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
     sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
     sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+
+    RobotModeTriggers.teleop()
+        .onTrue(
+            m_Elevator
+                .enableBrakeMode()
+                .andThen(m_Wrist.enableBrakeMode())
+                .andThen(m_chassis.enableBrakeMode()));
+
+    RobotModeTriggers.disabled()
+        .onTrue(m_Wrist.enableCoastMode().andThen(m_chassis.enableCoastMode()));
   }
 
   public Command getAutonomousCommand() {
