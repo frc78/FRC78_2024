@@ -24,6 +24,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Util;
@@ -159,11 +160,7 @@ public class Elevator extends SubsystemBase {
    * @param goal Goal height for the elevator in inches.
    */
   public Command setGoal(double goal) {
-    return runOnce(() -> profiledPid.setGoal(Units.inchesToMeters(goal)));
-  }
-
-  public void holdPosition() {
-    profiledPid.setGoal(encoder.getPosition());
+    return Commands.runOnce(() -> profiledPid.setGoal(Units.inchesToMeters(goal)));
   }
 
   public Command stow() {

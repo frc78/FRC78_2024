@@ -21,6 +21,7 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Util;
@@ -90,11 +91,11 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command incrementAngle() {
-    return runOnce(() -> goal += 1);
+    return Commands.runOnce(() -> goal += 1);
   }
 
   public Command decrementAngle() {
-    return runOnce(() -> goal -= 1);
+    return Commands.runOnce(() -> goal -= 1);
   }
 
   public boolean isAtTarget() {
@@ -132,11 +133,11 @@ public class Wrist extends SubsystemBase {
    * @param goal Goal angle for the wrist in degrees.
    */
   public Command setGoal(double goal) {
-    return runOnce(() -> this.goal = goal);
+    return Commands.runOnce(() -> this.goal = goal);
   }
 
   private Command holdPosition() {
-    return runOnce(() -> this.goal = encoder.getPosition());
+    return Commands.runOnce(() -> this.goal = encoder.getPosition());
   }
 
   public Command stow() {
