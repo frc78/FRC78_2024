@@ -138,19 +138,19 @@ class CompetitionRobotContainer {
         m_intake
             .intakeCommand()
             .alongWith(
-                m_Wrist.setToTargetCmd(
+                m_Wrist.setToTarget(
                     55)) // new intake angle (stow is 55 as well, but calling it here due to auto
             // using other positions)
             .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
             .until(m_feeder::isNoteQueued);
-    AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
+    AmpSetUp = (m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)));
 
     NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
             .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
@@ -294,7 +294,7 @@ class CompetitionRobotContainer {
                     RobotConstants.DISTANCE_RANGE,
                     RobotConstants.HEIGHT_LENGTH_COEFF,
                     RobotConstants.SHOOTER_RPM_TO_MPS),
-                m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM),
+                m_Wrist.setToTarget(RobotConstants.WRIST_HIGH_LIM),
                 m_Shooter.setSpeed(0)));
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
