@@ -216,7 +216,7 @@ class CompetitionRobotContainer {
         .onTrue(m_feedback.shooterWheelsAtSpeed());
     new Trigger(() -> m_intake.hasNote())
         .onTrue(m_feedback.intakeCurrentSpike())
-        .onFalse(m_feedback.turnOffLEDs()); 
+        .onFalse(m_feedback.turnOffLEDs());
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -276,8 +276,8 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setShooter(500))
-        .whileFalse(m_Shooter.setShooter(0));
+        .whileTrue(m_Shooter.setSpeed(500))
+        .whileFalse(m_Shooter.setSpeed(0));
     // TODO switch the variable code onto left trigger
 
     // Sets elevator and wrist to Amp score position

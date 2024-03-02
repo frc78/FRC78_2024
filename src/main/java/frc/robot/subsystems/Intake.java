@@ -53,6 +53,6 @@ public class Intake extends SubsystemBase {
   }
 
   public boolean hasNote() {
-    return false; // this will change - we need sensor implementation 
+    return false; // this will change - we need sensor implementation
   }
 }

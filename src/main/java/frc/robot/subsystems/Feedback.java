@@ -7,14 +7,13 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.led.CANdle;
 import com.ctre.phoenix.led.CANdle.LEDStripType;
 import com.ctre.phoenix.led.CANdleConfiguration;
+import com.ctre.phoenix.led.CANdleStatusFrame;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import com.ctre.phoenix.led.CANdleStatusFrame;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,21 +46,23 @@ public class Feedback extends SubsystemBase {
 
   public Command shooterWheelsAtSpeed() {
     return this.startEnd(
-      () -> {
-        StrobeAnimation sa = new StrobeAnimation(255, 0, 0, 255, 0.5, 60, 8);
-        bracelet.clearAnimation(1); 
-        bracelet.clearAnimation(2); 
-        bracelet.animate(sa, 1); 
-      }, this::off); 
+        () -> {
+          StrobeAnimation sa = new StrobeAnimation(255, 0, 0, 255, 0.5, 60, 8);
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.animate(sa, 1);
+        },
+        this::off);
   }
 
   public Command noteInCartridge() {
     return this.startEnd(
-      () -> {
-        bracelet.clearAnimation(1);
-        bracelet.clearAnimation(2);
-        bracelet.setLEDs(255, 0, 0); 
-      }, this::off); 
+        () -> {
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.setLEDs(255, 0, 0);
+        },
+        this::off);
   }
 
   public Command rainbows() {
@@ -70,20 +71,22 @@ public class Feedback extends SubsystemBase {
 
   public Command intakeCurrentSpike() {
     return this.startEnd(
-      () -> {
-        bracelet.clearAnimation(1); 
-        bracelet.clearAnimation(2); 
-        bracelet.setLEDs(255, 255, 0); 
-      }, this::off);
+        () -> {
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.setLEDs(255, 255, 0);
+        },
+        this::off);
   }
 
   public Command turnOffLEDs() {
     return this.startEnd(
-      () -> {
-        bracelet.clearAnimation(1); 
-        bracelet.clearAnimation(2); 
-        bracelet.setLEDs(0, 0, 0);
-      }, this::off); 
+        () -> {
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.setLEDs(0, 0, 0);
+        },
+        this::off);
   }
 
   public void disabledColorPattern() {
