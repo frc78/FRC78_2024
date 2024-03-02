@@ -35,8 +35,8 @@ class RobotConstants {
   public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
-          new Translation3d(0.31, 0.0, 0.15),
-          new Rotation3d(0, Math.toRadians(-15), Math.PI)); // TODO
+          new Translation3d(-4.75, 15.602, 16.102).times(Units.inchesToMeters(1)),
+          new Rotation3d(0, Math.toRadians(-30), Math.PI)); // TODO
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
   public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
@@ -175,12 +175,12 @@ class RobotConstants {
   public static final double WRIST_W2_TARGET = 35;
 
   // AUTO WRIST
-  public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.6); // TODO
+  public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
   public static final double SHOOTER_RPM_TO_MPS =
       (Math.PI * Units.inchesToMeters(2.65)) / 60; // Guess based on shooter wheel size
   //   public static final Range VELOCITY_RANGE =
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
-  public static final double SHOOTER_VEL = 5000; // RPM
-  public static final Range DISTANCE_RANGE = new Range(1.25, 3);
-  public static final double HEIGHT_LENGTH_COEFF = 0.5;
+  public static final double SHOOTER_VEL = 6000; // RPM
+  public static final Range DISTANCE_RANGE = new Range(1.25, 5);
+  public static final double HEIGHT_LENGTH_COEFF = 0.55;
 }
