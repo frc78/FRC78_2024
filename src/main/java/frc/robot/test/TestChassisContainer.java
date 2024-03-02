@@ -32,6 +32,7 @@ class TestChassisContainer {
   public final PoseEstimator m_poseEstimator;
   private PhotonCamera m_ATCamera;
   private final CommandXboxController m_driveController;
+  private final CommandXboxController m_manipController;
   private final SendableChooser<Command> autoChooser;
 
   TestChassisContainer() {
@@ -51,7 +52,9 @@ class TestChassisContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics);
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
+
+    m_manipController = new CommandXboxController(0);
 
     m_poseEstimator =
         new PoseEstimator(
@@ -174,6 +177,8 @@ class TestChassisContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
+
+    m_manipController.leftTrigger().whileTrue(new DriveToNote(m_chassis));
   }
 
   public Command getAutonomousCommand() {
