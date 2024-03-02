@@ -35,7 +35,7 @@ class RobotConstants {
   public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
-          new Translation3d(-4.75, 15.602, 16.102).times(Units.inchesToMeters(1)),
+          new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
           new Rotation3d(0, Math.toRadians(-30), Math.PI)); // TODO
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO

@@ -257,6 +257,7 @@ class CompetitionRobotContainer {
                               .getAngle()
                               .getRadians()
                           + Math.PI;
+                  Logger.recordOutput("Aiming angle", angle);
                   //   angle *=
                   //       m_poseEstimator.getEstimatedVel().getY()
                   //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
@@ -350,7 +351,7 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(110)
+                .setToTargetCmd(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
