@@ -249,8 +249,8 @@ class CompetitionRobotContainer {
                 () -> {
                   Translation2d target =
                       DriverStation.getAlliance().get() == DriverStation.Alliance.Red
-                          ? Constants.RED_ORBIT_POSE
-                          : Constants.BLUE_ORBIT_POSE;
+                          ? Constants.RED_SPEAKER_POSE
+                          : Constants.BLUE_SPEAKER_POSE;
                   double angle =
                       target
                               .minus(m_poseEstimator.getFusedPose().getTranslation())
