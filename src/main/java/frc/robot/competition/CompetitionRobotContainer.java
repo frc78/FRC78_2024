@@ -4,8 +4,6 @@
 
 package frc.robot.competition;
 
-import static frc.robot.subsystems.Shooter.*;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,13 +19,13 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
-import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
@@ -61,13 +59,22 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
+  private final Command pickUpNote;
+  private final Command AmpSetUp;
 
   CompetitionRobotContainer() {
 
-    NeoModule frontLeft = makeSwerveModule(1, 2);
-    NeoModule frontRight = makeSwerveModule(3, 4);
-    NeoModule backLeft = makeSwerveModule(5, 6);
-    NeoModule backRight = makeSwerveModule(7, 8);
+    NeoModule frontLeft =
+        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
+
+    NeoModule frontRight =
+        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
+
+    NeoModule backLeft =
+        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
+
+    NeoModule backRight =
+        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
@@ -77,7 +84,16 @@ class CompetitionRobotContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis,
+            m_ATCamera,
+            RobotConstants.CAM1_OFFSET,
+            RobotConstants.PIGEON_ID,
+            RobotConstants.STATE_STD_DEVS,
+            RobotConstants.VISION_STD_DEVS,
+            RobotConstants.SINGLE_TAG_STD_DEVS,
+            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -116,19 +132,35 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
+    pickUpNote =
+        m_intake
+            .intakeCommand()
+            .alongWith(
+                m_Wrist.setToTarget(
+                    55)) // new intake angle (stow is 55 as well, but calling it here due to auto
+            // using other positions)
+            .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
+            .until(m_feeder::isNoteQueued);
+    AmpSetUp = (m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)));
+
+    NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
-            .setShooter(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET)));
+            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
+            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
-        "SetShooter", m_Shooter.setShooter(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "SetWrist", m_Shooter.setShooter(RobotConstants.AUTO_WRIST_SETPOINT));
-    NamedCommands.registerCommand("RunIntake", m_intake.intakeCommand());
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
         m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
+    NamedCommands.registerCommand(
+        "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
+    NamedCommands.registerCommand("stow", m_Wrist.stow());
+
+    // Need  to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -168,33 +200,6 @@ class CompetitionRobotContainer {
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
-  private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
-    ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
-    return new NeoModule(
-        new ModuleConfig(
-            driveId,
-            steerId,
-            driveClosedLoopParams,
-            steerClosedLoopParams,
-            RobotConstants.DRIVE_ENC_TO_METERS,
-            RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
-            RobotConstants.STEER_ENC_POS_TO_METERS,
-            RobotConstants.STEER_ENC_VEL_TO_METERS,
-            RobotConstants.DRIVE_INVERTED,
-            RobotConstants.STEER_INVERTED,
-            RobotConstants.STEER_ENC_INVERTED,
-            RobotConstants.STEER_ENC_PID_MIN,
-            RobotConstants.STEER_ENC_PID_MAX,
-            RobotConstants.DRIVE_CURRENT_LIMIT,
-            RobotConstants.STEER_CURRENT_LIMIT,
-            RobotConstants.NOMINAL_VOLTAGE,
-            RobotConstants.DRIVE_IDLE,
-            RobotConstants.STEER_IDLE));
-  }
-
   Command shortRumble(XboxController controller) {
     return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
         .andThen(new WaitCommand(.5))
@@ -217,6 +222,13 @@ class CompetitionRobotContainer {
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     m_driveController
         .rightBumper()
+        .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
+    m_driveController
+        .leftBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -266,8 +278,13 @@ class CompetitionRobotContainer {
         .leftTrigger(0.5)
         .whileTrue(m_Shooter.setShooter(500))
         .whileFalse(m_Shooter.setShooter(0));
+    // TODO switch the variable code onto left trigger
 
-    m_testController.a().whileTrue(m_Wrist.setToTarget(90));
+    // Sets elevator and wrist to Amp score position
+    // m_manipController
+    // .y()
+    // .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
+    // .onFalse(m_Wrist.stow());
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
@@ -278,26 +295,37 @@ class CompetitionRobotContainer {
             m_Wrist
                 .setToTarget(110)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+    m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController.x().whileTrue(m_Wrist.setToTarget(125));
+    m_manipController.b().whileTrue(m_intake.outtakeCommand().alongWith(m_feeder.setFeed(-0.3)));
 
-    m_manipController
-        .rightBumper()
-        .whileTrue(
-            m_intake
-                .intakeCommand()
-                .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
-                .until(m_feeder::isNoteQueued));
+    // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
+
+    m_manipController.rightBumper().whileTrue(pickUpNote);
 
     m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
+
+    m_testController.a().onTrue(m_Wrist.incrementUp());
+
+    m_testController.b().onTrue(m_Wrist.incrementDown());
 
     // The routine automatically stops the motors at the end of the command
     sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
     sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
     sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
     sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+
+    RobotModeTriggers.teleop()
+        .onTrue(
+            m_Elevator
+                .enableBrakeMode()
+                .andThen(m_Wrist.enableBrakeMode())
+                .andThen(m_chassis.enableBrakeMode()));
+
+    RobotModeTriggers.disabled()
+        .onTrue(m_Wrist.enableCoastMode().andThen(m_chassis.enableCoastMode()));
   }
 
   public Command getAutonomousCommand() {

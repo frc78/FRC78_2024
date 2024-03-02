@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
-import frc.robot.classes.ModuleConfig;
 import frc.robot.commands.*;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
@@ -32,14 +32,19 @@ class TestChassisContainer {
   public final PoseEstimator m_poseEstimator;
   private PhotonCamera m_ATCamera;
   private final CommandXboxController m_driveController;
+  private final CommandXboxController m_manipController;
   private final SendableChooser<Command> autoChooser;
 
   TestChassisContainer() {
 
-    NeoModule frontLeft = makeSwerveModule(1, 2);
-    NeoModule frontRight = makeSwerveModule(3, 4);
-    NeoModule backLeft = makeSwerveModule(5, 6);
-    NeoModule backRight = makeSwerveModule(7, 8);
+    NeoModule frontLeft =
+        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
+    NeoModule frontRight =
+        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
+    NeoModule backLeft =
+        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
+    NeoModule backRight =
+        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
 
     SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
 
@@ -49,7 +54,18 @@ class TestChassisContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics);
 
-    m_poseEstimator = new PoseEstimator(m_chassis, m_ATCamera, RobotConstants.PIGEON_ID);
+    m_manipController = new CommandXboxController(0);
+
+    m_poseEstimator =
+        new PoseEstimator(
+            m_chassis,
+            m_ATCamera,
+            RobotConstants.CAM1_OFFSET,
+            RobotConstants.PIGEON_ID,
+            RobotConstants.STATE_STD_DEVS,
+            RobotConstants.VISION_STD_DEVS,
+            RobotConstants.SINGLE_TAG_STD_DEVS,
+            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
 
@@ -101,39 +117,12 @@ class TestChassisContainer {
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
-  private NeoModule makeSwerveModule(int driveId, int steerId) {
-    ModuleConfig.ClosedLoopParameters driveClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(0.1, 0, 0, 1 / RobotConstants.DRIVE_WHEEL_FREESPEED);
-    ModuleConfig.ClosedLoopParameters steerClosedLoopParams =
-        new ModuleConfig.ClosedLoopParameters(18, 0, 0, 0);
-    return new NeoModule(
-        new ModuleConfig(
-            driveId,
-            steerId,
-            driveClosedLoopParams,
-            steerClosedLoopParams,
-            RobotConstants.DRIVE_ENC_TO_METERS,
-            RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
-            RobotConstants.STEER_ENC_POS_TO_METERS,
-            RobotConstants.STEER_ENC_VEL_TO_METERS,
-            RobotConstants.DRIVE_INVERTED,
-            RobotConstants.STEER_INVERTED,
-            RobotConstants.STEER_ENC_INVERTED,
-            RobotConstants.STEER_ENC_PID_MIN,
-            RobotConstants.STEER_ENC_PID_MAX,
-            RobotConstants.DRIVE_CURRENT_LIMIT,
-            RobotConstants.STEER_CURRENT_LIMIT,
-            RobotConstants.NOMINAL_VOLTAGE,
-            RobotConstants.DRIVE_IDLE,
-            RobotConstants.STEER_IDLE));
-  }
-
   private void configureBindings() {
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
     m_driveController
-        .rightBumper()
+        .leftBumper()
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -144,6 +133,24 @@ class TestChassisContainer {
                 m_poseEstimator,
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
+
+    m_driveController
+        .rightBumper()
+        .whileTrue(
+            new RunCommand(
+                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
+                m_chassis));
+
+    m_driveController
+        .pov(0)
+        .whileTrue(
+            new AlignToPose(
+                m_chassis,
+                Constants.AMP_TRANSFORM,
+                m_poseEstimator,
+                RobotConstants.TRANSLATION_PID,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.MOTION_LIMITS));
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -170,6 +177,8 @@ class TestChassisContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF));
+
+    m_manipController.leftTrigger().whileTrue(new DriveToNote(m_chassis));
   }
 
   public Command getAutonomousCommand() {

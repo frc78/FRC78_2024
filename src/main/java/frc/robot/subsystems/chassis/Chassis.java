@@ -16,6 +16,8 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
@@ -37,6 +39,10 @@ public class Chassis extends SubsystemBase {
 
     getStates = new SwerveModuleState[4];
     getPositions = new SwerveModulePosition[4];
+
+    SmartDashboard.putData(this);
+    SmartDashboard.putData(enableBrakeMode());
+    SmartDashboard.putData(enableCoastMode());
   }
 
   public SwerveModulePosition[] getPositions() {
@@ -61,12 +67,26 @@ public class Chassis extends SubsystemBase {
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
     SwerveModuleState[] states = kinematics.toSwerveModuleStates(speeds);
+    SwerveModuleState[] realStates = {
+      modules[0].getRealState(),
+      modules[1].getRealState(),
+      modules[2].getRealState(),
+      modules[3].getRealState()
+    };
+    SwerveModuleState[] optimizedStates = {
+      modules[0].getOptimizedState(),
+      modules[1].getOptimizedState(),
+      modules[2].getOptimizedState(),
+      modules[3].getOptimizedState()
+    };
+
     for (int i = 0; i < modules.length; i++) {
       modules[i].setState(states[i]);
-      SmartDashboard.putNumber(i + " Rot", states[i].angle.getRotations());
     }
 
-    Logger.recordOutput("ModuleSet", states);
+    Logger.recordOutput("Setting States", states);
+    Logger.recordOutput("Optimized States", optimizedStates);
+    Logger.recordOutput("Real States", realStates);
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
@@ -88,6 +108,30 @@ public class Chassis extends SubsystemBase {
       // Each motor will write to the log directly
       module.logMotor(log);
     }
+  }
+
+  public Command enableCoastMode() {
+    return Commands.runOnce(
+            () -> {
+              for (SwerveModule module : modules) {
+                module.enableCoastMode();
+              }
+            })
+        .andThen(new PrintCommand("Coast Mode Set On Chassis"))
+        .ignoringDisable(true)
+        .withName("Enable Chassis Coast");
+  }
+
+  public Command enableBrakeMode() {
+    return Commands.runOnce(
+            () -> {
+              for (SwerveModule module : modules) {
+                module.enableBrakeMode();
+              }
+            })
+        .andThen(new PrintCommand("Brake Mode Set On Chassis"))
+        .ignoringDisable(true)
+        .withName("Enable Chassis Brake");
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {

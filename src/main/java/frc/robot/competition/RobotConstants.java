@@ -8,8 +8,16 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs.*;
 import frc.robot.subsystems.Shooter.ShooterConfig;
 
@@ -17,22 +25,29 @@ import frc.robot.subsystems.Shooter.ShooterConfig;
 class RobotConstants {
   public static final double WHEEL_WIDTH = 0.426; // Make sure this is from the wheel's center
   // of rotation
-  public static final double WHEEL_DIAMETER =
-      Units.inchesToMeters(4) * 1.274; // TODO measure more precisely
+  public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "Microsoft_LifeCam_HD-3000";
+  public static final String AT_CAMERA_NAME = "NULL";
+  public static final Transform3d CAM1_OFFSET =
+      new Transform3d(
+          new Translation3d(0.31, 0.0, 0.15), new Rotation3d(0, Math.toRadians(-15), 0)); // TODO
 
-  public static final MotionLimits MOTION_LIMITS = new MotionLimits(4, 3 /*TODO */, 8, 12);
+  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
+  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
+
+  public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 8, 12);
 
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
           new PIDConstants(2, 0.0, 0.0), // Translation PID constants
           new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
-          1, // Max module speed, in m/s
+          RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
           new ReplanningConfig() // Default path replanning config.
           );
@@ -51,10 +66,11 @@ class RobotConstants {
 
   // WHEELS //
   public static final double DRIVE_GEAR_RATIO = (5.3571);
-  public static final double DRIVE_MOTOR_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
+  public static final double STEER_GEAR_RATIO = 150 / 7;
+  public static final double NEO_FREESPEED_RPS = 5676 / 60; // Free RPM of NEO to RPS
   public static final double DRIVE_WHEEL_FREESPEED =
-      (DRIVE_MOTOR_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI))
-          / DRIVE_GEAR_RATIO; // Converted for wheel
+      (NEO_FREESPEED_RPS * (WHEEL_DIAMETER * Math.PI)) / DRIVE_GEAR_RATIO; // Converted for wheel
+  public static final double STEER_FREESPEED = (NEO_FREESPEED_RPS) / STEER_GEAR_RATIO;
 
   public static final double DRIVE_ENC_TO_METERS = (WHEEL_DIAMETER * Math.PI) / DRIVE_GEAR_RATIO;
   public static final double DRIVE_ENC_VEL_TO_METERS_PER_SECOND =
@@ -79,6 +95,32 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
+  public static final FFConstants MODULE_FF[] = {
+    new FFConstants(0.1929, 2.591, 0.5843),
+    new FFConstants(0.1979, 2.6267, 0.7183),
+    new FFConstants(0.1872, 2.6374, 0.7290),
+    new FFConstants(0.2263, 2.613, 0.5051)
+  };
+
+  public static final ModuleConfig MODULE_CONFIG =
+      new ModuleConfig(
+          new ClosedLoopParameters(0.1, 0, 0, 0),
+          new ClosedLoopParameters(20, 0, 1, 1 / STEER_FREESPEED),
+          RobotConstants.DRIVE_ENC_TO_METERS,
+          RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
+          RobotConstants.STEER_ENC_POS_TO_METERS,
+          RobotConstants.STEER_ENC_VEL_TO_METERS,
+          RobotConstants.DRIVE_INVERTED,
+          RobotConstants.STEER_INVERTED,
+          RobotConstants.STEER_ENC_INVERTED,
+          RobotConstants.STEER_ENC_PID_MIN,
+          RobotConstants.STEER_ENC_PID_MAX,
+          RobotConstants.DRIVE_CURRENT_LIMIT,
+          RobotConstants.STEER_CURRENT_LIMIT,
+          RobotConstants.NOMINAL_VOLTAGE,
+          RobotConstants.DRIVE_IDLE,
+          RobotConstants.STEER_IDLE);
+
   // INTAKE
   public static final int INTAKE_TOP_ID = 10;
   public static final int INTAKE_BOTTOM_ID = 9;
@@ -87,17 +129,21 @@ class RobotConstants {
 
   public static final double INTAKE_SPEED_OUT = -0.5;
 
+  public static final double ELEVATOR_CLIMB_HEIGHT = 16;
+
   // FEED //
   public static final int FEED_ID = 16;
   public static final int FEED_SENSOR_ID = 17;
 
   // Time of flight sensor range of interest
   public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
-  public static final double FEED_SENSOR_THRESHOLD = 125;
+  public static final double FEED_SENSOR_THRESHOLD = 200;
 
-  public static final double FEED_INTAKE_SPEED = 0.15;
-  public static final double FEED_OUTTAKE_SPEED = -0.5;
-  public static final double FEED_FIRE_SPEED = 0.5;
+  public static final double FEED_INTAKE_SPEED = 0.3;
+  public static final double FEED_OUTTAKE_SPEED = -1;
+  public static final double FEED_FIRE_SPEED = 1;
+
+  public static final double WRIST_SUB_AUTO_POS = 50;
 
   public static final ShooterConfig SHOOTER_CONFIG =
       new ShooterConfig(
@@ -115,8 +161,8 @@ class RobotConstants {
   // Wrist Constants
   public static final int WRIST_ID = 13;
 
-  public static final float WRIST_HIGH_LIM = 139; // 139
-  public static final float WRIST_LOW_LIM = 100; // 90
+  public static final float WRIST_HIGH_LIM = 55;
+  public static final float WRIST_LOW_LIM = 0;
 
   // CANDLE //
   public static final int CANDLE_ID = 1;
@@ -124,5 +170,5 @@ class RobotConstants {
   // TODO auto stuff, but what for and is it needed?
   public static final double AUTO_SHOOT_SPEED = 500;
   public static final double AUTO_WRIST_SETPOINT = 0;
-  public static final double WRIST_W2_TARGET = 125;
+  public static final double WRIST_W2_TARGET = 35;
 }
