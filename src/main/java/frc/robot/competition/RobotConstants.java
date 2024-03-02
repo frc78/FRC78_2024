@@ -139,9 +139,9 @@ class RobotConstants {
 
   // Time of flight sensor range of interest
   public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
-  public static final double FEED_SENSOR_THRESHOLD = 200;
+  public static final double FEED_SENSOR_THRESHOLD = 300;
 
-  public static final double FEED_INTAKE_SPEED = 0.3;
+  public static final double FEED_INTAKE_SPEED = 0.15;
   public static final double FEED_OUTTAKE_SPEED = -1;
   public static final double FEED_FIRE_SPEED = 1;
 
@@ -157,8 +157,8 @@ class RobotConstants {
           new Range(-1, 1),
           new PIDConstants(0, 0, 0),
           new PIDConstants(0, 0, 0),
-          new FFConstants(0.16, 0.1065, 0.0, 0.0),
-          new FFConstants(0.14, 0.1065, 0.0, 0.0));
+          new FFConstants(0.015904, 0.11136, 0.011126, 0.0),
+          new FFConstants(0.021249, 0.11118, 0.00941906, 0.0));
 
   // Wrist Constants
   public static final int WRIST_ID = 13;

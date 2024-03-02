@@ -293,7 +293,7 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(500))
+        .whileTrue(m_Shooter.setSpeed(5000))
         .whileFalse(m_Shooter.setSpeed(0));
     // TODO switch the variable code onto left trigger
 
