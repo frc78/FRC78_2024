@@ -272,7 +272,7 @@ class CompetitionRobotContainer {
         .and(m_Elevator::hasNotBeenZeroed)
         .onTrue(m_Elevator.zeroElevator());
 
-    RobotModeTriggers.disabled().onTrue(Commands.runOnce(() -> m_feedback.off()));
+    RobotModeTriggers.disabled().onTrue(Commands.runOnce(() -> m_feedback.disabledColorPattern()).ignoringDisable(true));
 
     m_manipController
         .leftTrigger(0.5)
