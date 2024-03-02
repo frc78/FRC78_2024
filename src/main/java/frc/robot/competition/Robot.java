@@ -77,14 +77,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {
-    m_robotContainer.m_feedback.disabledColorPattern();
-  }
+  public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {
-
-  }
+  public void disabledPeriodic() {}
 
   @Override
   public void disabledExit() {}

@@ -129,7 +129,7 @@ public class Feedback extends SubsystemBase {
         250);
   }
 
-  public Command multi(Color color) {
+  public Command setColor(Color color) {
     return this.run(
         () -> {
           bracelet.clearAnimation(1);
