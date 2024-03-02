@@ -7,6 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.Range;
 import frc.robot.classes.Util;
@@ -15,7 +17,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.PoseEstimator;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarShootPrime extends Command {
@@ -23,7 +24,7 @@ public class VarShootPrime extends Command {
   private Shooter shooter;
   private Elevator elevator;
   private PoseEstimator poseEstimator;
-  private Supplier<Translation2d> speakerTranslation;
+  private Translation2d speakerTranslation;
 
   // Translation of where the note exits in the XZ plane (side view)
   private final Translation2d shooterXZTrans;
@@ -48,7 +49,6 @@ public class VarShootPrime extends Command {
     this.shooter = shooter;
     this.elevator = elevator;
     this.poseEstimator = poseEstimator;
-    this.speakerTranslation = Constants.SPEAKER_TRANSLATION;
     this.shooterXZTrans = shooterXZTrans;
     this.velRange = velRange;
     this.distRange = distRange;
@@ -59,11 +59,21 @@ public class VarShootPrime extends Command {
   }
 
   @Override
+  public void initialize() {
+    speakerTranslation =
+        DriverStation.getAlliance().isPresent()
+            ? (DriverStation.getAlliance().get() == Alliance.Red
+                ? Constants.RED_SPEAKER_POSE
+                : Constants.BLUE_SPEAKER_POSE)
+            : Constants.BLUE_SPEAKER_POSE;
+  }
+
+  @Override
   public void execute() {
     Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    double l = pose.getTranslation().getDistance(speakerTranslation.get()) - shooterXZTrans.getX();
+    double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
     double h =
         (Constants.SPEAKER_HEIGHT - shooterXZTrans.getY())
             - Units.inchesToMeters(elevator.getElevatorPos());

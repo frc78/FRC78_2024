@@ -23,13 +23,6 @@ public final class Constants {
   public static final Translation2d BLUE_SPEAKER_POSE = new Translation2d(0, 5.5);
   public static final Translation2d RED_SPEAKER_POSE = new Translation2d(16.5, 5.5);
   public static final double SPEAKER_HEIGHT = 2.1;
-  public static final Supplier<Translation2d> SPEAKER_TRANSLATION =
-      () ->
-          DriverStation.getAlliance().isPresent()
-              ? (DriverStation.getAlliance().get() == Alliance.Red
-                  ? RED_SPEAKER_POSE
-                  : BLUE_SPEAKER_POSE)
-              : BLUE_SPEAKER_POSE;
 
   public static final Transform2d BLUE_AMP =
       new Transform2d(1.83, 7.47, Rotation2d.fromDegrees(90));

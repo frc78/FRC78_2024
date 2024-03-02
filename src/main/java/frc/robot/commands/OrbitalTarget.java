@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs;
 import frc.robot.classes.Util;
@@ -27,7 +29,7 @@ public class OrbitalTarget extends Command {
   private final Chassis chassis;
   private final PoseEstimator poseEstimator;
 
-  private final Supplier<Translation2d> speakerPose;
+  private Translation2d speakerPose;
 
   private final Supplier<ChassisSpeeds> speedsSupplier;
   private final ProfiledPIDController xController;
@@ -55,8 +57,6 @@ public class OrbitalTarget extends Command {
     this.orbitDistance = orbitDistance;
     this.rotationFFCoefficient = rotationFFCoefficient;
 
-    this.speakerPose = Constants.SPEAKER_TRANSLATION;
-
     Constraints constraints = new Constraints(motionLimits.maxSpeed, motionLimits.maxAcceleration);
     xController =
         new ProfiledPIDController(
@@ -79,12 +79,17 @@ public class OrbitalTarget extends Command {
     xController.reset(robotPose.getX(), vel.getX());
     yController.reset(robotPose.getY(), vel.getY());
     rotController.reset(robotPose.getRotation().getRadians(), vel.getRotation().getRadians());
+    speakerPose =
+        DriverStation.getAlliance().isPresent()
+            ? (DriverStation.getAlliance().get() == Alliance.Red
+                ? Constants.RED_SPEAKER_POSE
+                : Constants.BLUE_SPEAKER_POSE)
+            : Constants.BLUE_SPEAKER_POSE;
   }
 
   @Override
   public void execute() {
     Pose2d robotPose = poseEstimator.getFusedPose();
-    Translation2d speakerPose = this.speakerPose.get();
 
     Translation2d goalPosition = robotPose.getTranslation().minus(speakerPose);
     /*
