@@ -160,9 +160,33 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
-    NamedCommands.registerCommand("Target", );
+    NamedCommands.registerCommand(
+        "Target",
+        new FieldOrientedWithCardinal(
+            m_chassis,
+            m_poseEstimator,
+            () -> {
+              Translation2d target =
+                  DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      ? Constants.RED_SPEAKER_POSE
+                      : Constants.BLUE_SPEAKER_POSE;
+              double angle =
+                  target
+                          .minus(m_poseEstimator.getFusedPose().getTranslation())
+                          .getAngle()
+                          .getRadians()
+                      + Math.PI;
+              Logger.recordOutput("Aiming angle", angle);
+              //   angle *=
+              //       m_poseEstimator.getEstimatedVel().getY()
+              //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
+              return angle;
+            },
+            m_baseDrive::calculateChassisSpeeds,
+            RobotConstants.ROTATION_PID,
+            RobotConstants.ROTATION_CONSTRAINTS,
+            RobotConstants.ROTATION_FF));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis));
-
 
     // Need to add and then to stop the feed and shooter
 
