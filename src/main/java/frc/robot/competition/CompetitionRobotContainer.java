@@ -152,7 +152,8 @@ class CompetitionRobotContainer {
                     RobotConstants.SHOOTER_VEL,
                     RobotConstants.DISTANCE_RANGE,
                     RobotConstants.HEIGHT_LENGTH_COEFF,
-                    RobotConstants.SHOOTER_RPM_TO_MPS)));
+                    RobotConstants.SHOOTER_RPM_TO_MPS))
+            .andThen(m_Wrist.stow()));
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
