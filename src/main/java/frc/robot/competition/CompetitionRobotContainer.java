@@ -29,6 +29,7 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
+import frc.robot.commands.VarShootPrime;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Feedback;
@@ -82,7 +83,7 @@ class CompetitionRobotContainer {
 
     m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics);
+    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
     m_poseEstimator =
         new PoseEstimator(
@@ -123,44 +124,34 @@ class CompetitionRobotContainer {
         new Wrist(
             RobotConstants.WRIST_ID, RobotConstants.WRIST_HIGH_LIM, RobotConstants.WRIST_LOW_LIM);
 
-    m_feeder =
-        new Feeder(
-            RobotConstants.FEED_ID,
-            RobotConstants.FEED_SENSOR_ID,
-            RobotConstants.TOF_RANGE,
-            RobotConstants.FEED_SENSOR_THRESHOLD);
+    m_feeder = new Feeder(RobotConstants.FEED_ID);
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
     pickUpNote =
         m_intake
             .intakeCommand()
-            .alongWith(
-                m_Wrist.setToTarget(
-                    55)) // new intake angle (stow is 55 as well, but calling it here due to auto
+            .alongWith(m_Wrist.setToTargetCmd(55)) // new intake angle (stow is 55 as well, but
+            // calling it here due to auto
             // using other positions)
-            .alongWith(m_feeder.setFeed(RobotConstants.FEED_INTAKE_SPEED))
-            .until(m_feeder::isNoteQueued);
-    AmpSetUp = (m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)));
+            .deadlineWith(m_feeder.intake());
+    AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
 
     NamedCommands.registerCommand("Intake", pickUpNote);
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
             .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTarget(RobotConstants.WRIST_W2_TARGET))
+            .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand(
-        "Score",
-        m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED).until(() -> !m_feeder.isNoteQueued()));
+    NamedCommands.registerCommand("Score", m_feeder.shoot());
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
-    NamedCommands.registerCommand(
-        "scoreInAmp", m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
+    NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
 
-    // Need  to add and then to stop the feed and shooter
+    // Need to add and then to stop the feed and shooter
 
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
@@ -220,6 +211,7 @@ class CompetitionRobotContainer {
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
+
     m_driveController
         .rightBumper()
         .whileTrue(
@@ -228,7 +220,7 @@ class CompetitionRobotContainer {
                 m_chassis));
 
     m_driveController
-        .leftBumper()
+        .pov(180)
         .whileTrue(
             new OrbitalTarget(
                 m_chassis,
@@ -239,6 +231,33 @@ class CompetitionRobotContainer {
                 m_poseEstimator,
                 () -> Constants.ORBIT_RADIUS,
                 RobotConstants.ORBITAL_FF_CONSTANT));
+    m_driveController
+        .leftBumper()
+        .whileTrue(
+            new FieldOrientedWithCardinal(
+                m_chassis,
+                m_poseEstimator,
+                () -> {
+                  Translation2d target =
+                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                          ? Constants.RED_SPEAKER_POSE
+                          : Constants.BLUE_SPEAKER_POSE;
+                  double angle =
+                      target
+                              .minus(m_poseEstimator.getFusedPose().getTranslation())
+                              .getAngle()
+                              .getRadians()
+                          + Math.PI;
+                  Logger.recordOutput("Aiming angle", angle);
+                  //   angle *=
+                  //       m_poseEstimator.getEstimatedVel().getY()
+                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
+                  return angle;
+                },
+                m_baseDrive::calculateChassisSpeeds,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.ROTATION_CONSTRAINTS,
+                RobotConstants.ROTATION_FF));
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -256,7 +275,10 @@ class CompetitionRobotContainer {
                       (m_driveController.b().getAsBoolean() ? 1 : 0)
                           - (m_driveController.x().getAsBoolean() ? 1 : 0);
                   double dir = -Math.atan2(yCardinal, xCardinal);
-                  dir = dir < 0 ? dir + 2 * Math.PI : dir; // TODO check if needed
+                  dir = dir < 0 ? dir + 2 * Math.PI : dir; // TODO
+                  // check
+                  // if
+                  // needed
 
                   Logger.recordOutput("goalCardinal", dir);
                   return dir;
@@ -277,7 +299,7 @@ class CompetitionRobotContainer {
 
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(500))
+        .whileTrue(m_Shooter.setSpeed(5000))
         .whileFalse(m_Shooter.setSpeed(0));
     // TODO switch the variable code onto left trigger
 
@@ -287,6 +309,32 @@ class CompetitionRobotContainer {
     // .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
     // .onFalse(m_Wrist.stow());
 
+    new Trigger(m_feeder::isNoteQueued)
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    m_Wrist.setDefaultCommand(
+                        new VarShootPrime(
+                            m_Wrist,
+                            m_Elevator,
+                            m_poseEstimator,
+                            RobotConstants.SHOOT_POINT,
+                            RobotConstants.SHOOTER_VEL,
+                            RobotConstants.DISTANCE_RANGE,
+                            RobotConstants.HEIGHT_LENGTH_COEFF,
+                            RobotConstants.SHOOTER_RPM_TO_MPS))))
+        .onFalse(
+            Commands.runOnce(
+                () ->
+                    m_Wrist.setDefaultCommand(
+                        m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM))));
+
+    // Where did the old spinup bind go?
+    m_manipController
+        .leftTrigger(0.5)
+        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
+        .onFalse(m_Shooter.setSpeed(0));
+
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
 
@@ -294,19 +342,19 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTarget(110)
+                .setToTargetCmd(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController.b().whileTrue(m_intake.outtakeCommand().alongWith(m_feeder.setFeed(-0.3)));
+    m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
 
     // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
     m_manipController.rightBumper().whileTrue(pickUpNote);
 
-    m_manipController.leftBumper().whileTrue(m_feeder.setFeed(RobotConstants.FEED_OUTTAKE_SPEED));
+    m_manipController.leftBumper().whileTrue(m_feeder.intake());
 
-    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.setFeed(RobotConstants.FEED_FIRE_SPEED));
+    m_manipController.rightTrigger(0.5).whileTrue(m_feeder.shoot());
 
     m_testController.a().onTrue(m_Wrist.incrementUp());
 

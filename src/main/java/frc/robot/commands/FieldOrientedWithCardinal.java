@@ -55,6 +55,13 @@ public class FieldOrientedWithCardinal extends Command {
   }
 
   @Override
+  public void initialize() {
+    thetaPID.reset(
+        poseEstimator.getFusedPose().getRotation().getRadians(),
+        poseEstimator.getEstimatedVel().getRotation().getRadians());
+  }
+
+  @Override
   public void execute() {
     speeds = speedsSupplier.get();
 
