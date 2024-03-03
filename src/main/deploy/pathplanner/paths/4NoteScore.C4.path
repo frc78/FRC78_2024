@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.064721748491117,
-        "y": 7.122541940321975
+        "x": 6.565850236462378,
+        "y": 6.543982002249718
       },
       "isLocked": false,
       "linkedName": "FarScore4Note"
@@ -20,8 +20,8 @@
         "y": 5.785599380722571
       },
       "prevControl": {
-        "x": 5.870014635267366,
-        "y": 6.559618757332753
+        "x": 7.253867460115873,
+        "y": 5.785599380722571
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,15 +31,15 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": -10.05205831308742,
+      "rotationDegrees": -12.271083140873461,
       "rotateFast": false
     }
   ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
