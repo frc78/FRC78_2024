@@ -40,11 +40,12 @@ public class DriveToNote extends Command {
 
   @Override
   public boolean isFinished() {
-    double limit = 15.0;
+    return false;
+    // double limit = 15.0;
 
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry ty = table.getEntry("ty");
+    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    // NetworkTableEntry ty = table.getEntry("ty");
 
-    return ty.getDouble(0.0) <= limit;
+    // return ty.getDouble(0.0) <= limit;
   }
 }

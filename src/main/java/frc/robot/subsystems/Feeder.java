@@ -67,8 +67,14 @@ public class Feeder extends SubsystemBase {
    * shooting, since the beam-brake sensor will prevent motor from moving
    */
   public Command shoot() {
-    return startEnd(() -> feedMotor.set(1), () -> feedMotor.set(0))
-        .until(() -> feedMotor.getForwardLimit().getValue() == ForwardLimitValue.Open)
+    return new FunctionalCommand(
+            () -> {},
+            () -> {},
+            (interrupted) -> {},
+            () -> feedMotor.getConfigurator().apply(SHOOT_CONFIG).isOK())
+        .andThen(
+            startEnd(() -> feedMotor.set(1), () -> feedMotor.set(0))
+                .until(() -> feedMotor.getForwardLimit().getValue() == ForwardLimitValue.Open))
         .withName("Shoot");
   }
 
