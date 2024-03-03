@@ -174,7 +174,6 @@ class RobotConstants {
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
 
-  public static final double SPEAKER_AIM_VEL_COEFF = 0.0; // Multiplies m/s into radians
   // AUTO WRIST
   public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
   public static final double SHOOTER_RPM_TO_MPS =
