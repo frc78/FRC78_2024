@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.09043385705819,
-        "y": 7.443095419524173
+        "x": 1.2337167531477924,
+        "y": 4.214105494877657
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.563737073188434,
-        "y": 7.114363849680081
+        "x": 3.6808689236426093,
+        "y": 2.486244058202402
       },
       "isLocked": false,
-      "linkedName": "C5"
+      "linkedName": "PodStart"
     },
     {
       "anchor": {
-        "x": 2.71920848603602,
-        "y": 6.278157165838142
+        "x": 7.808972265563579,
+        "y": 0.7662009990686657
       },
       "prevControl": {
-        "x": 4.267247239256385,
-        "y": 6.543982002249719
+        "x": 4.806715289621056,
+        "y": 1.813863589631942
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarScore4Note"
+      "linkedName": "C1"
     }
   ],
   "rotationTargets": [],
@@ -33,19 +33,19 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0.0,
+    "rotation": -43.152389734005396,
     "velocity": 0
   },
   "useDefaultConstraints": false
