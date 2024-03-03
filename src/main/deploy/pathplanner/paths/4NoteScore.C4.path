@@ -8,33 +8,27 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.088176881115667,
-        "y": 6.629984155206406
+        "x": 5.017811483242014,
+        "y": 7.020903032282256
       },
       "isLocked": false,
       "linkedName": "FarScore4Note"
     },
     {
       "anchor": {
-        "x": 6.589305369086929,
-        "y": 6.153063125173869
+        "x": 6.933313980913677,
+        "y": 6.41106958404393
       },
       "prevControl": {
-        "x": 5.94038003314102,
-        "y": 6.153063125173869
+        "x": 5.095995258657185,
+        "y": 6.919264124242535
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "C4"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": -12.271083140873461,
-      "rotateFast": false
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {

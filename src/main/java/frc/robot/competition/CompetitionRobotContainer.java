@@ -150,7 +150,7 @@ class CompetitionRobotContainer {
                     m_Elevator,
                     m_poseEstimator,
                     RobotConstants.SHOOT_POINT,
-                    RobotConstants.SHOOTER_VEL,
+                    6400,
                     RobotConstants.DISTANCE_RANGE,
                     RobotConstants.HEIGHT_LENGTH_COEFF,
                     RobotConstants.SHOOTER_RPM_TO_MPS))
@@ -184,7 +184,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(2))
+                Units.degreesToRadians(1))
             .withTimeout(0.5));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
     NamedCommands.registerCommand(
@@ -369,7 +369,7 @@ class CompetitionRobotContainer {
                             m_Elevator,
                             m_poseEstimator,
                             RobotConstants.SHOOT_POINT,
-                            RobotConstants.SHOOTER_VEL,
+                            10000,
                             RobotConstants.DISTANCE_RANGE,
                             RobotConstants.HEIGHT_LENGTH_COEFF,
                             RobotConstants.SHOOTER_RPM_TO_MPS))))
@@ -392,7 +392,7 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(110)
+                .setToTargetCmd(19)
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
