@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Feeder extends SubsystemBase {
@@ -38,21 +39,27 @@ public class Feeder extends SubsystemBase {
    * shooting, since the beam-brake sensor will prevent motor from moving
    */
   public Command intake() {
-    return runOnce(
-            () -> {
-              feedMotor.getConfigurator().apply(INTAKE_CONFIG);
-              feedMotor.set(1);
-            })
+    return new FunctionalCommand(
+            () -> {},
+            () -> {},
+            (interrupted) -> {},
+            () -> feedMotor.getConfigurator().apply(INTAKE_CONFIG).isOK())
         .andThen(
-            startEnd(() -> feedMotor.set(1), () -> feedMotor.set(0))
+            startEnd(() -> feedMotor.set(.85), () -> feedMotor.set(0))
                 .until(
                     () ->
                         feedMotor.getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround))
+        .andThen(
+            new FunctionalCommand(
+                () -> {},
+                () -> {},
+                (interrupted) -> {},
+                () -> feedMotor.getConfigurator().apply(SHOOT_CONFIG).isOK()))
         .withName("Intake");
   }
 
   public Command outtake() {
-    return startEnd(() -> feedMotor.set(.15), () -> feedMotor.set(0)).withName("Outtake");
+    return startEnd(() -> feedMotor.set(-.15), () -> feedMotor.set(0)).withName("Outtake");
   }
 
   /**
@@ -60,13 +67,8 @@ public class Feeder extends SubsystemBase {
    * shooting, since the beam-brake sensor will prevent motor from moving
    */
   public Command shoot() {
-    return runOnce(
-            () -> {
-              feedMotor.getConfigurator().apply(SHOOT_CONFIG);
-            })
-        .andThen(
-            startEnd(() -> feedMotor.set(1), () -> feedMotor.set(0))
-                .until(() -> feedMotor.getForwardLimit().getValue() == ForwardLimitValue.Open))
+    return startEnd(() -> feedMotor.set(1), () -> feedMotor.set(0))
+        .until(() -> feedMotor.getForwardLimit().getValue() == ForwardLimitValue.Open)
         .withName("Shoot");
   }
 
