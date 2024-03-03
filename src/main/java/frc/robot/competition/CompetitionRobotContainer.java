@@ -183,7 +183,8 @@ class CompetitionRobotContainer {
                 m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF)
+                RobotConstants.ROTATION_FF,
+                Units.degreesToRadians(2))
             .withTimeout(0.5));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
     NamedCommands.registerCommand(
