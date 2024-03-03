@@ -25,6 +25,7 @@ public class FieldOrientedWithCardinal extends Command {
   private final ProfiledPIDController thetaPID;
   private final SimpleMotorFeedforward thetaFF;
   private ChassisSpeeds speeds;
+  private double threshold;
 
   /** Creates a new FieldOrientedDrive. */
   public FieldOrientedWithCardinal(
@@ -34,12 +35,14 @@ public class FieldOrientedWithCardinal extends Command {
       Supplier<ChassisSpeeds> speedsSupplier,
       PIDConstants cardinalPidConstants,
       Constraints constraints,
-      Structs.FFConstants ffConstants) {
+      Structs.FFConstants ffConstants,
+      double threshold) {
     this.chassis = chassis;
     this.poseEstimator = poseEstimator;
     this.speedsSupplier = speedsSupplier;
     this.speeds = speedsSupplier.get();
     this.direction = direction;
+    this.threshold = threshold;
 
     thetaPID =
         new ProfiledPIDController(
@@ -50,6 +53,7 @@ public class FieldOrientedWithCardinal extends Command {
     thetaPID.enableContinuousInput(-Math.PI, Math.PI);
     thetaFF =
         new SimpleMotorFeedforward(ffConstants.kS, ffConstants.kV, ffConstants.kA); // TODO tune
+    thetaPID.setTolerance(threshold);
 
     addRequirements(chassis);
   }
@@ -73,5 +77,10 @@ public class FieldOrientedWithCardinal extends Command {
 
     chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(speeds, poseEstimator.getFusedPose().getRotation()));
+  }
+
+  @Override
+  public boolean isFinished() {
+    return threshold != 0 && thetaPID.atGoal();
   }
 }

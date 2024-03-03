@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -257,7 +258,8 @@ class CompetitionRobotContainer {
                 m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF));
+                RobotConstants.ROTATION_FF,
+                Units.degreesToRadians(2)));
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -286,7 +288,8 @@ class CompetitionRobotContainer {
                 m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF));
+                RobotConstants.ROTATION_FF,
+                0));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
