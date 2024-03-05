@@ -306,7 +306,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(2)));
+                Units.degreesToRadians(0)));
     m_driveController
         .a()
         .or(m_driveController.b())
