@@ -402,7 +402,7 @@ class CompetitionRobotContainer {
 
     m_manipController.rightBumper().whileTrue(pickUpNote());
 
-    m_manipController.leftBumper().whileTrue(m_feeder.intake());
+    m_manipController.leftBumper().whileTrue(m_feeder.outtake());
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.shoot());
 
@@ -423,8 +423,7 @@ class CompetitionRobotContainer {
                 .andThen(m_Wrist.enableBrakeMode())
                 .andThen(m_chassis.enableBrakeMode()));
 
-    RobotModeTriggers.disabled()
-        .onTrue(m_Wrist.enableCoastMode().andThen(m_chassis.enableCoastMode()));
+    RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
   }
 
   public Command pickUpNote() {
