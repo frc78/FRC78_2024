@@ -68,7 +68,6 @@ public class FieldOrientedWithCardinal extends Command {
   @Override
   public void execute() {
     speeds = speedsSupplier.get();
-
     thetaPID.setGoal(direction.getAsDouble());
 
     double cardinalRotSpeed =

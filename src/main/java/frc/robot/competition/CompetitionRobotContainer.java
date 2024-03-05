@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
+import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
@@ -61,7 +62,6 @@ class CompetitionRobotContainer {
   private final CommandXboxController m_testController;
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
-  private final Command pickUpNote;
   private final Command AmpSetUp;
 
   CompetitionRobotContainer() {
@@ -129,16 +129,9 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
-    pickUpNote =
-        m_intake
-            .intakeCommand()
-            .alongWith(m_Wrist.setToTargetCmd(55)) // new intake angle (stow is 55 as well, but
-            // calling it here due to auto
-            // using other positions)
-            .deadlineWith(m_feeder.intake());
     AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
 
-    NamedCommands.registerCommand("Intake", pickUpNote);
+    NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
@@ -147,10 +140,64 @@ class CompetitionRobotContainer {
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand("Score", m_feeder.shoot());
+    NamedCommands.registerCommand(
+        "Score",
+        Commands.waitSeconds(0.5)
+            .andThen(m_feeder.shoot())
+            .deadlineWith(
+                new VarShootPrime(
+                    m_Wrist,
+                    m_Elevator,
+                    m_poseEstimator,
+                    RobotConstants.SHOOT_POINT,
+                    6400,
+                    RobotConstants.DISTANCE_RANGE,
+                    RobotConstants.HEIGHT_LENGTH_COEFF,
+                    RobotConstants.SHOOTER_RPM_TO_MPS))
+            .andThen(m_Wrist.stow()));
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
+    NamedCommands.registerCommand(
+        "Target",
+        new FieldOrientedWithCardinal(
+                m_chassis,
+                m_poseEstimator,
+                () -> {
+                  Translation2d target =
+                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                          ? Constants.RED_SPEAKER_POSE
+                          : Constants.BLUE_SPEAKER_POSE;
+                  double angle =
+                      target
+                              .minus(m_poseEstimator.getFusedPose().getTranslation())
+                              .getAngle()
+                              .getRadians()
+                          + Math.PI;
+                  Logger.recordOutput("Aiming angle", angle);
+                  //   angle *=
+                  //       m_poseEstimator.getEstimatedVel().getY()
+                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
+                  return angle;
+                },
+                m_baseDrive::calculateChassisSpeeds,
+                RobotConstants.ROTATION_PID,
+                RobotConstants.ROTATION_CONSTRAINTS,
+                RobotConstants.ROTATION_FF,
+                Units.degreesToRadians(1))
+            .withTimeout(0.5));
+    NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
+    NamedCommands.registerCommand(
+        "VariableShoot",
+        new VarShootPrime(
+            m_Wrist,
+            m_Elevator,
+            m_poseEstimator,
+            RobotConstants.SHOOT_POINT,
+            RobotConstants.SHOOTER_VEL,
+            RobotConstants.DISTANCE_RANGE,
+            RobotConstants.HEIGHT_LENGTH_COEFF,
+            RobotConstants.SHOOTER_RPM_TO_MPS));
 
     // Need to add and then to stop the feed and shooter
 
@@ -193,7 +240,7 @@ class CompetitionRobotContainer {
   }
 
   Command shortRumble(XboxController controller) {
-    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0))
         .andThen(new WaitCommand(.5))
         .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
   }
@@ -322,7 +369,7 @@ class CompetitionRobotContainer {
                             m_Elevator,
                             m_poseEstimator,
                             RobotConstants.SHOOT_POINT,
-                            RobotConstants.SHOOTER_VEL,
+                            10000,
                             RobotConstants.DISTANCE_RANGE,
                             RobotConstants.HEIGHT_LENGTH_COEFF,
                             RobotConstants.SHOOTER_RPM_TO_MPS))))
@@ -349,13 +396,13 @@ class CompetitionRobotContainer {
                 .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    m_manipController.b().whileTrue(m_Elevator.setToTarget(2));
+    m_manipController.b().whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
-    m_manipController.rightBumper().whileTrue(pickUpNote);
+    m_manipController.rightBumper().whileTrue(pickUpNote());
 
-    m_manipController.leftBumper().whileTrue(m_feeder.intake());
+    m_manipController.leftBumper().whileTrue(m_feeder.outtake());
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.shoot());
 
@@ -376,8 +423,11 @@ class CompetitionRobotContainer {
                 .andThen(m_Wrist.enableBrakeMode())
                 .andThen(m_chassis.enableBrakeMode()));
 
-    RobotModeTriggers.disabled()
-        .onTrue(m_Wrist.enableCoastMode().andThen(m_chassis.enableCoastMode()));
+    RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
+  }
+
+  public Command pickUpNote() {
+    return m_feeder.intake().deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55));
   }
 
   public Command getAutonomousCommand() {

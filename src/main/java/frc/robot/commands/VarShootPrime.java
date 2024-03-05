@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.classes.Structs.Range;
-import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
@@ -74,16 +73,17 @@ public class VarShootPrime extends Command {
     double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
     double h =
         (Constants.SPEAKER_HEIGHT.in(Meters) - shooterXZTrans.getY())
-            - Units.inchesToMeters(elevator.getElevatorPos());
+            - Units.inchesToMeters(elevator.getElevatorPos())
+            + .4;
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = shooterVel;
     double theta = calcTheta(Constants.GRAVITY, l, h, v);
     theta = Units.radiansToDegrees(theta);
-    double modify = Util.lerp(l, distRange) * heightLengthCoeff;
-    theta += modify;
+    // double modify = Util.lerp(l, distRange) * heightLengthCoeff;
+    // theta += modify;
     Logger.recordOutput("VarShootPrime theta", theta);
-    Logger.recordOutput("VarShootPrime modify", modify);
+    // Logger.recordOutput("VarShootPrime modify", modify);
     Logger.recordOutput("VarShootPrime h", h);
     Logger.recordOutput("VarShootPrime v", v);
     Logger.recordOutput("VarShootPrime l", l);
@@ -94,10 +94,11 @@ public class VarShootPrime extends Command {
   // Source? It was revealed to me by a wise tree in a dream
   // JK this https://en.wikipedia.org/wiki/Projectile_motion
   private double calcTheta(double g, double l, double h, double v) {
-    double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
-    double numerator = (v * v) - Math.sqrt(sqrt);
-    double denominator = g * l;
+    return Math.atan(h / l);
+    // double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
+    // double numerator = (v * v) - Math.sqrt(sqrt);
+    // double denominator = g * l;
 
-    return Math.atan(numerator / denominator);
+    // return Math.atan(numerator / denominator);
   }
 }

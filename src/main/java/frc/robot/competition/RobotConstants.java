@@ -51,13 +51,13 @@ class RobotConstants {
           new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
           RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
-          new ReplanningConfig() // Default path replanning config.
+          new ReplanningConfig(false, true) // Default path replanning config.
           );
   // TODO Since the above and below are both PID constants for moving the robot to
   // a target pose, perhaps we could use just one set of constants for both
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(4.5, 0.0, 0.085);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(4.0, 0.0, 0.085);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
@@ -135,6 +135,16 @@ class RobotConstants {
 
   // FEED //
   public static final int FEED_ID = 16;
+  public static final int FEED_SENSOR_ID = 17;
+
+  // Time of flight sensor range of interest
+  public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
+  public static final double FEED_SENSOR_THRESHOLD = 300;
+
+  public static final double FEED_INTAKE_SPEED = 0.15;
+  public static final double FEED_OUTTAKE_SPEED = -1;
+  public static final double FEED_FIRE_SPEED = 1;
+
   public static final double WRIST_SUB_AUTO_POS = 50;
 
   public static final ShooterConfig SHOOTER_CONFIG =
@@ -160,11 +170,10 @@ class RobotConstants {
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
-  public static final double AUTO_SHOOT_SPEED = 500;
+  public static final double AUTO_SHOOT_SPEED = 5800;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
 
-  public static final double SPEAKER_AIM_VEL_COEFF = 0.0; // Multiplies m/s into radians
   // AUTO WRIST
   public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
   public static final double SHOOTER_RPM_TO_MPS =
