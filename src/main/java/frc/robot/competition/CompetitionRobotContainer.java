@@ -297,16 +297,13 @@ class CompetitionRobotContainer {
                               .getRadians()
                           + Math.PI;
                   Logger.recordOutput("Aiming angle", angle);
-                  //   angle *=
-                  //       m_poseEstimator.getEstimatedVel().getY()
-                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
                   return angle;
                 },
                 m_baseDrive::calculateChassisSpeeds,
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(2)));
+                Units.degreesToRadians(0)));
     m_driveController
         .a()
         .or(m_driveController.b())
