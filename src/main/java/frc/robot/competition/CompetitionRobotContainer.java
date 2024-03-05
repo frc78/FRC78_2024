@@ -334,6 +334,9 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 0));
+    m_driveController
+        .rightBumper()
+        .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
@@ -389,11 +392,9 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(19)
-                .alongWith(m_Elevator.setToTarget(13.9))); // Sets to AMP // sets to STOW
+                .setToTargetCmd(23)
+                .alongWith(m_Elevator.setToTarget(16.3))); // Sets to AMP // sets to STOW
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
-
-    m_manipController.b().whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
 
