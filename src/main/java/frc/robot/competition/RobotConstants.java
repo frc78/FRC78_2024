@@ -92,7 +92,7 @@ class RobotConstants {
   public static final double NOMINAL_VOLTAGE = 12;
 
   public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
-  public static final IdleMode STEER_IDLE = IdleMode.kCoast;
+  public static final IdleMode STEER_IDLE = IdleMode.kBrake;
 
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
