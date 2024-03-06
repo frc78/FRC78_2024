@@ -380,7 +380,7 @@ class CompetitionRobotContainer {
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS)))
-        .onFalse(m_Shooter.setSpeed(0));
+        .onFalse(m_Shooter.setSpeed(0).andThen(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
