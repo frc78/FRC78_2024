@@ -53,7 +53,7 @@ class CompetitionRobotContainer {
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
-  private final Shooter m_Shooter;
+  public final Shooter m_Shooter;
   private final Wrist m_Wrist;
   private final Feeder m_feeder;
   final Feedback m_feedback;
@@ -422,6 +422,7 @@ class CompetitionRobotContainer {
                 .andThen(m_chassis.enableBrakeMode()));
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
+    RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeed(0).ignoringDisable(true));
   }
 
   public Command pickUpNote() {
