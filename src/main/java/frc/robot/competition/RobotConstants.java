@@ -57,7 +57,7 @@ class RobotConstants {
   // a target pose, perhaps we could use just one set of constants for both
   // Pathplanner and other drive commands?
   public static final PIDConstants TRANSLATION_PID = new PIDConstants(3.5, 0.0, 0.0);
-  public static final PIDConstants ROTATION_PID = new PIDConstants(4.0, 0.0, 0.085);
+  public static final PIDConstants ROTATION_PID = new PIDConstants(3.0, 0.0, 0.085);
   public static final Constraints ROTATION_CONSTRAINTS =
       new Constraints(MOTION_LIMITS.maxAngularSpeed, MOTION_LIMITS.maxAngularAcceleration);
   // TODO
@@ -182,5 +182,5 @@ class RobotConstants {
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
   public static final double SHOOTER_VEL = 6000; // RPM
   public static final Range DISTANCE_RANGE = new Range(1.25, 5);
-  public static final double HEIGHT_LENGTH_COEFF = 0.18;
+  public static final double HEIGHT_LENGTH_COEFF = 0.17;
 }

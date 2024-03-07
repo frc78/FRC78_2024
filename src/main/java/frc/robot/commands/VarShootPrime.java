@@ -78,7 +78,8 @@ public class VarShootPrime extends Command {
     double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
     double h =
         (Constants.SPEAKER_HEIGHT.in(Meters) - shooterXZTrans.getY())
-            - Units.inchesToMeters(elevator.getElevatorPos());
+            - Units.inchesToMeters(elevator.getElevatorPos())
+            + 0.4;
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = shooterVel.getAsDouble() * RPM_MPS;
@@ -99,10 +100,11 @@ public class VarShootPrime extends Command {
   // Source? It was revealed to me by a wise tree in a dream
   // JK this https://en.wikipedia.org/wiki/Projectile_motion
   private double calcTheta(double g, double l, double h, double v) {
-    double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
-    double numerator = (v * v) - Math.sqrt(sqrt);
-    double denominator = g * l;
+    // double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
+    // double numerator = (v * v) - Math.sqrt(sqrt);
+    // double denominator = g * l;
 
-    return Math.atan(numerator / denominator);
+    return Math.atan2(h, l);
+    // return Math.atan(numerator / denominator);
   }
 }

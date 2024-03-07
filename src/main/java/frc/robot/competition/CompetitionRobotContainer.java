@@ -145,7 +145,7 @@ class CompetitionRobotContainer {
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
-        Commands.waitSeconds(0.5)
+        Commands.waitSeconds(1)
             .andThen(m_feeder.shoot())
             .deadlineWith(
                 new VarShootPrime(
@@ -165,31 +165,30 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "Target",
         new FieldOrientedWithCardinal(
-                m_chassis,
-                m_poseEstimator,
-                () -> {
-                  Translation2d target =
-                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
-                          ? Constants.RED_SPEAKER_POSE
-                          : Constants.BLUE_SPEAKER_POSE;
-                  double angle =
-                      target
-                              .minus(m_poseEstimator.getFusedPose().getTranslation())
-                              .getAngle()
-                              .getRadians()
-                          + Math.PI;
-                  Logger.recordOutput("Aiming angle", angle);
-                  //   angle *=
-                  //       m_poseEstimator.getEstimatedVel().getY()
-                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
-                  return angle;
-                },
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(1))
-            .withTimeout(0.5));
+            m_chassis,
+            m_poseEstimator,
+            () -> {
+              Translation2d target =
+                  DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      ? Constants.RED_SPEAKER_POSE
+                      : Constants.BLUE_SPEAKER_POSE;
+              double angle =
+                  target
+                          .minus(m_poseEstimator.getFusedPose().getTranslation())
+                          .getAngle()
+                          .getRadians()
+                      + Math.PI;
+              Logger.recordOutput("Aiming angle", angle);
+              //   angle *=
+              //       m_poseEstimator.getEstimatedVel().getY()
+              //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
+              return angle;
+            },
+            m_baseDrive::calculateChassisSpeeds,
+            RobotConstants.ROTATION_PID,
+            RobotConstants.ROTATION_CONSTRAINTS,
+            RobotConstants.ROTATION_FF,
+            Units.degreesToRadians(1)));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
     NamedCommands.registerCommand(
         "VariableShoot",
@@ -378,10 +377,11 @@ class CompetitionRobotContainer {
                         m_Elevator,
                         m_poseEstimator,
                         RobotConstants.SHOOT_POINT,
-                        10000,
+                        () -> m_Shooter.getVelocity() * 60,
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
-                        RobotConstants.SHOOTER_RPM_TO_MPS)))
+                        RobotConstants.SHOOTER_RPM_TO_MPS,
+                        RobotConstants.WRIST_HIGH_LIM)))
         .onFalse(m_Shooter.setSpeed(0).andThen(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
