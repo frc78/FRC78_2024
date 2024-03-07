@@ -76,6 +76,24 @@
           "data": {
             "name": "DriveToNote"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C3.Score"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Target"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score"
+          }
         }
       ]
     }

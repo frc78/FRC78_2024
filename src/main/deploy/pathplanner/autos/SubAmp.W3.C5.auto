@@ -54,22 +54,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C5.4NoteScore"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "StartShooter"
-                }
-              }
-            ]
+            "pathName": "C5.4NoteScore"
           }
         },
         {
