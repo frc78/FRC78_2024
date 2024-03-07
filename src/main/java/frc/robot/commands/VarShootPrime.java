@@ -78,8 +78,7 @@ public class VarShootPrime extends Command {
     double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
     double h =
         (Constants.SPEAKER_HEIGHT.in(Meters) - shooterXZTrans.getY())
-            - Units.inchesToMeters(elevator.getElevatorPos())
-            + .4;
+            - Units.inchesToMeters(elevator.getElevatorPos());
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = shooterVel.getAsDouble() * RPM_MPS;
