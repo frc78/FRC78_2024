@@ -6,7 +6,9 @@ package frc.robot.competition;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -43,6 +45,7 @@ import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 
@@ -220,6 +223,8 @@ class CompetitionRobotContainer {
         m_chassis // Reference to this subsystem to set requirements
         );
 
+    PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
+
     autoChooser = AutoBuilder.buildAutoChooser();
 
     SmartDashboard.putData("AutoMode", autoChooser);
@@ -361,32 +366,23 @@ class CompetitionRobotContainer {
     // .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
     // .onFalse(m_Wrist.stow());
 
-    new Trigger(m_feeder::isNoteQueued)
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    m_Wrist.setDefaultCommand(
-                        new VarShootPrime(
-                            m_Wrist,
-                            m_Elevator,
-                            m_poseEstimator,
-                            RobotConstants.SHOOT_POINT,
-                            () -> m_Shooter.getVelocity() * 60,
-                            RobotConstants.DISTANCE_RANGE,
-                            RobotConstants.HEIGHT_LENGTH_COEFF,
-                            RobotConstants.SHOOTER_RPM_TO_MPS,
-                            RobotConstants.WRIST_HIGH_LIM))))
-        .onFalse(
-            Commands.runOnce(
-                () ->
-                    m_Wrist.setDefaultCommand(
-                        m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM))));
-
     // Where did the old spinup bind go?
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
-        .onFalse(m_Shooter.setSpeed(0));
+        .whileTrue(
+            m_Shooter
+                .setSpeed(RobotConstants.SHOOTER_VEL)
+                .alongWith(
+                    new VarShootPrime(
+                        m_Wrist,
+                        m_Elevator,
+                        m_poseEstimator,
+                        RobotConstants.SHOOT_POINT,
+                        10000,
+                        RobotConstants.DISTANCE_RANGE,
+                        RobotConstants.HEIGHT_LENGTH_COEFF,
+                        RobotConstants.SHOOTER_RPM_TO_MPS)))
+        .onFalse(m_Shooter.setSpeed(0).andThen(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
@@ -434,5 +430,24 @@ class CompetitionRobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Optional<Rotation2d> getRotationTargetOverride() {
+    if (m_feeder.isNoteQueued()) {
+      Translation2d target =
+          DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+              ? Constants.RED_SPEAKER_POSE
+              : Constants.BLUE_SPEAKER_POSE;
+      Rotation2d angle =
+          target
+              .minus(m_poseEstimator.getFusedPose().getTranslation())
+              .getAngle()
+              .plus(Rotation2d.fromDegrees(180));
+      Logger.recordOutput("Aiming angle", angle);
+
+      return Optional.of(angle);
+    } else {
+      return Optional.empty();
+    }
   }
 }

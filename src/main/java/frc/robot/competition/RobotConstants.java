@@ -48,10 +48,10 @@ class RobotConstants {
   public static final HolonomicPathFollowerConfig HOLONOMIC_PATH_FOLLOWER_CONFIG =
       new HolonomicPathFollowerConfig(
           new PIDConstants(2, 0.0, 0.0), // Translation PID constants
-          new PIDConstants(2, 0.0, 0.0), // Rotation PID constants
+          new PIDConstants(4, 0.0, 0.0), // Rotation PID constants
           RobotConstants.MOTION_LIMITS.maxSpeed, // Max module speed, in m/s
           RobotConstants.ROBOT_RADIUS, // Drive$ base radius in meters
-          new ReplanningConfig(false, true) // Default path replanning config.
+          new ReplanningConfig(true, true) // Default path replanning config.
           );
   // TODO Since the above and below are both PID constants for moving the robot to
   // a target pose, perhaps we could use just one set of constants for both
