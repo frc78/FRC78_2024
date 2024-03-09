@@ -20,8 +20,8 @@ public class DriveToNote extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double rotationSpeed = 0.05;
-    double movementSpeed = 0.05;
+    double rotationSpeed = 0.07;
+    double movementSpeed = 0.04;
 
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry tx = table.getEntry("tx");
