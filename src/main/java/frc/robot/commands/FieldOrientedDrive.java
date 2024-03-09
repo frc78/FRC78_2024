@@ -4,7 +4,10 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.PoseEstimator;
@@ -28,8 +31,16 @@ public class FieldOrientedDrive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    var allianceInvert = 0;
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+      allianceInvert = 180;
+    }
     chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            speeds.get(), poseEstimator.getFusedPose().getRotation()));
+            speeds.get(),
+            poseEstimator
+                .getFusedPose()
+                .getRotation()
+                .plus(Rotation2d.fromDegrees(allianceInvert))));
   }
 }
