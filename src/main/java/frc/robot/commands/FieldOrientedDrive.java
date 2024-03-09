@@ -18,6 +18,9 @@ public class FieldOrientedDrive extends Command {
   private final Supplier<ChassisSpeeds> speeds;
   private final PoseEstimator poseEstimator;
 
+  /** Set to 180 when on Red */
+  private Rotation2d allianceOffset = Rotation2d.fromDegrees(0);
+
   /** Creates a new FieldOrientedDrive. */
   public FieldOrientedDrive(
       Chassis chassis, PoseEstimator poseEstimator, Supplier<ChassisSpeeds> speeds) {
@@ -26,6 +29,15 @@ public class FieldOrientedDrive extends Command {
     this.speeds = speeds;
 
     addRequirements(chassis);
+  }
+
+  @Override
+  public void initialize() {
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+      allianceOffset = Rotation2d.fromDegrees(180);
+    } else {
+      allianceOffset = Rotation2d.fromDegrees(0);
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
