@@ -245,7 +245,7 @@ class CompetitionRobotContainer {
   }
 
   Command shortRumble(XboxController controller) {
-    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0))
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
         .andThen(new WaitCommand(.5))
         .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
   }
@@ -253,14 +253,13 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(m_feedback.noteInCartridge())
+        .whileTrue(m_feedback.noteInCartridge())
         .onFalse(shortRumble(m_driveController.getHID()));
+
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .onTrue(shortRumble(m_manipController.getHID()))
-        .onTrue(m_feedback.shooterWheelsAtSpeed());
-    new Trigger(() -> m_intake.hasNote())
-        .onTrue(m_feedback.intakeCurrentSpike())
-        .onFalse(m_feedback.turnOffLEDs());
+        .whileTrue(m_feedback.shooterWheelsAtSpeed());
+
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -292,7 +291,8 @@ class CompetitionRobotContainer {
                 m_poseEstimator,
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+                              == DriverStation.Alliance.Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
                   double angle =
