@@ -245,7 +245,7 @@ class CompetitionRobotContainer {
   }
 
   Command shortRumble(XboxController controller) {
-    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0))
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
         .andThen(new WaitCommand(.5))
         .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
   }
