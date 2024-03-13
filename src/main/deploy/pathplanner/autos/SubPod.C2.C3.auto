@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Pod.C1"
+            "pathName": "PodStart.C2"
           }
         },
         {
@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C1.Score"
+            "pathName": "C2.Score"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Score.C2"
+            "pathName": "PodScore.C3"
           }
         },
         {
@@ -68,7 +68,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "C2.Score"
+            "pathName": "C3.FarScore"
           }
         },
         {
