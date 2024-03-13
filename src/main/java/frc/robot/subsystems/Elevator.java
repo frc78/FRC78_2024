@@ -60,7 +60,7 @@ public class Elevator extends SubsystemBase {
           0,
           0,
           new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(13), InchesPerSecond.per(Second).of(40)),
+              InchesPerSecond.of(15), InchesPerSecond.per(Second).of(80)),
           kDt);
 
   public Elevator() {
