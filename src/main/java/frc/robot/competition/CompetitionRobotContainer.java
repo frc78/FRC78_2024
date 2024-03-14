@@ -355,10 +355,6 @@ class CompetitionRobotContainer {
     RobotModeTriggers.disabled()
         .onTrue(Commands.runOnce(() -> m_feedback.disabledColorPattern()).ignoringDisable(true));
 
-    m_manipController
-        .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(5000))
-        .whileFalse(m_Shooter.setSpeed(0));
     // TODO switch the variable code onto left trigger
 
     // Sets elevator and wrist to Amp score position
