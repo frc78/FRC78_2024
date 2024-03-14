@@ -56,7 +56,7 @@ class CompetitionRobotContainer {
   private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
-  private final Shooter m_Shooter;
+  public final Shooter m_Shooter;
   private final Wrist m_Wrist;
   private final Feeder m_feeder;
   final Feedback m_feedback;
@@ -188,7 +188,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(1))
+                Units.degreesToRadians(2))
             .withTimeout(0.5));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
     NamedCommands.registerCommand(
@@ -247,7 +247,7 @@ class CompetitionRobotContainer {
   }
 
   Command shortRumble(XboxController controller) {
-    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0))
+    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
         .andThen(new WaitCommand(.5))
         .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
   }
@@ -255,14 +255,14 @@ class CompetitionRobotContainer {
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(m_feedback.noteInCartridge())
+        .onTrue(shortRumble(m_manipController.getHID()))
+        .whileTrue(m_feedback.noteInCartridge())
         .onFalse(shortRumble(m_driveController.getHID()));
+
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .onTrue(shortRumble(m_manipController.getHID()))
-        .onTrue(m_feedback.shooterWheelsAtSpeed());
-    new Trigger(() -> m_intake.hasNote())
-        .onTrue(m_feedback.intakeCurrentSpike())
-        .onFalse(m_feedback.turnOffLEDs());
+        .whileTrue(m_feedback.shooterWheelsAtSpeed());
+
     m_driveController
         .start()
         .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
@@ -294,7 +294,8 @@ class CompetitionRobotContainer {
                 m_poseEstimator,
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
+                              == DriverStation.Alliance.Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
                   double angle =
@@ -430,6 +431,7 @@ class CompetitionRobotContainer {
                 .andThen(m_chassis.enableBrakeMode()));
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
+    RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeed(0).ignoringDisable(true));
   }
 
   public Command pickUpNote() {
