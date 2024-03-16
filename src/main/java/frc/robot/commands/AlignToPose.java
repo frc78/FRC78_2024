@@ -14,13 +14,13 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class AlignToPose extends Command {
-  private Chassis chassis;
-  private PoseEstimator poseEstimator;
-  private Supplier<Transform2d> targetTransform;
+  private final Chassis chassis;
+  private final PoseEstimator poseEstimator;
+  private final Supplier<Transform2d> targetTransform;
 
-  private ProfiledPIDController xController;
-  private ProfiledPIDController yController;
-  private ProfiledPIDController thetaController;
+  private final ProfiledPIDController xController;
+  private final ProfiledPIDController yController;
+  private final ProfiledPIDController thetaController;
 
   public AlignToPose(
       Chassis chassis,

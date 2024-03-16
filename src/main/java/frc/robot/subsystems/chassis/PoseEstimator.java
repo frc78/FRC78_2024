@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -45,6 +46,7 @@ public class PoseEstimator {
 
   public PoseEstimator(
       Chassis chassis,
+      SwerveDriveKinematics kinematics,
       PhotonCamera ATCam1,
       Transform3d cam1Offset,
       int pigeonId,
@@ -63,7 +65,7 @@ public class PoseEstimator {
 
     poseEstimator =
         new SwerveDrivePoseEstimator(
-            chassis.kinematics,
+            kinematics,
             Rotation2d.fromDegrees(getGyroRot()),
             chassis.getPositions(),
             new Pose2d(),
@@ -134,7 +136,7 @@ public class PoseEstimator {
     return ATCam1.getLatestResult();
   }
 
-  public Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
+  private Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
     var estStdDevs = singleTagStdDevs;
     var targets = getLatestResult().getTargets();
     int numTags = 0;
