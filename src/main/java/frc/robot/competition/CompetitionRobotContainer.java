@@ -323,11 +323,11 @@ class CompetitionRobotContainer {
                 m_poseEstimator,
                 () -> {
                   double xCardinal =
-                      (m_driveController.y().getAsBoolean() ? 1 : 0)
-                          - (m_driveController.a().getAsBoolean() ? 1 : 0);
+                      (m_driveController.getHID().getYButton() ? 1 : 0)
+                          - (m_driveController.getHID().getAButton() ? 1 : 0);
                   double yCardinal =
-                      (m_driveController.b().getAsBoolean() ? 1 : 0)
-                          - (m_driveController.x().getAsBoolean() ? 1 : 0);
+                      (m_driveController.getHID().getBButton() ? 1 : 0)
+                          - (m_driveController.getHID().getXButton() ? 1 : 0);
                   double dir = -Math.atan2(yCardinal, xCardinal);
                   dir = dir < 0 ? dir + 2 * Math.PI : dir; // TODO
                   // check
