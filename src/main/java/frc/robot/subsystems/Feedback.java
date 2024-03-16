@@ -124,19 +124,7 @@ public class Feedback extends SubsystemBase {
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
     bracelet.setLEDs(
-        ((int) (color.red * 255)),
-        ((int) (color.green * 255)),
-        ((int) (color.blue * 255)),
-        127,
-        0,
-        8);
-    bracelet.setLEDs(
-        ((int) (color.green * 255)),
-        ((int) (color.red * 255)),
-        ((int) (color.blue * 255)),
-        127,
-        8,
-        250);
+        ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
   }
 
   public Command setColor(Color color) {
@@ -145,19 +133,7 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
           bracelet.setLEDs(
-              ((int) (color.red * 255)),
-              ((int) (color.green * 255)),
-              ((int) (color.blue * 255)),
-              127,
-              0,
-              8);
-          bracelet.setLEDs(
-              ((int) (color.green * 255)),
-              ((int) (color.red * 255)),
-              ((int) (color.blue * 255)),
-              127,
-              8,
-              250);
+              ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
         });
   }
 
