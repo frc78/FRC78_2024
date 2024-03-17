@@ -101,12 +101,11 @@ public class Elevator extends SubsystemBase {
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> elevNeoMotor1.set(-.1))
-        .until(() -> reverseLimitSwitch.isPressed());
+    return run(() -> elevNeoMotor1.set(-.1)).until(() -> reverseLimitSwitch.isPressed());
   }
 
   private Command configureMotorsAfterZeroing() {
-    return runOnce
+    return runOnce(
         () -> {
           encoder.setPosition(0);
           profiledPid.setGoal(0);
@@ -165,9 +164,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    Logger.recordOutput(
-        "Elevator/limit pressed",
-        reverseLimitSwitch.isPressed());
+    Logger.recordOutput("Elevator/limit pressed", reverseLimitSwitch.isPressed());
     Logger.recordOutput("Elevator/zeroed", zeroed);
     Logger.recordOutput("Elevator/position", encoder.getPosition());
     Logger.recordOutput(
