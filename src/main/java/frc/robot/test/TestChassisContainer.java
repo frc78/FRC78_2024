@@ -59,6 +59,7 @@ class TestChassisContainer {
     m_poseEstimator =
         new PoseEstimator(
             m_chassis,
+            swerveDriveKinematics,
             m_ATCamera,
             RobotConstants.CAM1_OFFSET,
             RobotConstants.PIGEON_ID,
