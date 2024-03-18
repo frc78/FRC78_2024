@@ -28,7 +28,6 @@ import org.opencv.imgproc.Imgproc;
 
 public class Robot extends LoggedRobot {
   private Thread visionThread;
-  private PowerDistribution m_pdp;
   private Command m_autonomousCommand;
 
   private CompetitionRobotContainer m_robotContainer;
@@ -45,7 +44,7 @@ public class Robot extends LoggedRobot {
       DataLogManager.start();
       Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-      m_pdp = new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
+      new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
     } else if (REPLAY_MODE) {
       setUseTiming(false); // Run as fast as possible
       String logPath =
