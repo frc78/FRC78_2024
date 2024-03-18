@@ -66,7 +66,7 @@ public class PoseEstimator {
     poseEstimator =
         new SwerveDrivePoseEstimator(
             kinematics,
-            Rotation2d.fromDegrees(getGyroRot()),
+            getGyroRot(),
             chassis.getPositions(),
             new Pose2d(),
             stateStdDevs,
@@ -101,7 +101,7 @@ public class PoseEstimator {
           Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
         });
 
-    poseEstimator.update(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions());
+    poseEstimator.update(getGyroRot(), chassis.getPositions());
     Pose2d currentPose = poseEstimator.getEstimatedPosition();
     vel = currentPose.minus(lastPose); // Why is this robot relative?
     vel =
@@ -110,7 +110,7 @@ public class PoseEstimator {
 
     lastPose = currentPose;
 
-    SmartDashboard.putNumber("gyroYaw", getGyroRot());
+    SmartDashboard.putNumber("gyroYaw", getGyroRot().getDegrees());
     Logger.recordOutput("Estimated Pose", currentPose);
     Logger.recordOutput("Estimated Velocity", getEstimatedVel());
   }
@@ -162,11 +162,11 @@ public class PoseEstimator {
   }
 
   public void resetPose(Pose2d pose) {
-    poseEstimator.resetPosition(Rotation2d.fromDegrees(getGyroRot()), chassis.getPositions(), pose);
+    poseEstimator.resetPosition(getGyroRot(), chassis.getPositions(), pose);
   }
 
-  public double getGyroRot() {
-    return pigeon.getYaw().getValueAsDouble();
+  public Rotation2d getGyroRot() {
+    return pigeon.getRotation2d();
   }
 
   public void setGyroRot(double rot) {

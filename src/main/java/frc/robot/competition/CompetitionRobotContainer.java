@@ -7,7 +7,6 @@ package frc.robot.competition;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -21,9 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -248,9 +245,10 @@ class CompetitionRobotContainer {
   }
 
   Command shortRumble(XboxController controller) {
-    return Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 1))
-        .andThen(new WaitCommand(.5))
-        .andThen(Commands.runOnce(() -> controller.setRumble(RumbleType.kBothRumble, 0)));
+    return Commands.startEnd(
+            () -> controller.setRumble(RumbleType.kBothRumble, 1),
+            () -> controller.setRumble(RumbleType.kBothRumble, 0))
+        .withTimeout(0.5);
   }
 
   private void configureBindings() {
@@ -263,10 +261,6 @@ class CompetitionRobotContainer {
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .onTrue(shortRumble(m_manipController.getHID()))
         .whileTrue(m_feedback.shooterWheelsAtSpeed());
-
-    m_driveController
-        .start()
-        .onTrue(new InstantCommand(() -> m_poseEstimator.resetPose(new Pose2d())));
 
     m_driveController
         .rightBumper()
@@ -353,16 +347,11 @@ class CompetitionRobotContainer {
         .and(m_Elevator::hasNotBeenZeroed)
         .onTrue(m_Elevator.zeroElevator());
 
+    // We don't actually care about the DS being attached, but the robot is 'disabled' by default,
+    // so onTrue never trips
     RobotModeTriggers.disabled()
-        .onTrue(Commands.runOnce(() -> m_feedback.disabledColorPattern()).ignoringDisable(true));
-
-    // TODO switch the variable code onto left trigger
-
-    // Sets elevator and wrist to Amp score position
-    // m_manipController
-    // .y()
-    // .whileTrue(m_Wrist.setToTarget(19).alongWith(m_Elevator.setToTarget(13.9)))
-    // .onFalse(m_Wrist.stow());
+        .and(DriverStation::isDSAttached)
+        .onTrue(Commands.runOnce(m_feedback::disabledColorPattern).ignoringDisable(true));
 
     new Trigger(m_feeder::isNoteQueued)
         .onTrue(
@@ -394,12 +383,12 @@ class CompetitionRobotContainer {
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
 
+    // Amp position
     m_manipController
         .y()
-        .whileTrue(
-            m_Wrist
-                .setToTargetCmd(23)
-                .alongWith(m_Elevator.setToTarget(16.3))); // Sets to AMP // sets to STOW
+        .whileTrue(m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3)))
+        .onFalse(m_Wrist.stow());
+
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
     // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
