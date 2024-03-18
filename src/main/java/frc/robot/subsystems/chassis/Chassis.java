@@ -76,9 +76,8 @@ public class Chassis extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    ChassisSpeeds setSpeeds = speeds;
-    setSpeeds = ChassisSpeeds.discretize(setSpeeds, 0.02);
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(setSpeeds);
+    ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(discretizedSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(states, motionLimits.maxSpeed);
 
     for (int i = 0; i < modules.length; i++) {
