@@ -253,14 +253,16 @@ class CompetitionRobotContainer {
 
   private void configureBindings() {
     new Trigger(m_feeder::isNoteQueued)
+        .whileTrue(m_feedback.noteInCartridge())
+        .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_driveController.getHID()))
         .onTrue(shortRumble(m_manipController.getHID()))
-        .whileTrue(m_feedback.noteInCartridge())
         .onFalse(shortRumble(m_driveController.getHID()));
 
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
-        .onTrue(shortRumble(m_manipController.getHID()))
-        .whileTrue(m_feedback.shooterWheelsAtSpeed());
+        .whileTrue(m_feedback.shooterWheelsAtSpeed())
+        .and(RobotModeTriggers.teleop())
+        .onTrue(shortRumble(m_manipController.getHID()));
 
     m_driveController
         .rightBumper()
