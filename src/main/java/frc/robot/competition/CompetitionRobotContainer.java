@@ -133,6 +133,7 @@ class CompetitionRobotContainer {
     AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
 
     NamedCommands.registerCommand("Intake", pickUpNote());
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
@@ -157,6 +158,7 @@ class CompetitionRobotContainer {
                     RobotConstants.SHOOTER_RPM_TO_MPS * 2,
                     RobotConstants.WRIST_HIGH_LIM))
             .andThen(m_Wrist.stow()));
+
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
@@ -188,7 +190,9 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(2))
             .withTimeout(0.5));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
+    NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
         new VarShootPrime(
