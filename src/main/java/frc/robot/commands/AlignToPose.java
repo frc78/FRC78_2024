@@ -4,7 +4,6 @@ import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +23,6 @@ public class AlignToPose extends Command {
 
   private final Supplier<Pose2d> goalPoseSupplier;
   private Pose2d goalPose = new Pose2d();
-  private Pose2d currentPose = new Pose2d();
 
   public AlignToPose(
       Chassis chassis,
@@ -43,18 +41,22 @@ public class AlignToPose extends Command {
             translationPID.kI,
             translationPID.kD,
             new Constraints(motionLimits.maxSpeed, motionLimits.maxAcceleration));
+
+    xController.setTolerance(.1);
     yController =
         new ProfiledPIDController(
             translationPID.kP,
             translationPID.kI,
             translationPID.kD,
             new Constraints(motionLimits.maxSpeed, motionLimits.maxAcceleration));
+    yController.setTolerance(.1);
     thetaController =
         new ProfiledPIDController(
             thetaPID.kP,
             thetaPID.kI,
             thetaPID.kD,
             new Constraints(motionLimits.maxAngularSpeed, motionLimits.maxAngularAcceleration));
+    thetaController.setTolerance(3);
 
     addRequirements(chassis);
   }
@@ -71,7 +73,7 @@ public class AlignToPose extends Command {
 
   @Override
   public void execute() {
-    currentPose = poseEstimator.getFusedPose();
+    Pose2d currentPose = poseEstimator.getFusedPose();
 
     double xOutput =
         xController.calculate(
@@ -91,11 +93,7 @@ public class AlignToPose extends Command {
 
   @Override
   public boolean isFinished() {
-    // return true if where we are is close enough to where we wanna be
-    Translation2d currentTranslation = currentPose.getTranslation();
-    Translation2d goalTranslation = goalPose.getTranslation();
-    double distance = currentTranslation.getDistance(goalTranslation);
-    return distance < .1;
+    return xController.atGoal() && yController.atGoal() && thetaController.atGoal();
   }
 
   @Override

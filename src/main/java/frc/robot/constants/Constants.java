@@ -31,9 +31,9 @@ public final class Constants {
   public static final Measure<Distance> SPEAKER_HEIGHT = Meters.of(2.1); // is adjusted, not real
 
   public static final Pose2d BLUE_AMP =
-      new Pose2d(Meters.of(1.83), Meters.of(7.47), Rotation2d.fromDegrees(90));
+      new Pose2d(Meters.of(1.83), Meters.of(7.70), Rotation2d.fromDegrees(90));
   public static final Pose2d RED_AMP =
-      new Pose2d(Meters.of(14.65), Meters.of(7.47), Rotation2d.fromDegrees(90));
+      new Pose2d(Meters.of(14.65), Meters.of(7.70), Rotation2d.fromDegrees(90));
   public static final Supplier<Pose2d> AMP_TRANSFORM =
       () ->
           DriverStation.getAlliance().isPresent()
