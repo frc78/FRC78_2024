@@ -12,6 +12,7 @@ import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,6 +38,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
+    DriverStation.silenceJoystickConnectionWarning(true);
     SmartDashboard.putData(CommandScheduler.getInstance());
     PortForwarder.add(5800, "limelight.local", 5800);
     PortForwarder.add(1181, "photonvision.local", 1181);
@@ -87,7 +89,7 @@ public class Robot extends LoggedRobot {
               }
             });
     visionThread.setDaemon(true);
-    visionThread.start();
+    // visionThread.start();
   }
 
   @Override
