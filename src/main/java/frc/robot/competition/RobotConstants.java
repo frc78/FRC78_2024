@@ -131,14 +131,12 @@ class RobotConstants {
 
   public static final double INTAKE_SPEED_OUT = -0.5;
 
-  public static final double ELEVATOR_CLIMB_HEIGHT = 16;
+  public static final double ELEVATOR_CLIMB_HEIGHT = 17;
 
   // FEED //
   public static final int FEED_ID = 16;
-  public static final int FEED_SENSOR_ID = 17;
 
   // Time of flight sensor range of interest
-  public static final Range2D<Integer> TOF_RANGE = new Range2D<Integer>(10, 10, 11, 11);
   public static final double FEED_SENSOR_THRESHOLD = 300;
 
   public static final double FEED_INTAKE_SPEED = 0.15;
@@ -180,7 +178,7 @@ class RobotConstants {
       (Math.PI * Units.inchesToMeters(2.65)) / 60; // Guess based on shooter wheel size
   //   public static final Range VELOCITY_RANGE =
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
-  public static final double SHOOTER_VEL = 6000; // RPM
+  public static final double SHOOTER_VEL = 3000; // RPM
   public static final Range DISTANCE_RANGE = new Range(1.25, 5);
   public static final double HEIGHT_LENGTH_COEFF = 0.18;
 }
