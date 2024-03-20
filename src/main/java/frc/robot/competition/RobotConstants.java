@@ -32,7 +32,7 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
+  public static final String AT_CAMERA_NAME = "BackCam";
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
           new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),

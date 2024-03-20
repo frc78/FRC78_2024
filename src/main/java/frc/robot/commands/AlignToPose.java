@@ -4,6 +4,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,22 +17,25 @@ import org.littletonrobotics.junction.Logger;
 public class AlignToPose extends Command {
   private final Chassis chassis;
   private final PoseEstimator poseEstimator;
-  private final Supplier<Transform2d> targetTransform;
 
   private final ProfiledPIDController xController;
   private final ProfiledPIDController yController;
   private final ProfiledPIDController thetaController;
 
+  private final Supplier<Pose2d> goalPoseSupplier;
+  private Pose2d goalPose = new Pose2d();
+  private Pose2d currentPose = new Pose2d();
+
   public AlignToPose(
       Chassis chassis,
-      Supplier<Transform2d> targetTransform,
+      Supplier<Pose2d> goalPoseSupplier,
       PoseEstimator poseEstimator,
       PIDConstants translationPID,
       PIDConstants thetaPID,
       MotionLimits motionLimits) {
     this.chassis = chassis;
     this.poseEstimator = poseEstimator;
-    this.targetTransform = targetTransform;
+    this.goalPoseSupplier = goalPoseSupplier;
 
     xController =
         new ProfiledPIDController(
@@ -57,7 +61,8 @@ public class AlignToPose extends Command {
 
   @Override
   public void initialize() {
-    Transform2d pose = targetTransform.get();
+    goalPose = goalPoseSupplier.get();
+    Pose2d pose = poseEstimator.getFusedPose();
     Transform2d vel = poseEstimator.getEstimatedVel();
     xController.reset(pose.getTranslation().getX(), vel.getX());
     yController.reset(pose.getTranslation().getY(), vel.getY());
@@ -66,22 +71,35 @@ public class AlignToPose extends Command {
 
   @Override
   public void execute() {
-    Transform2d goalTransform = targetTransform.get();
-    Pose2d currentPose = poseEstimator.getFusedPose();
+    currentPose = poseEstimator.getFusedPose();
 
     double xOutput =
         xController.calculate(
-            currentPose.getTranslation().getX(), goalTransform.getTranslation().getX());
+            currentPose.getTranslation().getX(), goalPose.getTranslation().getX());
     double yOutput =
         yController.calculate(
-            currentPose.getTranslation().getY(), goalTransform.getTranslation().getY());
+            currentPose.getTranslation().getY(), goalPose.getTranslation().getY());
     double thetaOutput =
         thetaController.calculate(
-            currentPose.getRotation().getRadians(), goalTransform.getRotation().getRadians());
+            currentPose.getRotation().getRadians(), goalPose.getRotation().getRadians());
 
     chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             xOutput, yOutput, thetaOutput, currentPose.getRotation()));
-    Logger.recordOutput("TargetPose", goalTransform);
+    Logger.recordOutput("TargetPose", goalPose);
+  }
+
+  @Override
+  public boolean isFinished() {
+    // return true if where we are is close enough to where we wanna be
+    Translation2d currentTranslation = currentPose.getTranslation();
+    Translation2d goalTranslation = goalPose.getTranslation();
+    double distance = currentTranslation.getDistance(goalTranslation);
+    return distance < .1;
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 }
