@@ -188,6 +188,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(2))
             .withTimeout(0.5));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
     NamedCommands.registerCommand(
         "VariableShoot",

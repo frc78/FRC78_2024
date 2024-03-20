@@ -44,6 +44,6 @@ public class DriveToNote extends Command {
     double translation = translationController.calculate(dy);
     double rotation = rotationController.calculate(dx);
 
-    chassis.driveRobotRelative(new ChassisSpeeds(translation, 0, rotation));
+    chassis.driveRobotRelative(new ChassisSpeeds(-translation, 0, rotation));
   }
 }
