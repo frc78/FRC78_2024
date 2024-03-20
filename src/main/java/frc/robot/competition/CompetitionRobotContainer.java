@@ -141,8 +141,24 @@ class CompetitionRobotContainer {
             .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
             .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
     NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand("Score", Commands.waitSeconds(0.1).andThen(m_feeder.shoot()));
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5));
+    NamedCommands.registerCommand(
+        "Score",
+        Commands.waitSeconds(0.5)
+            .andThen(m_feeder.shoot())
+            .deadlineWith(
+                new VarShootPrime(
+                    m_Wrist,
+                    m_Elevator,
+                    m_poseEstimator,
+                    RobotConstants.SHOOT_POINT,
+                    () -> m_Shooter.getVelocity() * 60,
+                    RobotConstants.DISTANCE_RANGE,
+                    RobotConstants.HEIGHT_LENGTH_COEFF,
+                    RobotConstants.SHOOTER_RPM_TO_MPS * 2,
+                    RobotConstants.WRIST_HIGH_LIM))
+            .andThen(m_Wrist.stow()));
+
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
@@ -187,7 +203,7 @@ class CompetitionRobotContainer {
             () -> m_Shooter.getVelocity() * 60,
             RobotConstants.DISTANCE_RANGE,
             RobotConstants.HEIGHT_LENGTH_COEFF,
-            RobotConstants.SHOOTER_RPM_TO_MPS,
+            RobotConstants.SHOOTER_RPM_TO_MPS * 2,
             RobotConstants.WRIST_HIGH_LIM));
 
     // Need to add and then to stop the feed and shooter
@@ -356,18 +372,16 @@ class CompetitionRobotContainer {
                             () -> m_Shooter.getVelocity() * 60,
                             RobotConstants.DISTANCE_RANGE,
                             RobotConstants.HEIGHT_LENGTH_COEFF,
-                            RobotConstants.SHOOTER_RPM_TO_MPS,
+                            RobotConstants.SHOOTER_RPM_TO_MPS * 2,
                             RobotConstants.WRIST_HIGH_LIM))))
         .onFalse(
-            Commands.runOnce(
-                () ->
-                    m_Wrist.setDefaultCommand(
-                        m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM))));
+            Commands.runOnce(() -> m_Wrist.removeDefaultCommand())
+                .andThen(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM)));
 
     // Where did the old spinup bind go?
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
+        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL * 0.5))
         .onFalse(m_Shooter.setSpeed(0));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
