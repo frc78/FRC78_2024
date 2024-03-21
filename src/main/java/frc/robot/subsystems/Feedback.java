@@ -50,6 +50,8 @@ public class Feedback extends SubsystemBase {
           StrobeAnimation sa = new StrobeAnimation(0, 255, 0, 255, 0.2, 68, 0);
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
           bracelet.animate(sa, 1);
         },
         this::off);
@@ -60,6 +62,8 @@ public class Feedback extends SubsystemBase {
         () -> {
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
           bracelet.setLEDs(0, 255, 0);
         },
         this::off);
@@ -74,6 +78,8 @@ public class Feedback extends SubsystemBase {
         () -> {
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
           bracelet.setLEDs(255, 255, 0);
         },
         this::off);
@@ -84,25 +90,35 @@ public class Feedback extends SubsystemBase {
         () -> {
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
           bracelet.setLEDs(0, 0, 0);
         },
         this::off);
   }
 
   public void disabledColorPattern() {
-    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 22, Direction.Forward, 4);
+    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 14, Direction.Forward, 8);
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
+    bracelet.clearAnimation(3);
+    bracelet.clearAnimation(4);
     bracelet.animate(cfa, 1);
     ColorFlowAnimation cfa2 =
-        new ColorFlowAnimation(0, 255, 0, 255, 0.1, 22, Direction.Backward, 0);
+        new ColorFlowAnimation(0, 255, 0, 255, 0.1, 14, Direction.Backward, 8);
     bracelet.animate(cfa2, 2);
+    ColorFlowAnimation cfa3 = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 8, Direction.Forward, 0);
+    bracelet.animate(cfa3, 3);
+    ColorFlowAnimation cfa4 = new ColorFlowAnimation(0, 255, 0, 255, 0.1, 8, Direction.Backward, 0);
+    bracelet.animate(cfa4, 4);
   }
 
   public void animate() {
     RainbowAnimation rb = new RainbowAnimation();
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
+    bracelet.clearAnimation(3);
+    bracelet.clearAnimation(4);
     rb.setBrightness(255);
     rb.setLedOffset(0);
     rb.setNumLed(300);
@@ -123,6 +139,8 @@ public class Feedback extends SubsystemBase {
   public void setMulti(Color color) {
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
+    bracelet.clearAnimation(3);
+    bracelet.clearAnimation(4);
     bracelet.setLEDs(
         ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
   }
@@ -132,6 +150,8 @@ public class Feedback extends SubsystemBase {
         () -> {
           bracelet.clearAnimation(1);
           bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
           bracelet.setLEDs(
               ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
         });
@@ -140,6 +160,8 @@ public class Feedback extends SubsystemBase {
   public void off() {
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
+    bracelet.clearAnimation(3);
+    bracelet.clearAnimation(4);
     bracelet.setLEDs(0, 0, 0);
   }
 
