@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.commands.AlignToPose;
+import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
@@ -137,27 +138,13 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand(
         "ScoreFromW2",
         m_Shooter
-            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
-            .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
+            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "Score",
         Commands.waitSeconds(0.5)
-            .andThen(m_feeder.shoot())
-            .deadlineWith(
-                new VarShootPrime(
-                    m_Wrist,
-                    m_Elevator,
-                    m_poseEstimator,
-                    RobotConstants.SHOOT_POINT,
-                    () -> m_Shooter.getVelocity() * 60,
-                    RobotConstants.DISTANCE_RANGE,
-                    RobotConstants.HEIGHT_LENGTH_COEFF,
-                    RobotConstants.SHOOTER_RPM_TO_MPS,
-                    RobotConstants.WRIST_HIGH_LIM))
-            .andThen(m_Wrist.stow()));
+            .andThen(m_feeder.shoot()));
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
@@ -354,8 +341,12 @@ class CompetitionRobotContainer {
                     RobotConstants.TRANSLATION_PID,
                     RobotConstants.ROTATION_PID,
                     RobotConstants.MOTION_LIMITS)
-                .andThen((m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3)))))
-        .onFalse(m_Wrist.stow());
+                .alongWith(m_chassis.enableAprilTags())
+                .andThen((m_Wrist.setToTargetCmd(0).alongWith(m_Elevator.setToTarget(16.3))))
+                .andThen(new DriveToAprilTag(m_chassis))
+                .andThen((m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3))))
+                .andThen(m_feeder.outtake()))
+        .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
