@@ -366,7 +366,7 @@ class CompetitionRobotContainer {
     // Where did the old spinup bind go?
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL * 0.5))
+        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
         .onFalse(m_Shooter.setSpeed(0));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
