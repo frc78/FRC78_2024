@@ -84,4 +84,9 @@ public class AlignToPose extends Command {
             xOutput, yOutput, thetaOutput, currentPose.getRotation()));
     Logger.recordOutput("TargetPose", goalTransform);
   }
+
+  @Override
+  public void end(boolean interrupted) {
+    chassis.driveRobotRelative(new ChassisSpeeds());
+  }
 }

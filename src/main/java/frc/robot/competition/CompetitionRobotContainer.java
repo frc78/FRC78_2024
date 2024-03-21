@@ -136,7 +136,7 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
 
     NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5));
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand("Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()));
 
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
@@ -183,7 +183,7 @@ class CompetitionRobotContainer {
             () -> m_Shooter.getVelocity() * 60,
             RobotConstants.DISTANCE_RANGE,
             RobotConstants.HEIGHT_LENGTH_COEFF,
-            RobotConstants.SHOOTER_RPM_TO_MPS * 2,
+            RobotConstants.SHOOTER_RPM_TO_MPS,
             RobotConstants.WRIST_HIGH_LIM));
 
     // Need to add and then to stop the feed and shooter
