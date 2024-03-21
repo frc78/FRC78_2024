@@ -156,14 +156,14 @@ public class Chassis extends SubsystemBase {
   }
 
   public Command enableAprilTags() {
-    return runOnce(
+    return Commands.runOnce(
         () -> {
           table.getEntry("pipeline").setNumber(1);
         });
   }
 
   public Command enableNoteDetection() {
-    return runOnce(
+    return Commands.runOnce(
         () -> {
           table.getEntry("pipeline").setNumber(0);
         });

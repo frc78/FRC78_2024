@@ -14,9 +14,10 @@ public class DriveToAprilTag extends Command {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTableEntry tx = table.getEntry("tx");
   NetworkTableEntry ty = table.getEntry("ty");
+  NetworkTableEntry tv = table.getEntry("tv");
 
-  private final PIDController translationControllerX = new PIDController(0.07, 0, 0);
-  private final PIDController translationControllerY = new PIDController(0.07, 0, 0);
+  private final PIDController translationControllerX = new PIDController(0.03, 0, 0);
+  private final PIDController translationControllerY = new PIDController(0.03, 0, 0);
 
   /** Creates a new FieldOrientedDrive. */
   public DriveToAprilTag(Chassis chassis) {
@@ -44,11 +45,16 @@ public class DriveToAprilTag extends Command {
     double translationX = translationControllerX.calculate(dx);
     double translationY = translationControllerY.calculate(dy);
 
-    chassis.driveRobotRelative(new ChassisSpeeds(-translationY, translationX, 0));
+    chassis.driveRobotRelative(new ChassisSpeeds(translationY, translationX, 0));
   }
 
   @Override
   public boolean isFinished() {
-    return ((Math.abs(tx.getDouble(100)) < 0.1) && (Math.abs(ty.getDouble(100)) < 0.1));
+    return ((Math.abs(tx.getDouble(100)) < 5) && (Math.abs(ty.getDouble(100)) < .5) && (tv.getDouble(0) == 1));
+  }
+
+  @Override
+  public void end(boolean interrupted) {
+    chassis.driveRobotRelative(new ChassisSpeeds());
   }
 }

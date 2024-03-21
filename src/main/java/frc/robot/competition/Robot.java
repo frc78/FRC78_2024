@@ -38,6 +38,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
+    CommandScheduler.getInstance().onCommandInitialize((command) -> {
+      System.out.println("Command Initialized: " + command.getName());
+    });
     DriverStation.silenceJoystickConnectionWarning(true);
     SmartDashboard.putData(CommandScheduler.getInstance());
     PortForwarder.add(5800, "limelight.local", 5800);

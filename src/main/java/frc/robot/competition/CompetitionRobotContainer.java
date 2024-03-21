@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -342,10 +343,12 @@ class CompetitionRobotContainer {
                     RobotConstants.ROTATION_PID,
                     RobotConstants.MOTION_LIMITS)
                 .alongWith(m_chassis.enableAprilTags())
-                .andThen((m_Wrist.setToTargetCmd(0).alongWith(m_Elevator.setToTarget(16.3))))
-                .andThen(new DriveToAprilTag(m_chassis))
-                .andThen((m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3))))
-                .andThen(m_feeder.outtake()))
+                .andThen(m_Elevator.setToTarget(16.3).alongWith(new SequentialCommandGroup(
+                    m_Wrist.setToTargetCmd(0),
+                    new DriveToAprilTag(m_chassis), 
+                 m_Wrist.setToTargetCmd(23), 
+                 Commands.waitSeconds(.2),
+                 m_feeder.outtake()))))
         .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
