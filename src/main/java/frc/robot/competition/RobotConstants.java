@@ -32,7 +32,7 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "Arducam_OV9281_USB_Camera";
+  public static final String AT_CAMERA_NAME = "BackCam";
   public static final Transform3d CAM1_OFFSET =
       new Transform3d(
           new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
@@ -175,10 +175,10 @@ class RobotConstants {
   // AUTO WRIST
   public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
   public static final double SHOOTER_RPM_TO_MPS =
-      (Math.PI * Units.inchesToMeters(2.65)) / 60; // Guess based on shooter wheel size
+      2 * (Math.PI * Units.inchesToMeters(2.65)) / 60; // Guess based on shooter wheel size
   //   public static final Range VELOCITY_RANGE =
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
   public static final double SHOOTER_VEL = 3000; // RPM
   public static final Range DISTANCE_RANGE = new Range(1.25, 5);
-  public static final double HEIGHT_LENGTH_COEFF = 0.18;
+  public static final double HEIGHT_LENGTH_COEFF = 0.22;
 }
