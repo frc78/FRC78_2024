@@ -134,30 +134,13 @@ class CompetitionRobotContainer {
 
     NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
+
     NamedCommands.registerCommand(
-        "ScoreFromW2",
-        m_Shooter
-            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED)
-            .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_W2_TARGET))
-            .andThen(Commands.waitUntil(m_Wrist::isAtTarget).withTimeout(1)));
-    NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5));
+        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5).withName("StartShooter"));
     NamedCommands.registerCommand(
         "Score",
         Commands.waitSeconds(0.5)
-            .andThen(m_feeder.shoot())
-            .deadlineWith(
-                new VarShootPrime(
-                    m_Wrist,
-                    m_Elevator,
-                    m_poseEstimator,
-                    RobotConstants.SHOOT_POINT,
-                    () -> m_Shooter.getVelocity() * 60,
-                    RobotConstants.DISTANCE_RANGE,
-                    RobotConstants.HEIGHT_LENGTH_COEFF,
-                    RobotConstants.SHOOTER_RPM_TO_MPS * 2,
-                    RobotConstants.WRIST_HIGH_LIM))
-            .andThen(m_Wrist.stow()));
+            .andThen(m_feeder.shoot()).withName("Score"));
 
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
     NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
@@ -188,7 +171,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(2))
+                Units.degreesToRadians(5))//was 2 changed in b80 for wk4
             .withTimeout(0.5));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
@@ -312,7 +295,8 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(0)));
+                Units.degreesToRadians(5)));//was zero changed in b80 before wk4
+
     m_driveController
         .a()
         .or(m_driveController.b())
@@ -359,12 +343,10 @@ class CompetitionRobotContainer {
         .and(DriverStation::isDSAttached)
         .onTrue(Commands.runOnce(m_feedback::disabledColorPattern).ignoringDisable(true));
 
-    new Trigger(m_feeder::isNoteQueued)
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    m_Wrist.setDefaultCommand(
-                        new VarShootPrime(
+    // Where did the old spinup bind go?
+    m_manipController
+        .leftTrigger(0.5)
+        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL * 0.5).alongWith(new VarShootPrime(
                             m_Wrist,
                             m_Elevator,
                             m_poseEstimator,
@@ -373,16 +355,8 @@ class CompetitionRobotContainer {
                             RobotConstants.DISTANCE_RANGE,
                             RobotConstants.HEIGHT_LENGTH_COEFF,
                             RobotConstants.SHOOTER_RPM_TO_MPS * 2,
-                            RobotConstants.WRIST_HIGH_LIM))))
-        .onFalse(
-            Commands.runOnce(() -> m_Wrist.removeDefaultCommand())
-                .andThen(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM)));
-
-    // Where did the old spinup bind go?
-    m_manipController
-        .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL * 0.5))
-        .onFalse(m_Shooter.setSpeed(0));
+                            RobotConstants.WRIST_HIGH_LIM)))
+        .onFalse(m_Shooter.setSpeed(0).alongWith(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
