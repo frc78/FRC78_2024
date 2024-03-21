@@ -38,14 +38,17 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
-    CommandScheduler.getInstance().onCommandInitialize((command) -> {
-      System.out.println("Command initialized: " + command.getName());
-    });
+    CommandScheduler.getInstance()
+        .onCommandInitialize(
+            (command) -> {
+              System.out.println("Command initialized: " + command.getName());
+            });
 
-    
-    CommandScheduler.getInstance().onCommandFinish((command) -> {
-      System.out.println("Command finish: " + command.getName());
-    });
+    CommandScheduler.getInstance()
+        .onCommandFinish(
+            (command) -> {
+              System.out.println("Command finish: " + command.getName());
+            });
 
     DriverStation.silenceJoystickConnectionWarning(true);
     SmartDashboard.putData(CommandScheduler.getInstance());

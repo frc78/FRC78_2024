@@ -134,7 +134,7 @@ class CompetitionRobotContainer {
 
     NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
-        
+
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5));
     NamedCommands.registerCommand("Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()));
@@ -168,7 +168,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5))//was 2 changed in b80 for wk4
+                Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
             .withTimeout(0.5));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
@@ -292,7 +292,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5)));//was zero changed in b80 before wk4
+                Units.degreesToRadians(5))); // was zero changed in b80 before wk4
 
     m_driveController
         .a()
@@ -343,31 +343,21 @@ class CompetitionRobotContainer {
     // Where did the old spinup bind go?
     m_manipController
         .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL * 0.5).alongWith(new VarShootPrime(
-                            m_Wrist,
-                            m_Elevator,
-                            m_poseEstimator,
-                            RobotConstants.SHOOT_POINT,
-                            () -> m_Shooter.getVelocity() * 60,
-                            RobotConstants.DISTANCE_RANGE,
-                            RobotConstants.HEIGHT_LENGTH_COEFF,
-<<<<<<< HEAD
-                            RobotConstants.SHOOTER_RPM_TO_MPS * 2,
-                            RobotConstants.WRIST_HIGH_LIM)))
+        .whileTrue(
+            m_Shooter
+                .setSpeed(RobotConstants.SHOOTER_VEL)
+                .alongWith(
+                    new VarShootPrime(
+                        m_Wrist,
+                        m_Elevator,
+                        m_poseEstimator,
+                        RobotConstants.SHOOT_POINT,
+                        () -> m_Shooter.getVelocity() * 60,
+                        RobotConstants.DISTANCE_RANGE,
+                        RobotConstants.HEIGHT_LENGTH_COEFF,
+                        RobotConstants.SHOOTER_RPM_TO_MPS,
+                        RobotConstants.WRIST_HIGH_LIM)))
         .onFalse(m_Shooter.setSpeed(0).alongWith(m_Wrist.stow()));
-=======
-                            RobotConstants.SHOOTER_RPM_TO_MPS,
-                            RobotConstants.WRIST_HIGH_LIM))))
-        .onFalse(
-            Commands.runOnce(() -> m_Wrist.removeDefaultCommand())
-                .andThen(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM)));
-
-    // Where did the old spinup bind go?
-    m_manipController
-        .leftTrigger(0.5)
-        .whileTrue(m_Shooter.setSpeed(RobotConstants.SHOOTER_VEL))
-        .onFalse(m_Shooter.setSpeed(0));
->>>>>>> main
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
