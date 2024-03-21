@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
               }
             });
     visionThread.setDaemon(true);
-    visionThread.start();
+    // visionThread.start();
   }
 
   @Override
