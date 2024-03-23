@@ -292,7 +292,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5))); // was zero changed in b80 before wk4
+                Units.degreesToRadians(0))); // was zero changed in b80 before wk4
 
     m_driveController
         .a()
