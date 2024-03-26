@@ -100,4 +100,9 @@ public class AlignToPose extends Command {
   public void end(boolean interrupted) {
     chassis.driveRobotRelative(new ChassisSpeeds());
   }
+
+  @Override
+  public void end(boolean interrupted) {
+    chassis.driveRobotRelative(new ChassisSpeeds());
+  }
 }
