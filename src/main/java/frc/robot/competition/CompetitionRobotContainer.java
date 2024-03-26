@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -243,8 +245,12 @@ class CompetitionRobotContainer {
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kRightRumble))
         .onFalse(shortRumble(m_driveController.getHID(), RumbleType.kBothRumble));
 
-    new Trigger(() -> DriveToNote.tv.getInteger(0) == 1)
+    // Rumble controllers when target is detected and we don't have a note
+    NetworkTableEntry limelightTargetDetected =
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
+    new Trigger(() -> limelightTargetDetected.getDouble(0.0) == 1.0)
         .and(RobotModeTriggers.teleop())
+        .and(() -> !m_intake.hasNote())
         .onTrue(shortRumble(m_driveController.getHID(), RumbleType.kLeftRumble))
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kLeftRumble));
 
