@@ -138,9 +138,7 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand(
-        "ScoreFromW2",
-        m_Shooter
-            .setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
+        "ScoreFromW2", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED * 0.5));
     NamedCommands.registerCommand("Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()));
@@ -332,8 +330,11 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
+
     m_driveController
         .rightStick()
+        // Disable for now
+        .and(() -> false)
         .whileTrue(
             new AlignToPose(
                     m_chassis,
@@ -343,12 +344,16 @@ class CompetitionRobotContainer {
                     RobotConstants.ROTATION_PID,
                     RobotConstants.MOTION_LIMITS)
                 .alongWith(m_chassis.enableAprilTags())
-                .andThen(m_Elevator.setToTarget(16.3).alongWith(new SequentialCommandGroup(
-                    m_Wrist.setToTargetCmd(0),
-                    new DriveToAprilTag(m_chassis), 
-                 m_Wrist.setToTargetCmd(23), 
-                 Commands.waitSeconds(.2),
-                 m_feeder.outtake()))))
+                .andThen(
+                    m_Elevator
+                        .setToTarget(16.3)
+                        .alongWith(
+                            new SequentialCommandGroup(
+                                m_Wrist.setToTargetCmd(0),
+                                new DriveToAprilTag(m_chassis),
+                                m_Wrist.setToTargetCmd(23),
+                                Commands.waitSeconds(.2),
+                                m_feeder.outtake()))))
         .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
