@@ -21,11 +21,14 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
+import frc.robot.commands.AlignToPose;
+import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
@@ -327,6 +330,31 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
+
+    m_driveController
+        .rightStick()
+        // Disable for now
+        .and(() -> false)
+        .whileTrue(
+            new AlignToPose(
+                    m_chassis,
+                    Constants.AMP_TRANSFORM,
+                    m_poseEstimator,
+                    RobotConstants.TRANSLATION_PID,
+                    RobotConstants.ROTATION_PID,
+                    RobotConstants.MOTION_LIMITS)
+                .alongWith(m_chassis.enableAprilTags())
+                .andThen(
+                    m_Elevator
+                        .setToTarget(16.3)
+                        .alongWith(
+                            new SequentialCommandGroup(
+                                m_Wrist.setToTargetCmd(0),
+                                new DriveToAprilTag(m_chassis),
+                                m_Wrist.setToTargetCmd(23),
+                                Commands.waitSeconds(.2),
+                                m_feeder.outtake()))))
+        .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
