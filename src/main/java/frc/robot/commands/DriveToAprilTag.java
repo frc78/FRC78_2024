@@ -50,7 +50,9 @@ public class DriveToAprilTag extends Command {
 
   @Override
   public boolean isFinished() {
-    return ((Math.abs(tx.getDouble(100)) < 5) && (Math.abs(ty.getDouble(100)) < .5) && (tv.getDouble(0) == 1));
+    return ((Math.abs(tx.getDouble(100)) < 5)
+        && (Math.abs(ty.getDouble(100)) < .5)
+        && (tv.getDouble(0) == 1));
   }
 
   @Override
