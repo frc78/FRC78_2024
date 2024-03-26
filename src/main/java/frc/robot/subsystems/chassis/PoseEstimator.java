@@ -38,11 +38,11 @@ public class PoseEstimator {
   private PhotonPoseEstimator photonEstimator;
   private AprilTagFieldLayout aprilTagFieldLayout;
 
-  private double lastEstTimestamp = 0;
-
   private final Matrix<N3, N1> singleTagStdDevs;
   private final Matrix<N3, N1> multiTagStdDevs;
   private final Transform3d robotToCam;
+
+  private PhotonPipelineResult latestResult = null;
 
   public PoseEstimator(
       Chassis chassis,
@@ -95,10 +95,9 @@ public class PoseEstimator {
           // Change our trust in the measurement based on the tags we can see
           var estStdDevs = getEstimationStdDevs(estPose);
 
-          poseEstimator.addVisionMeasurement(
-              est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
+          poseEstimator.addVisionMeasurement(estPose, est.timestampSeconds, estStdDevs);
 
-          Logger.recordOutput("AT Estimate", estimatedPose.get().estimatedPose.toPose2d());
+          Logger.recordOutput("AT Estimate", estPose);
         });
 
     poseEstimator.update(getGyroRot(), chassis.getPositions());
@@ -115,13 +114,9 @@ public class PoseEstimator {
     Logger.recordOutput("Estimated Velocity", getEstimatedVel());
   }
 
-  public Optional<EstimatedRobotPose> getEstimatedVisionPose() {
-    var visionEst = photonEstimator.update();
-    double latestTimestamp = ATCam1.getLatestResult().getTimestampSeconds();
-    boolean newResult = Math.abs(latestTimestamp - lastEstTimestamp) > 1e-5;
-
-    if (newResult) lastEstTimestamp = latestTimestamp;
-    return visionEst;
+  private Optional<EstimatedRobotPose> getEstimatedVisionPose() {
+    latestResult = ATCam1.getLatestResult();
+    return photonEstimator.update(latestResult, ATCam1.getCameraMatrix(), ATCam1.getDistCoeffs());
   }
 
   public Pose2d getFusedPose() {
@@ -132,13 +127,9 @@ public class PoseEstimator {
     return vel.div(0.02); // How consistent is this update rate?
   }
 
-  public PhotonPipelineResult getLatestResult() {
-    return ATCam1.getLatestResult();
-  }
-
   private Matrix<N3, N1> getEstimationStdDevs(Pose2d estimatedPose) {
     var estStdDevs = singleTagStdDevs;
-    var targets = getLatestResult().getTargets();
+    var targets = latestResult.getTargets();
     int numTags = 0;
     double avgDist = 0;
     for (var tgt : targets) {
