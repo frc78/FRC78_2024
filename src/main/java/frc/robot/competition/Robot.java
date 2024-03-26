@@ -18,12 +18,14 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import java.util.HashMap;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.urcl.URCL;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
@@ -71,6 +73,24 @@ public class Robot extends LoggedRobot {
     }
 
     Logger.start();
+    URCL.start(
+        new HashMap<>() {
+          {
+            put(1, "Front Left Drive");
+            put(2, "Front Left Steer");
+            put(3, "Front Right Drive");
+            put(4, "Front Right Steer");
+            put(5, "Back Left Drive");
+            put(6, "Back Left Steer");
+            put(7, "Back Right Drive");
+            put(8, "Back Right Steer");
+            put(9, "Intake Bottom");
+            put(10, "Intake Top");
+            put(11, "Elevator 11");
+            put(12, "Elevator 12");
+            put(13, "Wrist");
+          }
+        });
     // CTRE logger
     SignalLogger.setPath("/U/ctre-logs/");
     SignalLogger.start();
