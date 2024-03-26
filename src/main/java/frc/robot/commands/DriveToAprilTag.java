@@ -24,7 +24,9 @@ public class DriveToAprilTag extends Command {
     this.chassis = chassis;
 
     translationControllerX.setSetpoint(0.0);
+    translationControllerX.setTolerance(5);
     translationControllerY.setSetpoint(0.0);
+    translationControllerY.setTolerance(.5);
 
     addRequirements(chassis);
   }
@@ -50,9 +52,9 @@ public class DriveToAprilTag extends Command {
 
   @Override
   public boolean isFinished() {
-    return ((Math.abs(tx.getDouble(100)) < 5)
-        && (Math.abs(ty.getDouble(100)) < .5)
-        && (tv.getDouble(0) == 1));
+    return tv.getDouble(0.0) == 1.0
+        && translationControllerX.atSetpoint()
+        && translationControllerY.atSetpoint();
   }
 
   @Override
