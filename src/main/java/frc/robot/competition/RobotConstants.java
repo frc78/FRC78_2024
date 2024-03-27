@@ -168,7 +168,7 @@ class RobotConstants {
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
-  public static final double AUTO_SHOOT_SPEED = 3000;
+  public static final double AUTO_SHOOT_SPEED = 4500;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
 
@@ -178,7 +178,7 @@ class RobotConstants {
       2 * (Math.PI * Units.inchesToMeters(2.65)) / 60; // Guess based on shooter wheel size
   //   public static final Range VELOCITY_RANGE =
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
-  public static final double SHOOTER_VEL = 3000; // RPM
+  public static final double SHOOTER_VEL = 4500; // RPM
   public static final Range DISTANCE_RANGE = new Range(1.25, 5);
-  public static final double HEIGHT_LENGTH_COEFF = 0.25;
+  public static final double HEIGHT_LENGTH_COEFF = 0.225;
 }

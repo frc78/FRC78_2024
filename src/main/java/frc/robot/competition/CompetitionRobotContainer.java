@@ -295,7 +295,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5))); // was zero changed in b80 before wk4
+                Units.degreesToRadians(0))); // was zero changed in b80 before wk4
 
     m_driveController
         .a()
@@ -393,7 +393,7 @@ class CompetitionRobotContainer {
     // Amp position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3)))
+        .whileTrue(m_Wrist.setToTargetCmd(20).alongWith(m_Elevator.setToTarget(16.3)))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
