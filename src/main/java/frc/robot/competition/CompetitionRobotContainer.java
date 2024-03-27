@@ -365,7 +365,7 @@ class CompetitionRobotContainer {
     // Amp position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3)))
+        .whileTrue(m_Wrist.setToTargetCmd(20).alongWith(m_Elevator.setToTarget(16.3)))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
