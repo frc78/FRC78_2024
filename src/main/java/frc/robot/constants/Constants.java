@@ -6,8 +6,8 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
@@ -30,11 +30,11 @@ public final class Constants {
       new Translation2d(Meters.of(16.5), Meters.of(5.5));
   public static final Measure<Distance> SPEAKER_HEIGHT = Meters.of(2.1); // is adjusted, not real
 
-  public static final Transform2d BLUE_AMP =
-      new Transform2d(Meters.of(1.83), Meters.of(7.47), Rotation2d.fromDegrees(90));
-  public static final Transform2d RED_AMP =
-      new Transform2d(Meters.of(14.65), Meters.of(7.47), Rotation2d.fromDegrees(90));
-  public static final Supplier<Transform2d> AMP_TRANSFORM =
+  public static final Pose2d BLUE_AMP =
+      new Pose2d(Meters.of(1.83), Meters.of(7.70), Rotation2d.fromDegrees(90));
+  public static final Pose2d RED_AMP =
+      new Pose2d(Meters.of(14.65), Meters.of(7.70), Rotation2d.fromDegrees(90));
+  public static final Supplier<Pose2d> AMP_TRANSFORM =
       () ->
           DriverStation.getAlliance().isPresent()
               ? (DriverStation.getAlliance().get() == Alliance.Red ? RED_AMP : BLUE_AMP)
