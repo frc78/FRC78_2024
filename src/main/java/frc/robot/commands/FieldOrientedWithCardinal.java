@@ -88,6 +88,7 @@ public class FieldOrientedWithCardinal extends Command {
     chassis.driveRobotRelative(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             speeds, poseEstimator.getFusedPose().getRotation().plus(allianceOffset)));
+            ChassisSpeeds.fromRobotRelativeSpeeds(speeds, allianceOffset)
   }
 
   @Override

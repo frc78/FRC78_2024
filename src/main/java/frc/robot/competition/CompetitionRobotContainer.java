@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
+import frc.robot.commands.AlignToNote;
 import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
@@ -253,7 +254,8 @@ class CompetitionRobotContainer {
         .whileTrue(
             new RunCommand(
                 () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
-                m_chassis));
+                m_chassis)
+        .alongWith(pickUpNote().deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds))));
 
     m_driveController
         .pov(180)
@@ -324,9 +326,6 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 0));
-    m_driveController
-        .rightBumper()
-        .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
