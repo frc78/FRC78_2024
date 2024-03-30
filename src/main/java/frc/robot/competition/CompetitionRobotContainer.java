@@ -252,10 +252,13 @@ class CompetitionRobotContainer {
     NetworkTableEntry limelightTargetDetected =
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
     new Trigger(() -> limelightTargetDetected.getDouble(0.0) == 1.0)
+        .and(() -> !m_feeder.isNoteQueued())
+        .whileTrue(m_feedback.limelightLEDs())
         .and(RobotModeTriggers.teleop())
-        .and(() -> !m_intake.hasNote())
         .onTrue(shortRumble(m_driveController.getHID(), RumbleType.kLeftRumble))
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kLeftRumble));
+
+    new Trigger(() -> DriverStation.getMatchTime() < 20).onTrue(m_feedback.endgame());
 
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .whileTrue(m_feedback.shooterWheelsAtSpeed())

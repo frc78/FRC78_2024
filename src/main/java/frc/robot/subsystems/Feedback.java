@@ -10,6 +10,8 @@ import com.ctre.phoenix.led.CANdleConfiguration;
 import com.ctre.phoenix.led.CANdleStatusFrame;
 import com.ctre.phoenix.led.ColorFlowAnimation;
 import com.ctre.phoenix.led.ColorFlowAnimation.Direction;
+import com.ctre.phoenix.led.LarsonAnimation;
+import com.ctre.phoenix.led.LarsonAnimation.BounceMode;
 import com.ctre.phoenix.led.RainbowAnimation;
 import com.ctre.phoenix.led.StrobeAnimation;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,6 +44,19 @@ public class Feedback extends SubsystemBase {
             setMulti(Color.kBlue);
           }
         });
+  }
+
+  public Command limelightLEDs() {
+    return this.startEnd(
+        () -> {
+          RainbowAnimation ra = new RainbowAnimation(255, 3, 22, false, 0);
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
+          bracelet.animate(ra, 1);
+        },
+        this::off);
   }
 
   public Command shooterWheelsAtSpeed() {
@@ -97,19 +112,36 @@ public class Feedback extends SubsystemBase {
         this::off);
   }
 
+  public Command endgame() {
+    return this.runOnce(
+        () -> {
+          LarsonAnimation la =
+              new LarsonAnimation(255, 255, 0, 255, 0.5, 22, BounceMode.Front, 2, 0);
+          bracelet.clearAnimation(1);
+          bracelet.clearAnimation(2);
+          bracelet.clearAnimation(3);
+          bracelet.clearAnimation(4);
+          bracelet.animate(la, 1);
+          LarsonAnimation la2 =
+              new LarsonAnimation(255, 0, 255, 255, 0.5, 22, BounceMode.Front, 2, 2);
+          bracelet.animate(la, 2);
+        });
+  }
+
   public void disabledColorPattern() {
-    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 14, Direction.Forward, 8);
+    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.01, 15, Direction.Forward, 8);
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
     bracelet.clearAnimation(3);
     bracelet.clearAnimation(4);
     bracelet.animate(cfa, 1);
     ColorFlowAnimation cfa2 =
-        new ColorFlowAnimation(0, 255, 0, 255, 0.1, 14, Direction.Backward, 8);
+        new ColorFlowAnimation(0, 255, 0, 255, 0.01, 15, Direction.Backward, 8);
     bracelet.animate(cfa2, 2);
-    ColorFlowAnimation cfa3 = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 8, Direction.Forward, 0);
+    ColorFlowAnimation cfa3 = new ColorFlowAnimation(0, 0, 255, 255, 0.01, 8, Direction.Forward, 0);
     bracelet.animate(cfa3, 3);
-    ColorFlowAnimation cfa4 = new ColorFlowAnimation(0, 255, 0, 255, 0.1, 8, Direction.Backward, 0);
+    ColorFlowAnimation cfa4 =
+        new ColorFlowAnimation(0, 255, 0, 255, 0.01, 8, Direction.Backward, 0);
     bracelet.animate(cfa4, 4);
   }
 
