@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -96,7 +95,7 @@ public class PoseEstimator {
 
     lastPose = currentPose;
 
-    SmartDashboard.putNumber("gyroYaw", getGyroRot().getDegrees());
+    Logger.recordOutput("gyroYaw", getGyroRot().getDegrees());
     Logger.recordOutput("Estimated Pose", currentPose);
     Logger.recordOutput("Estimated Velocity", getEstimatedVel());
   }

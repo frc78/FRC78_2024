@@ -91,22 +91,29 @@ class CompetitionRobotContainer {
 
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
-    PhotonCamera backCam = new PhotonCamera(RobotConstants.BACK_CAM_NAME);
-    PhotonCamera frontCam = new PhotonCamera(RobotConstants.FRONT_CAM_NAME);
+    PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
+    PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+    PhotonCamera portCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
 
-    PhotonPoseEstimator backCamPoseEstimator =
+    PhotonPoseEstimator sternCamPE =
         new PhotonPoseEstimator(
             Constants.APRIL_TAG_FIELD_LAYOUT,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            backCam,
-            RobotConstants.BACK_CAM_POSE);
+            sternCam,
+            RobotConstants.STERN_CAM_POSE);
 
-    PhotonPoseEstimator frontCamPoseEstimator =
+    PhotonPoseEstimator starboardCamPE =
         new PhotonPoseEstimator(
             Constants.APRIL_TAG_FIELD_LAYOUT,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            frontCam,
-            RobotConstants.FRONT_CAM_POSE);
+            starboardCam,
+            RobotConstants.STARBOARD_CAM_POSE);
+    PhotonPoseEstimator portCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            portCam,
+            RobotConstants.PORT_CAM_POSE);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     m_poseEstimator =
@@ -114,7 +121,7 @@ class CompetitionRobotContainer {
             m_chassis,
             swerveDriveKinematics,
             Constants.APRIL_TAG_FIELD_LAYOUT,
-            List.of(backCamPoseEstimator, frontCamPoseEstimator),
+            List.of(sternCamPE, starboardCamPE, portCamPE),
             pigeon,
             RobotConstants.STATE_STD_DEVS,
             RobotConstants.VISION_STD_DEVS,
