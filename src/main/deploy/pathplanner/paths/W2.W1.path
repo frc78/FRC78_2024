@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.9027927960617825,
-        "y": 5.777781003181055
+        "x": 2.7990249775248945,
+        "y": 5.566684809560096
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.425119440715072,
-        "y": 6.043605839592633
+        "x": 1.6950010280972947,
+        "y": 5.207039442650315
       },
       "isLocked": false,
-      "linkedName": "C4"
+      "linkedName": "W2"
     },
     {
       "anchor": {
-        "x": 4.6190742286246484,
-        "y": 6.403251206502413
+        "x": 2.594114445371748,
+        "y": 4.135921719462487
       },
       "prevControl": {
-        "x": 6.409482685632039,
-        "y": 6.325067431087244
+        "x": 1.5941144453717482,
+        "y": 4.135921719462487
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarScore4Note"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 16.113418233089345,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
