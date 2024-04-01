@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3979026815196491,
-      "y": 5.57
+      "x": 1.4448129467687512,
+      "y": 5.566684809560096
     },
     "rotation": 0
   },
@@ -139,25 +139,19 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "W1.C3"
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "W1.C3(Note)"
                 }
               }
             ]
@@ -220,7 +214,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "4Score.C2"
+                  "pathName": "centScr.C4"
                 }
               }
             ]
@@ -233,7 +227,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C2.Score5Note"
+                  "pathName": "C4.FarScr"
                 }
               },
               {

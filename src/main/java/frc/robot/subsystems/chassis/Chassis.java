@@ -113,7 +113,7 @@ public class Chassis extends SubsystemBase {
 
   private SysIdRoutine drivetrainRoutine =
       new SysIdRoutine(
-          new SysIdRoutine.Config(null, null, Seconds.of(3)),
+          new SysIdRoutine.Config(null, null, Seconds.of(10)),
           new SysIdRoutine.Mechanism(this::voltageDrive, this::logMotor, this));
 
   public void logMotor(SysIdRoutineLog log) {

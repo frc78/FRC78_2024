@@ -37,9 +37,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SubPod.w1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {
@@ -81,15 +94,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "W1.C3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "W1.C3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {

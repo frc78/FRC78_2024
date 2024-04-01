@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2102616205232415,
-      "y": 6.528345247166685
+      "x": 1.2258983756062753,
+      "y": 6.801988461119779
     },
-    "rotation": 47.082565279730886
+    "rotation": 28.024500532070288
   },
   "command": {
     "type": "sequential",
@@ -37,9 +37,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Amp.W3"
+                }
+              }
+            ]
           }
         },
         {
@@ -75,15 +88,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "W3.C5"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "W3.C5"
+                }
+              }
+            ]
           }
         },
         {
@@ -125,15 +145,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "4NoteScore.C4"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "4NoteScore.C4"
+                }
+              }
+            ]
           }
         },
         {
