@@ -37,15 +37,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "PodStart.C2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PodStart.C2"
+                }
+              }
+            ]
           }
         },
         {
@@ -93,15 +100,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "PodScore.C3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "PodScore.C3"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              }
+            ]
           }
         },
         {

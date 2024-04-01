@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.9027927960617825,
-        "y": 5.777781003181055
+        "x": 1.2258983756062753,
+        "y": 6.801988461119779
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.425119440715072,
-        "y": 6.043605839592633
+        "x": 2.085919905173144,
+        "y": 7.106905185238943
       },
       "isLocked": false,
-      "linkedName": "C4"
+      "linkedName": "AmpSideStart"
     },
     {
       "anchor": {
-        "x": 4.6190742286246484,
-        "y": 6.403251206502413
+        "x": 2.742663618660571,
+        "y": 7.036539787365289
       },
       "prevControl": {
-        "x": 6.409482685632039,
-        "y": 6.325067431087244
+        "x": 1.742663618660571,
+        "y": 7.036539787365289
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarScore4Note"
+      "linkedName": "W3"
     }
   ],
   "rotationTargets": [],
@@ -39,13 +39,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 16.113418233089345,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 20.40988283380398,
     "velocity": 0
   },
   "useDefaultConstraints": false
