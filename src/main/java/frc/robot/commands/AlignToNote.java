@@ -1,9 +1,5 @@
 package frc.robot.commands;
 
-import java.util.function.Supplier;
-
-import org.opencv.dnn.Net;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -12,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.chassis.Chassis;
+import java.util.function.Supplier;
 
 public class AlignToNote extends Command {
   private final Chassis chassis;
@@ -21,8 +18,8 @@ public class AlignToNote extends Command {
   NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Fisheye");
   NetworkTableEntry yaw = table.getEntry("targetYaw");
 
-  //private final PIDController translationController = new PIDController(0.07, 0, 0);
-  private final PIDController rotationController = new PIDController(0.07, 0, 0);
+  // private final PIDController translationController = new PIDController(0.07, 0, 0);
+  private final PIDController rotationController = new PIDController(0.15, 0, 0.0015);
 
   /** Creates a new FieldOrientedDrive. */
   public AlignToNote(Chassis chassis, Supplier<ChassisSpeeds> speedsSupplier) {
@@ -30,7 +27,7 @@ public class AlignToNote extends Command {
     this.speeds = speedsSupplier.get();
     this.speedsSupplier = speedsSupplier;
 
-    //translationController.setSetpoint(0.0);
+    // translationController.setSetpoint(0.0);
     rotationController.setSetpoint(0.0);
 
     addRequirements(chassis);
@@ -38,7 +35,7 @@ public class AlignToNote extends Command {
 
   @Override
   public void initialize() {
-    //translationController.reset();
+    // translationController.reset();
     rotationController.reset();
   }
 
@@ -48,8 +45,13 @@ public class AlignToNote extends Command {
 
     double finalYaw = yaw.getDouble(0.0);
 
-    Rotation2d rotation = new Rotation2d(rotationController.calculate(finalYaw));
+    double rotation = rotationController.calculate(finalYaw);
 
-    chassis.driveRobotRelative(ChassisSpeeds.fromRobotRelativeSpeeds(speedsSupplier.get(), rotation));
+    ChassisSpeeds align = speedsSupplier.get();
+
+    align.omegaRadiansPerSecond = rotation;
+
+    chassis.driveRobotRelative(
+      align);
   }
 }

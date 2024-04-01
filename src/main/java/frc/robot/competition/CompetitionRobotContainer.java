@@ -252,10 +252,9 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
-            new RunCommand(
-                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
-                m_chassis)
-        .alongWith(pickUpNote().deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds))));
+                    pickUpNote()
+                        .deadlineWith(
+                            new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
     m_driveController
         .pov(180)
