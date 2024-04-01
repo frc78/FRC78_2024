@@ -110,10 +110,10 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
   public static final FFConstants MODULE_FF[] = {
-    new FFConstants(0.1929, 2.591, 0.5843),
-    new FFConstants(0.1979, 2.6267, 0.7183),
-    new FFConstants(0.1872, 2.6374, 0.7290),
-    new FFConstants(0.2263, 2.613, 0.5051)
+    new FFConstants(0.078918, 2.1152, 0.73299),
+    new FFConstants(0.26707, 2.0848, 0.36198),
+    new FFConstants(0.25259, 2.0883, 0.35247),
+    new FFConstants(0.055245, 2.1739, 0.73292)
   };
 
   public static final ModuleConfig MODULE_CONFIG =

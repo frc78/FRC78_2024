@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.425119440715072,
-        "y": 6.043605839592633
+        "x": 6.722217787292718,
+        "y": 5.94196693155291
       },
       "isLocked": false,
       "linkedName": "C4"
     },
     {
       "anchor": {
-        "x": 4.6190742286246484,
-        "y": 6.403251206502413
+        "x": 5.275817942112075,
+        "y": 6.176518257798421
       },
       "prevControl": {
-        "x": 6.409482685632039,
-        "y": 6.325067431087244
+        "x": 6.597123746628446,
+        "y": 5.926330176469877
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "FarScore4Note"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -39,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 16.113418233089345,
+    "rotation": 0,
     "rotateFast": false
   },
   "reversed": false,
