@@ -23,13 +23,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
+import frc.robot.commands.AlignToNote;
 import frc.robot.commands.AlignToPose;
 import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
@@ -290,9 +290,8 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
-            new RunCommand(
-                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
-                m_chassis));
+            pickUpNote()
+                .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
     m_driveController
         .pov(180)
@@ -363,9 +362,6 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 0));
-    m_driveController
-        .rightBumper()
-        .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     m_driveController
         .rightStick()
