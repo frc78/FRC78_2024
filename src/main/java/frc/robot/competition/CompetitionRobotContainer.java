@@ -4,6 +4,7 @@
 
 package frc.robot.competition;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -12,6 +13,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,12 +23,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.commands.AlignToNote;
+import frc.robot.commands.AlignToPose;
+import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
@@ -42,15 +48,16 @@ import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
   public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
-  private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
   public final Shooter m_Shooter;
@@ -82,17 +89,40 @@ class CompetitionRobotContainer {
 
     SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
 
-    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
-
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
+    PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
+    PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+    PhotonCamera portCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+
+    PhotonPoseEstimator sternCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            sternCam,
+            RobotConstants.STERN_CAM_POSE);
+
+    PhotonPoseEstimator starboardCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            starboardCam,
+            RobotConstants.STARBOARD_CAM_POSE);
+    PhotonPoseEstimator portCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            portCam,
+            RobotConstants.PORT_CAM_POSE);
+
+    Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     m_poseEstimator =
         new PoseEstimator(
             m_chassis,
             swerveDriveKinematics,
-            m_ATCamera,
-            RobotConstants.CAM1_OFFSET,
-            RobotConstants.PIGEON_ID,
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            List.of(sternCamPE, starboardCamPE, portCamPE),
+            pigeon,
             RobotConstants.STATE_STD_DEVS,
             RobotConstants.VISION_STD_DEVS,
             RobotConstants.SINGLE_TAG_STD_DEVS,
@@ -228,9 +258,9 @@ class CompetitionRobotContainer {
         frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
-  Command shortRumble(XboxController controller) {
+  Command shortRumble(XboxController controller, RumbleType rumbleType) {
     return Commands.startEnd(
-            () -> controller.setRumble(RumbleType.kBothRumble, 1),
+            () -> controller.setRumble(rumbleType, 1),
             () -> controller.setRumble(RumbleType.kBothRumble, 0))
         .withTimeout(0.5);
   }
@@ -239,14 +269,23 @@ class CompetitionRobotContainer {
     new Trigger(m_feeder::isNoteQueued)
         .whileTrue(m_feedback.noteInCartridge())
         .and(RobotModeTriggers.teleop())
-        .onTrue(shortRumble(m_driveController.getHID()))
-        .onTrue(shortRumble(m_manipController.getHID()))
-        .onFalse(shortRumble(m_driveController.getHID()));
+        .onTrue(shortRumble(m_driveController.getHID(), RumbleType.kRightRumble))
+        .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kRightRumble))
+        .onFalse(shortRumble(m_driveController.getHID(), RumbleType.kBothRumble));
+
+    // Rumble controllers when target is detected and we don't have a note
+    NetworkTableEntry limelightTargetDetected =
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("tv");
+    new Trigger(() -> limelightTargetDetected.getDouble(0.0) == 1.0)
+        .and(RobotModeTriggers.teleop())
+        .and(() -> !m_intake.hasNote())
+        .onTrue(shortRumble(m_driveController.getHID(), RumbleType.kLeftRumble))
+        .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kLeftRumble));
 
     new Trigger(() -> m_Shooter.isAtSpeed(.9))
         .whileTrue(m_feedback.shooterWheelsAtSpeed())
         .and(RobotModeTriggers.teleop())
-        .onTrue(shortRumble(m_manipController.getHID()));
+        .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
 
     m_driveController
         .rightBumper()
@@ -291,7 +330,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_PID,
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5))); // was zero changed in b80 before wk4
+                Units.degreesToRadians(0))); // was zero changed in b80 before wk4
 
     m_driveController
         .a()
@@ -323,6 +362,31 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 0));
+
+    m_driveController
+        .rightStick()
+        // Disable for now
+        .and(() -> false)
+        .whileTrue(
+            new AlignToPose(
+                    m_chassis,
+                    Constants.AMP_TRANSFORM,
+                    m_poseEstimator,
+                    RobotConstants.TRANSLATION_PID,
+                    RobotConstants.ROTATION_PID,
+                    RobotConstants.MOTION_LIMITS)
+                .alongWith(m_chassis.enableAprilTags())
+                .andThen(
+                    m_Elevator
+                        .setToTarget(16.3)
+                        .alongWith(
+                            new SequentialCommandGroup(
+                                m_Wrist.setToTargetCmd(0),
+                                new DriveToAprilTag(m_chassis),
+                                m_Wrist.setToTargetCmd(23),
+                                Commands.waitSeconds(.2),
+                                m_feeder.outtake()))))
+        .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
@@ -361,7 +425,7 @@ class CompetitionRobotContainer {
     // Amp position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTargetCmd(23).alongWith(m_Elevator.setToTarget(16.3)))
+        .whileTrue(m_Wrist.setToTargetCmd(20).alongWith(m_Elevator.setToTarget(16.3)))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
@@ -396,7 +460,10 @@ class CompetitionRobotContainer {
   }
 
   public Command pickUpNote() {
-    return m_feeder.intake().deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55));
+    return m_feeder
+        .intake()
+        .deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55))
+        .withName("AutoPickup");
   }
 
   public Command getAutonomousCommand() {

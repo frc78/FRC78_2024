@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2337167531477924,
-      "y": 4.214105494877657
+      "x": 1.304082151021445,
+      "y": 6.700349553080058
     },
-    "rotation": -47.489552921999184
+    "rotation": 38.659808254089995
   },
   "command": {
     "type": "sequential",
@@ -37,22 +37,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "SubPod.w1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
+            "name": "DriveToNote"
           }
         },
         {
@@ -88,19 +75,13 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "W1.C3"
+                  "pathName": "W3.C5.WayPoin"
                 }
               },
               {
@@ -111,48 +92,10 @@
               }
             ]
           }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "C3.FarScore"
-                }
-              },
-              {
-                "type": "deadline",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Target"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "VariableShoot"
-                      }
-                    }
-                  ]
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Score"
-                }
-              }
-            ]
-          }
         }
       ]
     }
   },
-  "folder": "3 Note Sides",
+  "folder": "4 Note Autos",
   "choreoAuto": false
 }

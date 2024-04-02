@@ -11,6 +11,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,6 +31,8 @@ public class Chassis extends SubsystemBase {
   private final SwerveDriveKinematics kinematics;
   private final MotionLimits motionLimits;
 
+  private NetworkTable table;
+
   public Chassis(
       SwerveModule[] modules, SwerveDriveKinematics kinematics, MotionLimits motionLimits) {
     // It reads the number of modules from the RobotConstants
@@ -39,6 +43,8 @@ public class Chassis extends SubsystemBase {
     SmartDashboard.putData(this);
     SmartDashboard.putData(enableBrakeMode());
     SmartDashboard.putData(enableCoastMode());
+
+    table = NetworkTableInstance.getDefault().getTable("limelight");
   }
 
   public void setBrake(Boolean y) {
@@ -107,7 +113,7 @@ public class Chassis extends SubsystemBase {
 
   private SysIdRoutine drivetrainRoutine =
       new SysIdRoutine(
-          new SysIdRoutine.Config(null, null, Seconds.of(3)),
+          new SysIdRoutine.Config(null, null, Seconds.of(10)),
           new SysIdRoutine.Mechanism(this::voltageDrive, this::logMotor, this));
 
   public void logMotor(SysIdRoutineLog log) {
@@ -147,5 +153,19 @@ public class Chassis extends SubsystemBase {
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return drivetrainRoutine.dynamic(direction);
+  }
+
+  public Command enableAprilTags() {
+    return Commands.runOnce(
+        () -> {
+          table.getEntry("pipeline").setNumber(1);
+        });
+  }
+
+  public Command enableNoteDetection() {
+    return Commands.runOnce(
+        () -> {
+          table.getEntry("pipeline").setNumber(0);
+        });
   }
 }
