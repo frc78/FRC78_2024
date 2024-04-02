@@ -38,12 +38,12 @@ class RobotConstants {
   public static final Transform3d STERN_CAM_POSE =
       new Transform3d(
           new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
-          new Rotation3d(0, Math.toRadians(-30), Math.PI));
+          new Rotation3d(Math.PI, Math.toRadians(-30), Math.PI));
 
   public static final Transform3d STARBOARD_CAM_POSE =
       new Transform3d(
           new Translation3d(4.465, -10.205, 21.274).times(Units.inchesToMeters(1)),
-          new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-30)));
+          new Rotation3d(Math.PI, Math.toRadians(-25), Math.toRadians(-30)));
 
   public static final Transform3d PORT_CAM_POSE =
       new Transform3d(
@@ -54,6 +54,7 @@ class RobotConstants {
   public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
   public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
+  public static final double STD_DISTANCE_DIVISOR = 20.0;
 
   public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 12, 18);
 
