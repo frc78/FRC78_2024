@@ -29,6 +29,9 @@ public final class Constants {
   public static final Translation2d RED_SPEAKER_POSE =
       new Translation2d(Meters.of(16.5), Meters.of(5.5));
   public static final Measure<Distance> SPEAKER_HEIGHT = Meters.of(2.1); // is adjusted, not real
+  public static final Translation2d BLUE_PLOP_POSE = new Translation2d(Meters.of(0), Meters.of(7));
+  public static final Translation2d RED_PLOP_POSE =
+      new Translation2d(Meters.of(16.5), Meters.of(7));
 
   public static final Pose2d BLUE_AMP =
       new Pose2d(Meters.of(1.83), Meters.of(7.70), Rotation2d.fromDegrees(90));

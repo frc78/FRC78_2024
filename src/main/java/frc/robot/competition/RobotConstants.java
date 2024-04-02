@@ -164,7 +164,7 @@ class RobotConstants {
   public static final float WRIST_HIGH_LIM = 55;
   public static final float WRIST_LOW_LIM = 0;
 
-  public static final double WRIST_PLOP_ANGLE = Math.toDegrees(1);
+  public static final double WRIST_PLOP_ANGLE = 1; // one degree (too lazy to do whole unit thing)
 
   // CANDLE //
   public static final int CANDLE_ID = 1;

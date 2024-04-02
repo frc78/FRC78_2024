@@ -23,7 +23,7 @@ public class VarFeedPrime extends Command {
   private Shooter shooter;
   private Elevator elevator;
   private PoseEstimator poseEstimator;
-  private Translation2d speakerTranslation;
+  private Translation2d plopTranslation;
 
   // Translation of where the note exits in the XZ plane (side view)
   private final Translation2d shooterXZTrans;
@@ -51,12 +51,12 @@ public class VarFeedPrime extends Command {
 
   @Override
   public void initialize() {
-    speakerTranslation =
+    plopTranslation =
         DriverStation.getAlliance().isPresent()
             ? (DriverStation.getAlliance().get() == Alliance.Red
-                ? Constants.RED_SPEAKER_POSE
-                : Constants.BLUE_SPEAKER_POSE)
-            : Constants.BLUE_SPEAKER_POSE;
+                ? Constants.RED_PLOP_POSE
+                : Constants.BLUE_PLOP_POSE)
+            : Constants.BLUE_PLOP_POSE;
   }
 
   @Override
@@ -64,7 +64,7 @@ public class VarFeedPrime extends Command {
     Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
+    double l = pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
     double h = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
 
     double theta = Math.toRadians(wristAngle.getAsDouble());

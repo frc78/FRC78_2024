@@ -279,7 +279,8 @@ class CompetitionRobotContainer {
                     RobotConstants.SHOOT_POINT,
                     m_Shooter::getVelocity,
                     RobotConstants.SHOOTER_RPM_TO_MPS)
-                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)));
+                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
+        .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
     m_driveController
         .leftBumper()
         .whileTrue(
