@@ -66,9 +66,6 @@ class CompetitionRobotContainer {
   final Feedback m_feedback;
   private final CommandXboxController m_driveController;
   private final CommandXboxController m_manipController;
-  private final CommandXboxController m_testController;
-  private final CommandXboxController sysIdController;
-  private final CommandXboxController sysIdController2;
   private final SendableChooser<Command> autoChooser;
   private final Command AmpSetUp;
 
@@ -131,10 +128,6 @@ class CompetitionRobotContainer {
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
-    m_testController = new CommandXboxController(2);
-    // Put on ports 4 & 5 because we only want to use this during tests
-    sysIdController = new CommandXboxController(4);
-    sysIdController2 = new CommandXboxController(5);
 
     m_baseDrive =
         new BaseDrive(
@@ -421,9 +414,6 @@ class CompetitionRobotContainer {
                         RobotConstants.WRIST_HIGH_LIM)))
         .onFalse(m_Shooter.setSpeed(0).alongWith(m_Wrist.stow()));
 
-    m_testController.x().whileTrue(m_feedback.rainbows());
-    m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
-
     // Amp position
     m_manipController
         .y()
@@ -440,16 +430,6 @@ class CompetitionRobotContainer {
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.shoot());
 
-    m_testController.a().onTrue(m_Wrist.incrementUp());
-
-    m_testController.b().onTrue(m_Wrist.incrementDown());
-
-    // The routine automatically stops the motors at the end of the command
-    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
-
     RobotModeTriggers.teleop()
         .onTrue(
             m_Elevator
@@ -459,6 +439,17 @@ class CompetitionRobotContainer {
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
     RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeed(0).ignoringDisable(true));
+  }
+
+  /**
+   * Call this method to enable sysId button bindings. Ideally only call this on teleop init if the
+   * fms is not connected
+   */
+  public void bindTestTriggers() {
+    CommandXboxController m_testController = new CommandXboxController(2);
+    // Put on ports 4 & 5 because we only want to use this during tests
+    CommandXboxController sysIdController = new CommandXboxController(4);
+    CommandXboxController sysIdController2 = new CommandXboxController(5);
 
     sysIdController2
         .a()
@@ -493,6 +484,19 @@ class CompetitionRobotContainer {
         .y()
         .and(sysIdController.rightBumper())
         .whileTrue(m_Elevator.sysIdDynamic(Direction.kReverse));
+
+    m_testController.a().onTrue(m_Wrist.incrementUp());
+
+    m_testController.b().onTrue(m_Wrist.incrementDown());
+
+    // The routine automatically stops the motors at the end of the command
+    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+
+    m_testController.x().whileTrue(m_feedback.rainbows());
+    m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
   }
 
   public Command pickUpNote() {
