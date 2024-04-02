@@ -97,33 +97,6 @@ public class Robot extends LoggedRobot {
     SignalLogger.start();
     m_robotContainer = new CompetitionRobotContainer();
 
-    // Driver camera
-
-    visionThread =
-        new Thread(
-            () -> {
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-              camera.setResolution(640, 480);
-
-              CvSink cvSink = CameraServer.getVideo();
-              CvSource outputStream =
-                  CameraServer.putVideo(
-                      "INTAKE CAMERA", 320, 240); // Can edit camera resolution in ShuffleBoard
-
-              Mat source = new Mat();
-              Mat output = new Mat();
-
-              while (!Thread.interrupted()) {
-                if (cvSink.grabFrame(source) == 0) {
-                  continue;
-                }
-                Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
-                outputStream.putFrame(output);
-              }
-            });
-    visionThread.setDaemon(true);
-    // visionThread.start();
-
     Notifier poseNotifier = new Notifier(m_robotContainer.m_poseEstimator::update);
     poseNotifier.startPeriodic(.02);
   }
