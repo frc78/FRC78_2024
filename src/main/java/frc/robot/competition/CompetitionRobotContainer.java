@@ -4,6 +4,7 @@
 
 package frc.robot.competition;
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -22,13 +23,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
+import frc.robot.commands.AlignToNote;
 import frc.robot.commands.AlignToPose;
 import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
@@ -47,15 +48,16 @@ import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
+import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
   public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
-  private final PhotonCamera m_ATCamera;
   private final Intake m_intake;
   private final Elevator m_Elevator;
   public final Shooter m_Shooter;
@@ -88,17 +90,40 @@ class CompetitionRobotContainer {
 
     SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
 
-    m_ATCamera = new PhotonCamera(RobotConstants.AT_CAMERA_NAME);
-
     m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
 
+    PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
+    PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+    PhotonCamera portCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+
+    PhotonPoseEstimator sternCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            sternCam,
+            RobotConstants.STERN_CAM_POSE);
+
+    PhotonPoseEstimator starboardCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            starboardCam,
+            RobotConstants.STARBOARD_CAM_POSE);
+    PhotonPoseEstimator portCamPE =
+        new PhotonPoseEstimator(
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            portCam,
+            RobotConstants.PORT_CAM_POSE);
+
+    Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     m_poseEstimator =
         new PoseEstimator(
             m_chassis,
             swerveDriveKinematics,
-            m_ATCamera,
-            RobotConstants.CAM1_OFFSET,
-            RobotConstants.PIGEON_ID,
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            List.of(sternCamPE, starboardCamPE, portCamPE),
+            pigeon,
             RobotConstants.STATE_STD_DEVS,
             RobotConstants.VISION_STD_DEVS,
             RobotConstants.SINGLE_TAG_STD_DEVS,
@@ -267,9 +292,8 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
-            new RunCommand(
-                () -> m_chassis.driveRobotRelative(m_baseDrive.calculateChassisSpeeds()),
-                m_chassis));
+            pickUpNote()
+                .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
     m_driveController
         .pov(180)
@@ -340,9 +364,6 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 0));
-    m_driveController
-        .rightBumper()
-        .whileTrue(pickUpNote().deadlineWith(new DriveToNote(m_chassis)));
 
     m_driveController
         .rightStick()

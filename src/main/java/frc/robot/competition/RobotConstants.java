@@ -32,11 +32,23 @@ class RobotConstants {
 
   public static final int PIGEON_ID = 0;
 
-  public static final String AT_CAMERA_NAME = "BackCam";
-  public static final Transform3d CAM1_OFFSET =
+  public static final String STERN_CAM_NAME = "SternCam";
+  public static final String STARBOARD_CAM_NAME = "StarboardCam";
+  public static final String PORT_CAM_NAME = "PortCam";
+  public static final Transform3d STERN_CAM_POSE =
       new Transform3d(
           new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
-          new Rotation3d(0, Math.toRadians(-30), Math.PI)); // TODO
+          new Rotation3d(0, Math.toRadians(-30), Math.PI));
+
+  public static final Transform3d STARBOARD_CAM_POSE =
+      new Transform3d(
+          new Translation3d(4.465, -10.205, 21.274).times(Units.inchesToMeters(1)),
+          new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-30)));
+
+  public static final Transform3d PORT_CAM_POSE =
+      new Transform3d(
+          new Translation3d(4.465, 10.205, 21.274).times(Units.inchesToMeters(1)),
+          new Rotation3d(0, Math.toRadians(-25), Math.toRadians(30)));
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
   public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
@@ -98,10 +110,10 @@ class RobotConstants {
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
   public static final FFConstants MODULE_FF[] = {
-    new FFConstants(0.1929, 2.591, 0.5843),
-    new FFConstants(0.1979, 2.6267, 0.7183),
-    new FFConstants(0.1872, 2.6374, 0.7290),
-    new FFConstants(0.2263, 2.613, 0.5051)
+    new FFConstants(0.078918, 2.1152, 0.73299),
+    new FFConstants(0.26707, 2.0848, 0.36198),
+    new FFConstants(0.25259, 2.0883, 0.35247),
+    new FFConstants(0.055245, 2.1739, 0.73292)
   };
 
   public static final ModuleConfig MODULE_CONFIG =
