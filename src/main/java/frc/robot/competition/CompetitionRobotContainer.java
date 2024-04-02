@@ -34,7 +34,7 @@ import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
-import frc.robot.commands.OrbitalTarget;
+import frc.robot.commands.VarFeedPrime;
 import frc.robot.commands.VarShootPrime;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
@@ -272,15 +272,14 @@ class CompetitionRobotContainer {
     m_driveController
         .pov(180)
         .whileTrue(
-            new OrbitalTarget(
-                m_chassis,
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.TRANSLATION_PID,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.MOTION_LIMITS,
-                m_poseEstimator,
-                () -> Constants.ORBIT_RADIUS,
-                RobotConstants.ORBITAL_FF_CONSTANT));
+            new VarFeedPrime(
+                    m_Shooter,
+                    m_Elevator,
+                    m_poseEstimator,
+                    RobotConstants.SHOOT_POINT,
+                    m_Shooter::getVelocity,
+                    RobotConstants.SHOOTER_RPM_TO_MPS)
+                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)));
     m_driveController
         .leftBumper()
         .whileTrue(

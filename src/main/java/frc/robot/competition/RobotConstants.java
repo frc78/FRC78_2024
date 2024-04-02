@@ -164,6 +164,8 @@ class RobotConstants {
   public static final float WRIST_HIGH_LIM = 55;
   public static final float WRIST_LOW_LIM = 0;
 
+  public static final double WRIST_PLOP_ANGLE = Math.toDegrees(1);
+
   // CANDLE //
   public static final int CANDLE_ID = 1;
 
