@@ -21,6 +21,7 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.commands.*;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.NamedPhotonPoseEstimator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
@@ -58,12 +59,14 @@ class TestChassisContainer {
 
     m_manipController = new CommandXboxController(0);
 
-    PhotonPoseEstimator poseEstimator =
-        new PhotonPoseEstimator(
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            camera,
-            RobotConstants.CAM1_OFFSET);
+    NamedPhotonPoseEstimator poseEstimator =
+        new NamedPhotonPoseEstimator(
+            new PhotonPoseEstimator(
+                Constants.APRIL_TAG_FIELD_LAYOUT,
+                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                camera,
+                RobotConstants.CAM1_OFFSET),
+            RobotConstants.AT_CAMERA_NAME);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
 
