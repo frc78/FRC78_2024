@@ -1,7 +1,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -12,7 +11,6 @@ import java.util.function.Supplier;
 
 public class AlignToNote extends Command {
   private final Chassis chassis;
-  private ChassisSpeeds speeds;
   private Supplier<ChassisSpeeds> speedsSupplier;
 
   NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Fisheye");
@@ -24,7 +22,6 @@ public class AlignToNote extends Command {
   /** Creates a new FieldOrientedDrive. */
   public AlignToNote(Chassis chassis, Supplier<ChassisSpeeds> speedsSupplier) {
     this.chassis = chassis;
-    this.speeds = speedsSupplier.get();
     this.speedsSupplier = speedsSupplier;
 
     // translationController.setSetpoint(0.0);
@@ -51,7 +48,6 @@ public class AlignToNote extends Command {
 
     align.omegaRadiansPerSecond = rotation;
 
-    chassis.driveRobotRelative(
-      align);
+    chassis.driveRobotRelative(align);
   }
 }

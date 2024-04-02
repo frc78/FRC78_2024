@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -252,9 +251,8 @@ class CompetitionRobotContainer {
     m_driveController
         .rightBumper()
         .whileTrue(
-                    pickUpNote()
-                        .deadlineWith(
-                            new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
+            pickUpNote()
+                .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
     m_driveController
         .pov(180)
