@@ -293,7 +293,7 @@ class CompetitionRobotContainer {
             pickUpNote()
                 .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
-    m_driveController
+    m_manipController
         .pov(180)
         .whileTrue(
             new VarFeedPrime(
@@ -301,7 +301,7 @@ class CompetitionRobotContainer {
                     m_Elevator,
                     m_poseEstimator,
                     RobotConstants.SHOOT_POINT,
-                    m_Shooter::getVelocity,
+                    () -> RobotConstants.WRIST_PLOP_ANGLE,
                     RobotConstants.SHOOTER_RPM_TO_MPS)
                 .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
         .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));

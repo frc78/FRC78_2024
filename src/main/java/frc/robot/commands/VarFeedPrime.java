@@ -68,14 +68,15 @@ public class VarFeedPrime extends Command {
     double h = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
 
     double theta = Math.toRadians(wristAngle.getAsDouble());
-    double v = calcVel(Constants.GRAVITY, l, h, theta);
+    double calcV = calcVel(Constants.GRAVITY, l, h, theta);
+    double v = calcV == Double.NaN ? 0 : calcV;
 
-    Logger.recordOutput("VarShootPrime theta", theta);
-    Logger.recordOutput("VarShootPrime h", h);
-    Logger.recordOutput("VarShootPrime v", v);
-    Logger.recordOutput("VarShootPrime l", l);
+    Logger.recordOutput("VarFeedPrime theta", theta);
+    Logger.recordOutput("VarFeedPrime h", h);
+    Logger.recordOutput("VarFeedPrime v", v);
+    Logger.recordOutput("VarFeedPrime l", l);
 
-    shooter.setSpeed(v * RPM_MPS);
+    shooter.setSpeed(v / RPM_MPS);
   }
 
   @Override
