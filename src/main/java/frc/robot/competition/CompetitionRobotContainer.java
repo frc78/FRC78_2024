@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
@@ -32,7 +33,6 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.commands.AlignToNote;
 import frc.robot.commands.AlignToPose;
 import frc.robot.commands.DriveToAprilTag;
-import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.VarFeedPrime;
@@ -201,7 +201,9 @@ class CompetitionRobotContainer {
                 Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
             .withTimeout(0.5));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
-    NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
+    NamedCommands.registerCommand(
+        "DriveToNote",
+        pickUpNote().deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0))));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
@@ -421,6 +423,11 @@ class CompetitionRobotContainer {
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
+    m_testController
+        .y()
+        .whileTrue(
+            pickUpNote()
+                .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0))));
 
     // Amp position
     m_manipController
@@ -443,10 +450,14 @@ class CompetitionRobotContainer {
     m_testController.b().onTrue(m_Wrist.incrementDown());
 
     // The routine automatically stops the motors at the end of the command
-    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    sysIdController.a().whileTrue(m_Shooter.sysIdDynamic(Direction.kForward));
+    sysIdController.b().whileTrue(m_Shooter.sysIdDynamic(Direction.kReverse));
+    sysIdController.x().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
+    sysIdController.y().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
 
     RobotModeTriggers.teleop()
         .onTrue(

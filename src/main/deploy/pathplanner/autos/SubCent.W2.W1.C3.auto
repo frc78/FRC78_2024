@@ -107,6 +107,24 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "W1.C3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "C3.FarScore"
+          }
+        },
+        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -136,31 +154,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "W1.C3(Note)"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "C3NOTE.Score"
           }
         },
         {
