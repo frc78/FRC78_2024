@@ -450,10 +450,14 @@ class CompetitionRobotContainer {
     m_testController.b().onTrue(m_Wrist.incrementDown());
 
     // The routine automatically stops the motors at the end of the command
-    sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    sysIdController.a().whileTrue(m_Shooter.sysIdDynamic(Direction.kForward));
+    sysIdController.b().whileTrue(m_Shooter.sysIdDynamic(Direction.kReverse));
+    sysIdController.x().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
+    sysIdController.y().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
 
     RobotModeTriggers.teleop()
         .onTrue(
