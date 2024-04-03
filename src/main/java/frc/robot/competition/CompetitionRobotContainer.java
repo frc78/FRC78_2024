@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
@@ -32,7 +33,6 @@ import frc.robot.classes.BaseDrive;
 import frc.robot.commands.AlignToNote;
 import frc.robot.commands.AlignToPose;
 import frc.robot.commands.DriveToAprilTag;
-import frc.robot.commands.DriveToNote;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.OrbitalTarget;
@@ -201,7 +201,9 @@ class CompetitionRobotContainer {
                 Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
             .withTimeout(0.5));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
-    NamedCommands.registerCommand("DriveToNote", new DriveToNote(m_chassis).raceWith(pickUpNote()));
+    NamedCommands.registerCommand(
+        "DriveToNote",
+        new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0)).deadlineWith(pickUpNote()));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
@@ -421,6 +423,10 @@ class CompetitionRobotContainer {
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
+    m_testController
+        .y()
+        .whileTrue(
+            new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0)).alongWith(pickUpNote()));
 
     // Amp position
     m_manipController
