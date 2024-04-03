@@ -12,6 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.classes.ProjectileMotionEquations;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
@@ -74,34 +75,27 @@ public class VarFeedPrime extends Command {
     // double distanceToTarget = lInput.getDouble(3);
 
     double heightToTarget = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
-    // Inverts the heigh as we are shooting from the robot to the ground, but the calculations are
+    // Inverts the height as we are shooting from the robot to the ground, but the calculations are
     // always done from (0, 0) so we use this as our offset
     heightToTarget = -heightToTarget;
 
     double theta = Math.toRadians(wristAngle.getAsDouble());
-    double calcVel = calcVel(Constants.GRAVITY, distanceToTarget, heightToTarget, theta);
-    // Safety for NaN, probably should put this in the setSpeed() itself though
-    double vel = calcVel == Double.NaN ? 0 : calcVel;
+    double calcV =
+        ProjectileMotionEquations.calculateLaunchVelocity(
+            distanceToTarget, heightToTarget, theta);
+    double v = Double.isNaN(calcV) ? 0 : calcV;
 
     Logger.recordOutput("VarFeedPrime theta", theta);
     Logger.recordOutput("VarFeedPrime h", heightToTarget);
-    Logger.recordOutput("VarFeedPrime v", vel);
+    Logger.recordOutput("VarFeedPrime v", v);
     Logger.recordOutput("VarFeedPrime l", distanceToTarget);
 
-    shooter.setSpeed(vel * MPS_RPM);
-    Logger.recordOutput("VarFeedPrime setV", vel * MPS_RPM);
+    shooter.setSpeed(v * MPS_RPM);
+    Logger.recordOutput("VarFeedPrime setV", v * MPS_RPM);
   }
 
   @Override
   public void end(boolean interrupted) {
     shooter.setSpeed(0);
-  }
-
-  // Source? It was revealed to me by a wise tree in a dream
-  // JK this https://en.wikipedia.org/wiki/Projectile_motion
-  private double calcVel(double g, double l, double h, double a) {
-    double nominator = Math.pow(l, 2) * g;
-    double denominator = l * Math.sin(2 * a) - 2 * h * Math.pow(Math.cos(a), 2);
-    return Math.sqrt(nominator / denominator);
   }
 }
