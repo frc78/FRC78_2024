@@ -145,22 +145,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "W1.C3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
+            "pathName": "W1.C3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
@@ -208,22 +201,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "4Score.C2"
-                }
-              }
-            ]
+            "pathName": "4Score.C2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
