@@ -203,7 +203,7 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
     NamedCommands.registerCommand(
         "DriveToNote",
-        new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0)).deadlineWith(pickUpNote()));
+        pickUpNote().deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0))));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
@@ -426,7 +426,8 @@ class CompetitionRobotContainer {
     m_testController
         .y()
         .whileTrue(
-            new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0)).alongWith(pickUpNote()));
+            pickUpNote()
+                .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0))));
 
     // Amp position
     m_manipController
