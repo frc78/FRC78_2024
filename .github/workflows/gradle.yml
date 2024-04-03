@@ -37,5 +37,6 @@ jobs:
     - name: Compile and run tests on robot code
       run: ./gradlew build
     - uses: jwgmeligmeyling/spotbugs-github-action@master
+      if: always()
       with:
         path: '**/spotbugs/main.xml'
