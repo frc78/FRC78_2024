@@ -66,6 +66,7 @@ public class VarFeedPrime extends Command {
     // Distance and height to speaker
     double l = pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
     double h = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
+    h = -h;
 
     double theta = Math.toRadians(wristAngle.getAsDouble());
     double calcV = calcVel(Constants.GRAVITY, l, h, theta);
@@ -87,7 +88,7 @@ public class VarFeedPrime extends Command {
   // Source? It was revealed to me by a wise tree in a dream
   // JK this https://en.wikipedia.org/wiki/Projectile_motion
   private double calcVel(double g, double l, double h, double a) {
-    double nominator = Math.pow(a, 2) * g;
+    double nominator = Math.pow(l, 2) * g;
     double denominator = l * Math.sin(2 * a) - 2 * h * Math.pow(Math.cos(a), 2);
     return Math.sqrt(nominator / denominator);
   }
