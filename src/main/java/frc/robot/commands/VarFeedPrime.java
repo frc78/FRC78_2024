@@ -9,10 +9,8 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
@@ -26,7 +24,7 @@ public class VarFeedPrime extends Command {
   private Elevator elevator;
   private PoseEstimator poseEstimator;
   private Translation2d plopTranslation;
-  private NetworkTableEntry lInput;
+  // private NetworkTableEntry lInput;
 
   // Translation of where the note exits in the XZ plane (side view)
   private final Translation2d shooterXZTrans;
@@ -48,9 +46,9 @@ public class VarFeedPrime extends Command {
     this.shooterXZTrans = shooterXZTrans;
     this.wristAngle = wristAngle;
     this.RPM_MPS = RPM_MPS;
-    lInput = SmartDashboard.getEntry("VarFeedPrimeDist");
-    lInput.setPersistent();
-    lInput.setDefaultDouble(3);
+    // lInput = SmartDashboard.getEntry("VarFeedPrimeDist");
+    // lInput.setPersistent();
+    // lInput.setDefaultDouble(3);
 
     addRequirements(shooter);
   }
@@ -70,8 +68,8 @@ public class VarFeedPrime extends Command {
     Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    // double l = pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
-    double l = lInput.getDouble(3);
+    double l = pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
+    // double l = lInput.getDouble(3);
 
     double h = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
     h = -h;
