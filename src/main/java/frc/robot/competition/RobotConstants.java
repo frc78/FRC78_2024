@@ -51,9 +51,9 @@ class RobotConstants {
           new Rotation3d(0, Math.toRadians(-25), Math.toRadians(30)));
 
   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
-  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1.2, 1.2, 1.5);
-  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(5, 5, 8);
-  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.65, 0.65, 1);
+  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
+  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
+  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
   public static final double STD_DISTANCE_DIVISOR = 20.0;
 
   public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 12, 18);
