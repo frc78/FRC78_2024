@@ -35,7 +35,7 @@ import frc.robot.commands.AlignToPose;
 import frc.robot.commands.DriveToAprilTag;
 import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
-import frc.robot.commands.OrbitalTarget;
+import frc.robot.commands.VarFeedPrime;
 import frc.robot.commands.VarShootPrime;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
@@ -163,10 +163,10 @@ class CompetitionRobotContainer {
     AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
 
     NamedCommands.registerCommand("Intake", pickUpNote());
-    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
 
     NamedCommands.registerCommand(
-        "StartShooter", m_Shooter.setSpeed(RobotConstants.AUTO_SHOOT_SPEED));
+        "StartShooter", m_Shooter.setSpeedCmd(RobotConstants.AUTO_SHOOT_SPEED));
     NamedCommands.registerCommand("Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()));
 
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
@@ -200,7 +200,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
             .withTimeout(0.5));
-    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeed(0));
+    NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
     NamedCommands.registerCommand(
         "DriveToNote",
         pickUpNote().deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0))));
@@ -296,18 +296,6 @@ class CompetitionRobotContainer {
                 .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
 
     m_driveController
-        .pov(180)
-        .whileTrue(
-            new OrbitalTarget(
-                m_chassis,
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.TRANSLATION_PID,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.MOTION_LIMITS,
-                m_poseEstimator,
-                () -> Constants.ORBIT_RADIUS,
-                RobotConstants.ORBITAL_FF_CONSTANT));
-    m_driveController
         .leftBumper()
         .whileTrue(
             new FieldOrientedWithCardinal(
@@ -402,12 +390,25 @@ class CompetitionRobotContainer {
         .and(DriverStation::isDSAttached)
         .onTrue(Commands.runOnce(m_feedback::disabledColorPattern).ignoringDisable(true));
 
+    m_manipController
+        .x()
+        .whileTrue(
+            new VarFeedPrime(
+                    m_Shooter,
+                    m_Elevator,
+                    m_poseEstimator,
+                    RobotConstants.SHOOT_POINT,
+                    () -> RobotConstants.WRIST_PLOP_ANGLE,
+                    1 / RobotConstants.SHOOTER_RPM_TO_MPS)
+                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
+        .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
+
     // Where did the old spinup bind go?
     m_manipController
         .leftTrigger(0.5)
         .whileTrue(
             m_Shooter
-                .setSpeed(RobotConstants.SHOOTER_VEL)
+                .setSpeedCmd(RobotConstants.SHOOTER_VEL)
                 .alongWith(
                     new VarShootPrime(
                         m_Wrist,
@@ -419,7 +420,7 @@ class CompetitionRobotContainer {
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS,
                         RobotConstants.WRIST_HIGH_LIM)))
-        .onFalse(m_Shooter.setSpeed(0).alongWith(m_Wrist.stow()));
+        .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
@@ -467,7 +468,7 @@ class CompetitionRobotContainer {
                 .andThen(m_chassis.enableBrakeMode()));
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
-    RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeed(0).ignoringDisable(true));
+    RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeedCmd(0).ignoringDisable(true));
   }
 
   public Command pickUpNote() {
