@@ -98,18 +98,18 @@ public class Feedback extends SubsystemBase {
   }
 
   public void disabledColorPattern() {
-    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 14, Direction.Forward, 8);
+    ColorFlowAnimation cfa = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 15, Direction.Forward, 7);
     bracelet.clearAnimation(1);
     bracelet.clearAnimation(2);
     bracelet.clearAnimation(3);
     bracelet.clearAnimation(4);
     bracelet.animate(cfa, 1);
     ColorFlowAnimation cfa2 =
-        new ColorFlowAnimation(0, 255, 0, 255, 0.1, 14, Direction.Backward, 8);
+        new ColorFlowAnimation(0, 255, 0, 255, 0.1, 15, Direction.Backward, 7);
     bracelet.animate(cfa2, 2);
-    ColorFlowAnimation cfa3 = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 8, Direction.Forward, 0);
+    ColorFlowAnimation cfa3 = new ColorFlowAnimation(0, 0, 255, 255, 0.1, 7, Direction.Forward, 0);
     bracelet.animate(cfa3, 3);
-    ColorFlowAnimation cfa4 = new ColorFlowAnimation(0, 255, 0, 255, 0.1, 8, Direction.Backward, 0);
+    ColorFlowAnimation cfa4 = new ColorFlowAnimation(0, 255, 0, 255, 0.1, 7, Direction.Backward, 0);
     bracelet.animate(cfa4, 4);
   }
 
