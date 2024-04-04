@@ -78,6 +78,7 @@ public class VarFeedPrime extends Command {
     Logger.recordOutput("VarFeedPrime l", l);
 
     shooter.setSpeed(v / RPM_MPS);
+    Logger.recordOutput("VarFeedPrime setV", v / RPM_MPS);
   }
 
   @Override
