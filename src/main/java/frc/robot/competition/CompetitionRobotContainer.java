@@ -93,7 +93,7 @@ class CompetitionRobotContainer {
 
     PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
     PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
-    PhotonCamera portCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
+    PhotonCamera portCam = new PhotonCamera(RobotConstants.PORT_CAM_NAME);
 
     PhotonPoseEstimator sternCamPE =
         new PhotonPoseEstimator(
