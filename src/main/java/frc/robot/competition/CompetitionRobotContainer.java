@@ -399,7 +399,7 @@ class CompetitionRobotContainer {
                     m_poseEstimator,
                     RobotConstants.SHOOT_POINT,
                     () -> RobotConstants.WRIST_PLOP_ANGLE,
-                    RobotConstants.SHOOTER_RPM_TO_MPS)
+                    1 / RobotConstants.SHOOTER_RPM_TO_MPS)
                 .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
         .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
 

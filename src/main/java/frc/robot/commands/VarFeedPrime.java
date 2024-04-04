@@ -29,8 +29,8 @@ public class VarFeedPrime extends Command {
   // Translation of where the note exits in the XZ plane (side view)
   private final Translation2d shooterXZTrans;
 
-  private final DoubleSupplier wristAngle; // Range of velocity from min distance to max distance
-  private final double RPM_MPS;
+  private final DoubleSupplier wristAngle;
+  private final double MPS_RPM;
 
   /** Creates a new VarShootPrime. */
   public VarFeedPrime(
@@ -39,13 +39,13 @@ public class VarFeedPrime extends Command {
       PoseEstimator poseEstimator,
       Translation2d shooterXZTrans,
       DoubleSupplier wristAngle,
-      double RPM_MPS) {
+      double MPS_RPM) {
     this.shooter = shooter;
     this.elevator = elevator;
     this.poseEstimator = poseEstimator;
     this.shooterXZTrans = shooterXZTrans;
     this.wristAngle = wristAngle;
-    this.RPM_MPS = RPM_MPS;
+    this.MPS_RPM = MPS_RPM;
     // lInput = SmartDashboard.getEntry("VarFeedPrimeDist");
     // lInput.setPersistent();
     // lInput.setDefaultDouble(3);
@@ -68,23 +68,27 @@ public class VarFeedPrime extends Command {
     Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    double l = pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
+    double distanceToTarget =
+        pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
     // double l = lInput.getDouble(3);
 
-    double h = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
-    h = -h;
+    double heightToTarget = shooterXZTrans.getY() - Units.inchesToMeters(elevator.getElevatorPos());
+    // Inverts the heigh as we are shooting from the robot to the ground, but the calculations are
+    // always done from (0, 0) so we use this as our offset
+    heightToTarget = -heightToTarget;
 
     double theta = Math.toRadians(wristAngle.getAsDouble());
-    double calcV = calcVel(Constants.GRAVITY, l, h, theta);
-    double v = calcV == Double.NaN ? 0 : calcV;
+    double calcVel = calcVel(Constants.GRAVITY, distanceToTarget, heightToTarget, theta);
+    // Safety for NaN, probably should put this in the setSpeed() itself though
+    double vel = calcVel == Double.NaN ? 0 : calcVel;
 
     Logger.recordOutput("VarFeedPrime theta", theta);
-    Logger.recordOutput("VarFeedPrime h", h);
-    Logger.recordOutput("VarFeedPrime v", v);
-    Logger.recordOutput("VarFeedPrime l", l);
+    Logger.recordOutput("VarFeedPrime h", heightToTarget);
+    Logger.recordOutput("VarFeedPrime v", vel);
+    Logger.recordOutput("VarFeedPrime l", distanceToTarget);
 
-    shooter.setSpeed(v / RPM_MPS);
-    Logger.recordOutput("VarFeedPrime setV", v / RPM_MPS);
+    shooter.setSpeed(vel * MPS_RPM);
+    Logger.recordOutput("VarFeedPrime setV", vel * MPS_RPM);
   }
 
   @Override
