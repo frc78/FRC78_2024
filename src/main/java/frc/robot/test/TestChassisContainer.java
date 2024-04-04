@@ -78,7 +78,7 @@ class TestChassisContainer {
             RobotConstants.VISION_STD_DEVS,
             RobotConstants.SINGLE_TAG_STD_DEVS,
             RobotConstants.MULTI_TAG_STD_DEVS,
-            20);
+            RobotConstants.STD_DIVISOR);
 
     m_driveController = new CommandXboxController(0);
 
