@@ -139,22 +139,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "W1.C3(Note)"
-                }
-              }
-            ]
+            "pathName": "W1.C3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
@@ -202,22 +195,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "centScr.C4"
-                }
-              }
-            ]
+            "pathName": "centScr.C4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
