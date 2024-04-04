@@ -153,7 +153,7 @@ public class Shooter extends SubsystemBase {
         + (shooterBOTTOM.getVelocity().getValueAsDouble() * 0.5);
   }
 
-  public Command setSpeed(double setPoint) {
+  public Command setSpeedCmd(double setPoint) {
     return this.runOnce(
         () -> {
           if (slowShot.getBoolean(false)) {
@@ -162,6 +162,14 @@ public class Shooter extends SubsystemBase {
             this.setPIDReferenceBOTH(setPoint);
           }
         });
+  }
+
+  public void setSpeed(double setPoint) {
+    if (slowShot.getBoolean(false)) {
+      this.setPIDReferenceBOTH(Math.min(setPoint, slowShotSpeed));
+    } else {
+      this.setPIDReferenceBOTH(setPoint);
+    }
   }
 
   @Override
