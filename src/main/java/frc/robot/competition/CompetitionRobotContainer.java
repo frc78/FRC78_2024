@@ -199,7 +199,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
-            .withTimeout(0.5));
+            .withTimeout(1));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
     NamedCommands.registerCommand(
         "DriveToNote",
