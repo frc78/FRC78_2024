@@ -203,7 +203,9 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
     NamedCommands.registerCommand(
         "DriveToNote",
-        pickUpNote().deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1, 0, 0))));
+        pickUpNote()
+            .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1, 0, 0)))
+            .withTimeout(2));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
