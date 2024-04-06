@@ -194,7 +194,7 @@ class RobotConstants {
   //       new Range(SHOOTER_RPM_TO_MPS * 5000, SHOOTER_RPM_TO_MPS * 5001);
   public static final double SHOOTER_VEL = 4000; // RPM
   public static final Range DISTANCE_RANGE = new Range(1.25, 5);
-  public static final double HEIGHT_LENGTH_COEFF = 0.2;
+  public static final double HEIGHT_LENGTH_COEFF = 0.1;
   public static final double HIGH_DIST_COEFF = 2.7;
   public static final double STRAIGHT_DIST_COEFF = 1;
 }
