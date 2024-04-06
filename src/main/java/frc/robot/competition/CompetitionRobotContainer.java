@@ -491,7 +491,7 @@ class CompetitionRobotContainer {
     return m_feeder
         .intake()
         .deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55))
-        .withName("AutoPickup");
+        .withName("Pick Up Note");
   }
 
   public Command getAutonomousCommand() {

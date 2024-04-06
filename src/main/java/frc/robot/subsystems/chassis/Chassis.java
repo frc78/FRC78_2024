@@ -148,11 +148,13 @@ public class Chassis extends SubsystemBase {
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return drivetrainRoutine.quasistatic(direction);
+    return drivetrainRoutine.quasistatic(direction)
+    .withName("sysIDQuasistatic");
   }
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return drivetrainRoutine.dynamic(direction);
+    return drivetrainRoutine.dynamic(direction)
+    .withName("sysIDDynamic");
   }
 
   public Command enableAprilTags() {

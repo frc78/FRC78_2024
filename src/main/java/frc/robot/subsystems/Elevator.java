@@ -115,7 +115,8 @@ public class Elevator extends SubsystemBase {
           elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
           zeroed = true;
           this.setDefaultCommand(setToTarget(0));
-        });
+        })
+        .withName("Configure Motors After Zeroing");
   }
 
   public Command zeroElevator() {
@@ -130,7 +131,8 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(
         () ->
             profiledPid.setGoal(
-                encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)));
+                encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)))
+    .withName("Move Elevator Up");
   }
 
   /** Manually move elevator down by gradually moving the setpoint. */
@@ -138,7 +140,8 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(
         () ->
             profiledPid.setGoal(
-                encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)));
+                encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)))
+        .withName("Move Elevator Down");
   }
 
   public Command enableCoastMode() {

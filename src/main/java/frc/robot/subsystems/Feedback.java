@@ -41,7 +41,8 @@ public class Feedback extends SubsystemBase {
           } else {
             setMulti(Color.kBlue);
           }
-        });
+        })
+        .withName("SetAllianceColor");
   }
 
   public Command shooterWheelsAtSpeed() {
@@ -54,7 +55,8 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(4);
           bracelet.animate(sa, 1);
         },
-        this::off);
+        this::off)
+        .withName("ShooterWheelsAtSpeed");
   }
 
   public Command noteInCartridge() {
@@ -66,7 +68,8 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(4);
           bracelet.setLEDs(0, 255, 0);
         },
-        this::off);
+        this::off)
+        .withName("noteInCartridge");
   }
 
   public Command rainbows() {
@@ -82,7 +85,8 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(4);
           bracelet.setLEDs(255, 255, 0);
         },
-        this::off);
+        this::off)
+          .withName("IntakeCurrentSpike");
   }
 
   public Command turnOffLEDs() {
@@ -94,7 +98,8 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(4);
           bracelet.setLEDs(0, 0, 0);
         },
-        this::off);
+        this::off)
+          .withName("TurnOffLEDs");
   }
 
   public void disabledColorPattern() {
@@ -154,7 +159,8 @@ public class Feedback extends SubsystemBase {
           bracelet.clearAnimation(4);
           bracelet.setLEDs(
               ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
-        });
+        })
+          .withName("ColorSet");
   }
 
   public void off() {

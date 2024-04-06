@@ -74,7 +74,8 @@ public class Wrist extends SubsystemBase {
         () -> {
           target++;
           wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-        });
+        })
+        .withName("Increment Up");
   }
 
   public Command incrementDown() {
@@ -82,11 +83,13 @@ public class Wrist extends SubsystemBase {
         () -> {
           target--;
           wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-        });
+        })
+        .withName("IncrementDown");
   }
 
   public Command stow() {
-    return setToTargetCmd(stowPos).withName("Stow");
+    return setToTargetCmd(stowPos).withName("Stow")
+    .withName("Stow");
   }
 
   public Command enableCoastMode() {
