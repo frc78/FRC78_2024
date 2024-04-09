@@ -12,7 +12,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
@@ -51,9 +50,6 @@ public class VarFeedPrime extends Command {
     this.wristAngle = wristAngle;
     this.MPS_RPM = MPS_RPM;
     this.distCoeff = distCoeff;
-    lInput = SmartDashboard.getEntry("VarFeedPrimeDist");
-    lInput.setPersistent();
-    lInput.setDefaultDouble(3);
 
     addRequirements(shooter);
   }
