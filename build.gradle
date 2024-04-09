@@ -140,10 +140,14 @@ spotbugs {
     excludeFilter = file("$projectDir/exclude.xml")
 }
 
-tasks.spotbugsMain {
-    reports.create("html") {
-        required = true
-        outputLocation = file("$buildDir/reports/spotbugs.html")
-        setStylesheet("fancy-hist.xsl")
+spotbugsMain {
+    reports {
+        html {
+            required = true
+            stylesheet = 'fancy-hist.xsl'
+        }
+        xml {
+            required = true
+        }
     }
 }
