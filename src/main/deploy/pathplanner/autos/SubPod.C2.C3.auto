@@ -95,7 +95,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "PodScore.C3"
+            "pathName": "close.c2"
           }
         },
         {
@@ -117,7 +117,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C3.FarScore"
+                  "pathName": "C3.Score.Cent"
                 }
               },
               {
