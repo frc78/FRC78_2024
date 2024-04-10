@@ -37,22 +37,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PodStart.C2"
-                }
-              }
-            ]
+            "pathName": "PodStart.C2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
@@ -100,22 +93,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "PodScore.C3"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              }
-            ]
+            "pathName": "close.c2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DriveToNote"
           }
         },
         {
@@ -131,7 +117,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "C3.FarScore"
+                  "pathName": "C3.Score.Cent"
                 }
               },
               {

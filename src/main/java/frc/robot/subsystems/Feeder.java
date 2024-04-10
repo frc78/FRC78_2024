@@ -31,7 +31,6 @@ public class Feeder extends SubsystemBase {
     SmartDashboard.putData(this);
 
     // If no commands are using this subsystem, stop the motor
-
   }
 
   /**

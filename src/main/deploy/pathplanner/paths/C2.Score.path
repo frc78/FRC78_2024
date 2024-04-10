@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.90053582011926,
-        "y": 1.7513165692998056
+        "x": 4.994356350617464,
+        "y": 0.7505642439856312
       },
       "isLocked": false,
       "linkedName": "C2"
     },
     {
       "anchor": {
-        "x": 2.79739226145119,
-        "y": 3.432267740725958
+        "x": 1.3353556611875133,
+        "y": 4.143740097004003
       },
       "prevControl": {
-        "x": 3.461954352480134,
-        "y": 2.3767867726211644
+        "x": 2.1093750377976956,
+        "y": 3.3228104551447193
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "PodScore"
+      "linkedName": "PodScoreClose"
     }
   ],
   "rotationTargets": [],
