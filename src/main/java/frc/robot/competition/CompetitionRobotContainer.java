@@ -160,17 +160,20 @@ class CompetitionRobotContainer {
 
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
-    AmpSetUp = (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)));
+    AmpSetUp =
+        (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)).withName("Amp Set Up"));
 
     NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
 
     NamedCommands.registerCommand(
         "StartShooter", m_Shooter.setSpeedCmd(RobotConstants.AUTO_SHOOT_SPEED));
-    NamedCommands.registerCommand("Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()));
+    NamedCommands.registerCommand(
+        "Score", Commands.waitSeconds(0.5).andThen(m_feeder.shoot()).withName("Score"));
 
     NamedCommands.registerCommand("AmpSetUp", AmpSetUp);
-    NamedCommands.registerCommand("scoreInAmp", m_feeder.outtake().withTimeout(2));
+    NamedCommands.registerCommand(
+        "scoreInAmp", m_feeder.outtake().withTimeout(2).withName("scoreInAmp"));
     NamedCommands.registerCommand("stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "Target",
@@ -199,13 +202,15 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_CONSTRAINTS,
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
-            .withTimeout(1));
+            .withTimeout(1)
+            .withName("Target"));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
     NamedCommands.registerCommand(
         "DriveToNote",
         pickUpNote()
             .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1, 0, 0)))
-            .withTimeout(2));
+            .withTimeout(2)
+            .withName("Drive to Note"));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "VariableShoot",
@@ -266,7 +271,8 @@ class CompetitionRobotContainer {
     return Commands.startEnd(
             () -> controller.setRumble(rumbleType, 1),
             () -> controller.setRumble(RumbleType.kBothRumble, 0))
-        .withTimeout(0.5);
+        .withTimeout(0.5)
+        .withName("Rumble");
   }
 
   private void configureBindings() {
@@ -295,7 +301,8 @@ class CompetitionRobotContainer {
         .rightBumper()
         .whileTrue(
             pickUpNote()
-                .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds)));
+                .deadlineWith(new AlignToNote(m_chassis, m_baseDrive::calculateChassisSpeeds))
+                .withName("Auto Note Align"));
 
     m_driveController
         .leftBumper()
@@ -390,7 +397,10 @@ class CompetitionRobotContainer {
     // so onTrue never trips
     RobotModeTriggers.disabled()
         .and(DriverStation::isDSAttached)
-        .onTrue(Commands.runOnce(m_feedback::disabledColorPattern).ignoringDisable(true));
+        .onTrue(
+            Commands.runOnce(m_feedback::disabledColorPattern)
+                .ignoringDisable(true)
+                .withName("LEDs Disabled"));
 
     m_manipController
         .x()
@@ -404,8 +414,8 @@ class CompetitionRobotContainer {
                     1 / RobotConstants.SHOOTER_RPM_TO_MPS,
                     RobotConstants.STRAIGHT_DIST_COEFF)
                 .alongWith(
-                    m_chassis.lockWheels(),
-                    m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
+                    m_chassis.lockWheels(), m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE))
+                .withName("FlatShot"))
         .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
 
     m_manipController
@@ -438,8 +448,9 @@ class CompetitionRobotContainer {
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS,
-                        RobotConstants.WRIST_HIGH_LIM)))
-        .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()));
+                        RobotConstants.WRIST_HIGH_LIM))
+                .withName("Feed"))
+        .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()).withName("Feed End"));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
     m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
@@ -452,7 +463,11 @@ class CompetitionRobotContainer {
     // Amp position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTargetCmd(20).alongWith(m_Elevator.setToTarget(16.3)))
+        .whileTrue(
+            m_Wrist
+                .setToTargetCmd(20)
+                .alongWith(m_Elevator.setToTarget(16.3))
+                .withName("Amp Set-Up"))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
@@ -494,7 +509,7 @@ class CompetitionRobotContainer {
     return m_feeder
         .intake()
         .deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55))
-        .withName("AutoPickup");
+        .withName("Pick Up Note");
   }
 
   public Command getAutonomousCommand() {

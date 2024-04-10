@@ -106,16 +106,17 @@ public class Elevator extends SubsystemBase {
 
   private Command configureMotorsAfterZeroing() {
     return runOnce(
-        () -> {
-          encoder.setPosition(0);
-          profiledPid.setGoal(0);
-          elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
-          elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
-          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 16.4f);
-          elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
-          zeroed = true;
-          this.setDefaultCommand(setToTarget(0));
-        });
+            () -> {
+              encoder.setPosition(0);
+              profiledPid.setGoal(0);
+              elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, true);
+              elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, true);
+              elevNeoMotor1.setSoftLimit(SoftLimitDirection.kForward, 16.4f);
+              elevNeoMotor1.setSoftLimit(SoftLimitDirection.kReverse, 0);
+              zeroed = true;
+              this.setDefaultCommand(setToTarget(0));
+            })
+        .withName("Configure Motors After Zeroing");
   }
 
   public Command zeroElevator() {
@@ -128,17 +129,19 @@ public class Elevator extends SubsystemBase {
   /** Manually move elevator up by gradually moving the setpoint. */
   public Command moveElevatorUp() {
     return Commands.runOnce(
-        () ->
-            profiledPid.setGoal(
-                encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)));
+            () ->
+                profiledPid.setGoal(
+                    encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)))
+        .withName("Move Elevator Up");
   }
 
   /** Manually move elevator down by gradually moving the setpoint. */
   public Command moveElevatorDown() {
     return Commands.runOnce(
-        () ->
-            profiledPid.setGoal(
-                encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)));
+            () ->
+                profiledPid.setGoal(
+                    encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)))
+        .withName("Move Elevator Down");
   }
 
   public Command enableCoastMode() {
