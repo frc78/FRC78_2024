@@ -400,7 +400,9 @@ class CompetitionRobotContainer {
                     RobotConstants.SHOOT_POINT,
                     () -> RobotConstants.WRIST_PLOP_ANGLE,
                     1 / RobotConstants.SHOOTER_RPM_TO_MPS)
-                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
+                .alongWith(
+                    m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE),
+                    m_chassis.lockWheels()))
         .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
 
     // Where did the old spinup bind go?
@@ -419,7 +421,8 @@ class CompetitionRobotContainer {
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS,
-                        RobotConstants.WRIST_HIGH_LIM)))
+                        RobotConstants.WRIST_HIGH_LIM),
+                    m_chassis.lockWheels()))
         .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());

@@ -7,6 +7,7 @@ package frc.robot.subsystems.chassis;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -100,6 +101,16 @@ public class Chassis extends SubsystemBase {
     Logger.recordOutput("Setting States", states);
     Logger.recordOutput("Optimized States", optimizedStates);
     Logger.recordOutput("Real States", realStates);
+  }
+
+  public Command lockWheels() {
+    return this.runOnce(
+        () -> {
+          modules[0].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+          modules[1].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+          modules[2].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+          modules[3].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+        });
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
