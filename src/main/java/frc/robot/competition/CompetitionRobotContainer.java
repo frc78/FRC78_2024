@@ -397,7 +397,10 @@ class CompetitionRobotContainer {
     // so onTrue never trips
     RobotModeTriggers.disabled()
         .and(DriverStation::isDSAttached)
-        .onTrue(Commands.runOnce(m_feedback::disabledColorPattern).ignoringDisable(true).withName("LEDs Disabled"));
+        .onTrue(
+            Commands.runOnce(m_feedback::disabledColorPattern)
+                .ignoringDisable(true)
+                .withName("LEDs Disabled"));
 
     m_manipController
         .x()
@@ -410,8 +413,10 @@ class CompetitionRobotContainer {
                     () -> RobotConstants.WRIST_PLOP_ANGLE,
                     1 / RobotConstants.SHOOTER_RPM_TO_MPS,
                     RobotConstants.STRAIGHT_DIST_COEFF)
-                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE)))
-        .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM).withName("Flat Shot"));
+                .alongWith(
+                    m_chassis.lockWheels(), m_Wrist.setToTargetCmd(RobotConstants.WRIST_PLOP_ANGLE))
+                .withName("FlatShot"))
+        .onFalse(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM));
 
     m_manipController
         .b()
@@ -424,7 +429,8 @@ class CompetitionRobotContainer {
                     () -> RobotConstants.WRIST_HIGH_LIM,
                     1 / RobotConstants.SHOOTER_RPM_TO_MPS,
                     RobotConstants.HIGH_DIST_COEFF)
-                .alongWith(m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM)));
+                .alongWith(
+                    m_chassis.lockWheels(), m_Wrist.setToTargetCmd(RobotConstants.WRIST_HIGH_LIM)));
 
     // Where did the old spinup bind go?
     m_manipController
@@ -442,7 +448,8 @@ class CompetitionRobotContainer {
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS,
-                        RobotConstants.WRIST_HIGH_LIM)).withName("Feed"))
+                        RobotConstants.WRIST_HIGH_LIM))
+                .withName("Feed"))
         .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()).withName("Feed End"));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
@@ -456,7 +463,11 @@ class CompetitionRobotContainer {
     // Amp position
     m_manipController
         .y()
-        .whileTrue(m_Wrist.setToTargetCmd(20).alongWith(m_Elevator.setToTarget(16.3)).withName("Amp Set-Up"))
+        .whileTrue(
+            m_Wrist
+                .setToTargetCmd(20)
+                .alongWith(m_Elevator.setToTarget(16.3))
+                .withName("Amp Set-Up"))
         .onFalse(m_Wrist.stow());
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
