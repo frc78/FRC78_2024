@@ -108,8 +108,8 @@ public class Chassis extends SubsystemBase {
         () -> {
           modules[0].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
           modules[1].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
-          modules[2].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-          modules[3].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+          modules[2].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+          modules[3].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
         });
   }
 
