@@ -421,8 +421,7 @@ class CompetitionRobotContainer {
                         RobotConstants.DISTANCE_RANGE,
                         RobotConstants.HEIGHT_LENGTH_COEFF,
                         RobotConstants.SHOOTER_RPM_TO_MPS,
-                        RobotConstants.WRIST_HIGH_LIM),
-                    m_chassis.lockWheels()))
+                        RobotConstants.WRIST_HIGH_LIM)))
         .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()));
 
     m_testController.x().whileTrue(m_feedback.rainbows());
