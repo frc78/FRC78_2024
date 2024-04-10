@@ -155,13 +155,14 @@ public class Shooter extends SubsystemBase {
 
   public Command setSpeedCmd(double setPoint) {
     return this.runOnce(
-        () -> {
-          if (slowShot.getBoolean(false)) {
-            this.setPIDReferenceBOTH(Math.min(setPoint, slowShotSpeed));
-          } else {
-            this.setPIDReferenceBOTH(setPoint);
-          }
-        }).withName("Set Speed - Shooter");
+            () -> {
+              if (slowShot.getBoolean(false)) {
+                this.setPIDReferenceBOTH(Math.min(setPoint, slowShotSpeed));
+              } else {
+                this.setPIDReferenceBOTH(setPoint);
+              }
+            })
+        .withName("Set Speed - Shooter");
   }
 
   public void setSpeed(double setPoint) {
