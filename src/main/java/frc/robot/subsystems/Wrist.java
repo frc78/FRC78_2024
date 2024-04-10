@@ -71,25 +71,24 @@ public class Wrist extends SubsystemBase {
 
   public Command incrementUp() {
     return runOnce(
-        () -> {
-          target++;
-          wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-        })
+            () -> {
+              target++;
+              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
+            })
         .withName("Increment Up");
   }
 
   public Command incrementDown() {
     return runOnce(
-        () -> {
-          target--;
-          wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-        })
+            () -> {
+              target--;
+              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
+            })
         .withName("IncrementDown");
   }
 
   public Command stow() {
-    return setToTargetCmd(stowPos).withName("Stow")
-    .withName("Stow");
+    return setToTargetCmd(stowPos).withName("Stow").withName("Stow");
   }
 
   public Command enableCoastMode() {

@@ -34,41 +34,41 @@ public class Feedback extends SubsystemBase {
 
   public Command setAllianceColor() {
     return this.run(
-        () -> {
-          var a = DriverStation.getAlliance();
-          if (a.isPresent() && a.get().equals(Alliance.Red)) {
-            setMulti(Color.kRed);
-          } else {
-            setMulti(Color.kBlue);
-          }
-        })
+            () -> {
+              var a = DriverStation.getAlliance();
+              if (a.isPresent() && a.get().equals(Alliance.Red)) {
+                setMulti(Color.kRed);
+              } else {
+                setMulti(Color.kBlue);
+              }
+            })
         .withName("SetAllianceColor");
   }
 
   public Command shooterWheelsAtSpeed() {
     return this.startEnd(
-        () -> {
-          StrobeAnimation sa = new StrobeAnimation(0, 255, 0, 255, 0.2, 68, 0);
-          bracelet.clearAnimation(1);
-          bracelet.clearAnimation(2);
-          bracelet.clearAnimation(3);
-          bracelet.clearAnimation(4);
-          bracelet.animate(sa, 1);
-        },
-        this::off)
+            () -> {
+              StrobeAnimation sa = new StrobeAnimation(0, 255, 0, 255, 0.2, 68, 0);
+              bracelet.clearAnimation(1);
+              bracelet.clearAnimation(2);
+              bracelet.clearAnimation(3);
+              bracelet.clearAnimation(4);
+              bracelet.animate(sa, 1);
+            },
+            this::off)
         .withName("ShooterWheelsAtSpeed");
   }
 
   public Command noteInCartridge() {
     return this.startEnd(
-        () -> {
-          bracelet.clearAnimation(1);
-          bracelet.clearAnimation(2);
-          bracelet.clearAnimation(3);
-          bracelet.clearAnimation(4);
-          bracelet.setLEDs(0, 255, 0);
-        },
-        this::off)
+            () -> {
+              bracelet.clearAnimation(1);
+              bracelet.clearAnimation(2);
+              bracelet.clearAnimation(3);
+              bracelet.clearAnimation(4);
+              bracelet.setLEDs(0, 255, 0);
+            },
+            this::off)
         .withName("noteInCartridge");
   }
 
@@ -78,28 +78,28 @@ public class Feedback extends SubsystemBase {
 
   public Command intakeCurrentSpike() {
     return this.startEnd(
-        () -> {
-          bracelet.clearAnimation(1);
-          bracelet.clearAnimation(2);
-          bracelet.clearAnimation(3);
-          bracelet.clearAnimation(4);
-          bracelet.setLEDs(255, 255, 0);
-        },
-        this::off)
-          .withName("IntakeCurrentSpike");
+            () -> {
+              bracelet.clearAnimation(1);
+              bracelet.clearAnimation(2);
+              bracelet.clearAnimation(3);
+              bracelet.clearAnimation(4);
+              bracelet.setLEDs(255, 255, 0);
+            },
+            this::off)
+        .withName("IntakeCurrentSpike");
   }
 
   public Command turnOffLEDs() {
     return this.startEnd(
-        () -> {
-          bracelet.clearAnimation(1);
-          bracelet.clearAnimation(2);
-          bracelet.clearAnimation(3);
-          bracelet.clearAnimation(4);
-          bracelet.setLEDs(0, 0, 0);
-        },
-        this::off)
-          .withName("TurnOffLEDs");
+            () -> {
+              bracelet.clearAnimation(1);
+              bracelet.clearAnimation(2);
+              bracelet.clearAnimation(3);
+              bracelet.clearAnimation(4);
+              bracelet.setLEDs(0, 0, 0);
+            },
+            this::off)
+        .withName("TurnOffLEDs");
   }
 
   public void disabledColorPattern() {
@@ -152,15 +152,17 @@ public class Feedback extends SubsystemBase {
 
   public Command setColor(Color color) {
     return this.run(
-        () -> {
-          bracelet.clearAnimation(1);
-          bracelet.clearAnimation(2);
-          bracelet.clearAnimation(3);
-          bracelet.clearAnimation(4);
-          bracelet.setLEDs(
-              ((int) (color.red * 255)), ((int) (color.green * 255)), ((int) (color.blue * 255)));
-        })
-          .withName("ColorSet");
+            () -> {
+              bracelet.clearAnimation(1);
+              bracelet.clearAnimation(2);
+              bracelet.clearAnimation(3);
+              bracelet.clearAnimation(4);
+              bracelet.setLEDs(
+                  ((int) (color.red * 255)),
+                  ((int) (color.green * 255)),
+                  ((int) (color.blue * 255)));
+            })
+        .withName("ColorSet");
   }
 
   public void off() {
