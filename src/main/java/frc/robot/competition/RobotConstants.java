@@ -165,10 +165,10 @@ class RobotConstants {
           true,
           new Range(-1, 1),
           new Range(-1, 1),
-          new PIDConstants(0, 0, 0),
-          new PIDConstants(0, 0, 0),
-          new FFConstants(0.015904, 0.11136, 0.011126, 0.0),
-          new FFConstants(0.021249, 0.11118, 0.00941906, 0.0));
+          new PIDConstants(.15045, 0, 0),
+          new PIDConstants(0.14965, 0, 0),
+          new FFConstants(0.11599, 0.11275, 0.018537, 0.0),
+          new FFConstants(0.12435, 0.1115, 0.018978, 0.0));
 
   // Wrist Constants
   public static final int WRIST_ID = 13;

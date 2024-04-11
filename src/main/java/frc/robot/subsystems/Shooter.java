@@ -18,6 +18,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Structs.FFConstants;
@@ -100,12 +101,12 @@ public class Shooter extends SubsystemBase {
   }
 
   private void configureMotorsBeforeSysId() {
-    shooterTOP.getVelocity().setUpdateFrequency(1000);
-    shooterTOP.getMotorVoltage().setUpdateFrequency(1000);
-    shooterTOP.getPosition().setUpdateFrequency(1000);
-    shooterBOTTOM.getVelocity().setUpdateFrequency(1000);
-    shooterBOTTOM.getMotorVoltage().setUpdateFrequency(1000);
-    shooterBOTTOM.getPosition().setUpdateFrequency(1000);
+    shooterTOP.getVelocity().setUpdateFrequency(50);
+    shooterTOP.getMotorVoltage().setUpdateFrequency(50);
+    shooterTOP.getPosition().setUpdateFrequency(50);
+    shooterBOTTOM.getVelocity().setUpdateFrequency(50);
+    shooterBOTTOM.getMotorVoltage().setUpdateFrequency(50);
+    shooterBOTTOM.getPosition().setUpdateFrequency(50);
   }
 
   public void configureMotorsAfterSysId() {
@@ -117,16 +118,18 @@ public class Shooter extends SubsystemBase {
     shooterBOTTOM.getPosition().setUpdateFrequency(0);
   }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return runOnce(this::configureMotorsBeforeSysId)
-        .andThen(sysIdRoutine.quasistatic(direction))
-        .andThen(runOnce(this::configureMotorsAfterSysId));
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return runOnce(this::configureMotorsBeforeSysId)
-        .andThen(sysIdRoutine.dynamic(direction))
-        .andThen(runOnce(this::configureMotorsAfterSysId));
+  public Command sysIdRoutine() {
+    return Commands.sequence(
+        runOnce(this::configureMotorsBeforeSysId),
+        Commands.waitSeconds(1),
+        sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
+        Commands.waitSeconds(1),
+        sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
+        Commands.waitSeconds(1),
+        sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+        Commands.waitSeconds(1),
+        sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+        runOnce(this::configureMotorsAfterSysId));
   }
 
   public boolean isAtSpeed(double threshold) {

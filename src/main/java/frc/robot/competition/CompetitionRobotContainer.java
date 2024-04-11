@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.commands.AlignToNote;
 import frc.robot.commands.AlignToPose;
@@ -509,10 +508,7 @@ class CompetitionRobotContainer {
     // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
     // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
     // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
-    sysIdController.a().whileTrue(m_Shooter.sysIdDynamic(Direction.kForward));
-    sysIdController.b().whileTrue(m_Shooter.sysIdDynamic(Direction.kReverse));
-    sysIdController.x().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
-    sysIdController.y().whileTrue(m_Shooter.sysIdQuasistatic(Direction.kForward));
+    sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
 
     RobotModeTriggers.teleop()
         .onTrue(
