@@ -101,19 +101,15 @@ public class Shooter extends SubsystemBase {
   }
 
   private void configureMotorsBeforeSysId() {
-    shooterTOP.getVelocity().setUpdateFrequency(50);
     shooterTOP.getMotorVoltage().setUpdateFrequency(50);
     shooterTOP.getPosition().setUpdateFrequency(50);
-    shooterBOTTOM.getVelocity().setUpdateFrequency(50);
     shooterBOTTOM.getMotorVoltage().setUpdateFrequency(50);
     shooterBOTTOM.getPosition().setUpdateFrequency(50);
   }
 
   public void configureMotorsAfterSysId() {
-    shooterTOP.getVelocity().setUpdateFrequency(50);
     shooterTOP.getMotorVoltage().setUpdateFrequency(0);
     shooterTOP.getPosition().setUpdateFrequency(0);
-    shooterBOTTOM.getVelocity().setUpdateFrequency(50);
     shooterBOTTOM.getMotorVoltage().setUpdateFrequency(0);
     shooterBOTTOM.getPosition().setUpdateFrequency(0);
   }
