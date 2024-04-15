@@ -5,10 +5,6 @@
 package frc.robot.competition;
 
 import com.ctre.phoenix6.SignalLogger;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -27,11 +23,8 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 public class Robot extends LoggedRobot {
-  private Thread visionThread;
   private Command m_autonomousCommand;
 
   private CompetitionRobotContainer m_robotContainer;
@@ -96,33 +89,6 @@ public class Robot extends LoggedRobot {
     SignalLogger.setPath("/U/ctre-logs/");
     SignalLogger.start();
     m_robotContainer = new CompetitionRobotContainer();
-
-    // Driver camera
-
-    visionThread =
-        new Thread(
-            () -> {
-              UsbCamera camera = CameraServer.startAutomaticCapture();
-              camera.setResolution(640, 480);
-
-              CvSink cvSink = CameraServer.getVideo();
-              CvSource outputStream =
-                  CameraServer.putVideo(
-                      "INTAKE CAMERA", 320, 240); // Can edit camera resolution in ShuffleBoard
-
-              Mat source = new Mat();
-              Mat output = new Mat();
-
-              while (!Thread.interrupted()) {
-                if (cvSink.grabFrame(source) == 0) {
-                  continue;
-                }
-                Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
-                outputStream.putFrame(output);
-              }
-            });
-    visionThread.setDaemon(true);
-    // visionThread.start();
 
     Notifier poseNotifier = new Notifier(m_robotContainer.m_poseEstimator::update);
     poseNotifier.startPeriodic(.02);

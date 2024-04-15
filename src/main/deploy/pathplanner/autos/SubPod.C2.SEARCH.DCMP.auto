@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.2415351306893094,
-      "y": 4.253197382585242
+      "x": 1.304082151021445,
+      "y": 3.8310049953433243
     },
-    "rotation": -16.504361381755025
+    "rotation": -51.604835496753935
   },
   "command": {
     "type": "sequential",
@@ -18,94 +18,89 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score"
-          }
-        },
-        {
-          "type": "parallel",
+          "type": "deadline",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "SourceSide.SpeakerNote"
+                  "name": "Score"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake"
+                  "name": "VariableShoot"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StartShooter"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0
+            "pathName": "PodStart.C2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "DriveToNote"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
+          "data": {
+            "pathName": "C2.Score"
+          }
+        },
+        {
+          "type": "deadline",
           "data": {
             "commands": [
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "W1.W2"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Target"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Score"
+                      }
+                    }
+                  ]
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake"
+                  "name": "VariableShoot"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "ScoreFromW2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "pathName": "CloseScorePod.C1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "DriveToNote"
           }
         }
       ]
     }
   },
-  "folder": "The L Autos",
+  "folder": "3 Note Sides",
   "choreoAuto": false
 }

@@ -7,6 +7,7 @@ package frc.robot.subsystems.chassis;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -102,6 +103,16 @@ public class Chassis extends SubsystemBase {
     Logger.recordOutput("Real States", realStates);
   }
 
+  public Command lockWheels() {
+    return this.runOnce(
+        () -> {
+          modules[0].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+          modules[1].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+          modules[2].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
+          modules[3].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        });
+  }
+
   private void voltageDrive(Measure<Voltage> voltage) {
     // Iterate through each of the 4 swerve modules
     for (SwerveModule module : modules) {
@@ -148,11 +159,11 @@ public class Chassis extends SubsystemBase {
   }
 
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return drivetrainRoutine.quasistatic(direction);
+    return drivetrainRoutine.quasistatic(direction).withName("sysIDQuasistatic");
   }
 
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return drivetrainRoutine.dynamic(direction);
+    return drivetrainRoutine.dynamic(direction).withName("sysIDDynamic");
   }
 
   public Command enableAprilTags() {
