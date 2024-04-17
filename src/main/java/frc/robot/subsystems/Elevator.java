@@ -80,7 +80,7 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.getPIDController().setP(.144);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
-    profiledPid.setTolerance(0.1);
+    profiledPid.setTolerance(Units.inchesToMeters(0.1));
 
     reverseLimitSwitch = elevNeoMotor1.getReverseLimitSwitch(Type.kNormallyOpen);
 
