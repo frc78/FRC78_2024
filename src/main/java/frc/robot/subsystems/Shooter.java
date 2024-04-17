@@ -161,7 +161,7 @@ public class Shooter extends SubsystemBase {
                 this.setPIDReferenceBOTH(setPoint);
               }
             })
-        .withName("Set Speed - Shooter");
+        .withName("Set Speed [" + setPoint + "]");
   }
 
   public void setSpeed(double setPoint) {
