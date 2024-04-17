@@ -2,7 +2,7 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3979026815196491,
+      "x": 1.4448129467687512,
       "y": 5.566684809560096
     },
     "rotation": 0
@@ -37,9 +37,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "DriveToNote"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "SubCent.w2"
+                }
+              }
+            ]
           }
         },
         {
@@ -75,12 +88,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "W2.C3"
@@ -93,17 +100,17 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "path",
+          "data": {
+            "pathName": "C3.Score.Cent"
+          }
+        },
+        {
+          "type": "deadline",
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "C3.Score.Cent"
-                }
-              },
-              {
-                "type": "deadline",
+                "type": "sequential",
                 "data": {
                   "commands": [
                     {
@@ -115,7 +122,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "VariableShoot"
+                        "name": "Score"
                       }
                     }
                   ]
@@ -124,7 +131,58 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Score"
+                  "name": "VariableShoot"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CentScr.W1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Target"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Score"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "VariableShoot"
                 }
               }
             ]
@@ -133,6 +191,6 @@
       ]
     }
   },
-  "folder": "3 Note Sides",
+  "folder": null,
   "choreoAuto": false
 }

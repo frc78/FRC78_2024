@@ -80,6 +80,7 @@ public class Elevator extends SubsystemBase {
     elevNeoMotor1.getPIDController().setP(.144);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kForward, false);
     elevNeoMotor1.enableSoftLimit(SoftLimitDirection.kReverse, false);
+    profiledPid.setTolerance(Units.inchesToMeters(0.1));
 
     reverseLimitSwitch = elevNeoMotor1.getReverseLimitSwitch(Type.kNormallyOpen);
 
@@ -98,6 +99,10 @@ public class Elevator extends SubsystemBase {
 
   public boolean elevatorIsStowed() {
     return zeroed && encoder.getPosition() <= .5;
+  }
+
+  public boolean elevIsAtPos() {
+    return profiledPid.atGoal();
   }
 
   private Command lowerElevatorUntilLimitReached() {
