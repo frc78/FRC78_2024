@@ -17,6 +17,7 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -205,11 +206,24 @@ class CompetitionRobotContainer {
             .withTimeout(1)
             .withName("Target"));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
+    // NamedCommands.registerCommand(
+    //     "DriveToNote",
+    //     pickUpNote()
+    //         .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
+    //         .withTimeout(2)
+    //         .withName("Drive to Note"));
     NamedCommands.registerCommand(
         "DriveToNote",
         pickUpNote()
             .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
-            .withTimeout(2)
+            .until(
+                () -> {
+                  if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+                    return m_poseEstimator.getFusedPose().getX() > 8.25 + RobotConstants.CENTER_LINE_MARGIN;
+                  } else {
+                    return m_poseEstimator.getFusedPose().getX() < 8.25 - RobotConstants.CENTER_LINE_MARGIN;
+                  }
+                })
             .withName("Drive to Note"));
     NamedCommands.registerCommand("Stow", m_Wrist.stow());
     NamedCommands.registerCommand(

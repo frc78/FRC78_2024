@@ -185,6 +185,7 @@ class RobotConstants {
   public static final double AUTO_SHOOT_SPEED = 4000;
   public static final double AUTO_WRIST_SETPOINT = 0;
   public static final double WRIST_W2_TARGET = 35;
+  public static final double CENTER_LINE_MARGIN = 0;
 
   // AUTO WRIST
   public static final Translation2d SHOOT_POINT = new Translation2d(0, 0.56); // TODO
