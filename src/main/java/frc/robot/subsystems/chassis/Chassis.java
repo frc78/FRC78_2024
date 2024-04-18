@@ -104,13 +104,13 @@ public class Chassis extends SubsystemBase {
   }
 
   public Command lockWheels() {
-    return this.runOnce(
+    return this.startEnd(
         () -> {
           modules[0].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
           modules[1].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
           modules[2].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(135)));
           modules[3].setState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-        });
+        }, () ->{});
   }
 
   private void voltageDrive(Measure<Voltage> voltage) {
