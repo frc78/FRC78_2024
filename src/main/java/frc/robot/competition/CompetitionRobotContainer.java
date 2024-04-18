@@ -336,11 +336,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(0))); // was zero changed in b80 before wk4
 
-    m_driveController
-        .povDown()
-        .whileTrue(
-            m_chassis
-                .lockWheels());
+    m_driveController.povDown().whileTrue(m_chassis.lockWheels());
 
     m_driveController
         .a()
@@ -431,13 +427,13 @@ class CompetitionRobotContainer {
         .b()
         .whileTrue(
             new VarFeedPrime(
-                    m_Shooter,
-                    m_Elevator,
-                    m_poseEstimator,
-                    RobotConstants.SHOOT_POINT,
-                    () -> RobotConstants.WRIST_HIGH_LIM,
-                    1 / RobotConstants.SHOOTER_RPM_TO_MPS,
-                    RobotConstants.HIGH_DIST_COEFF));
+                m_Shooter,
+                m_Elevator,
+                m_poseEstimator,
+                RobotConstants.SHOOT_POINT,
+                () -> RobotConstants.WRIST_HIGH_LIM,
+                1 / RobotConstants.SHOOTER_RPM_TO_MPS,
+                RobotConstants.HIGH_DIST_COEFF));
 
     // Where did the old spinup bind go?
     m_manipController
