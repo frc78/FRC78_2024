@@ -219,9 +219,11 @@ class CompetitionRobotContainer {
             .until(
                 () -> {
                   if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-                    return m_poseEstimator.getFusedPose().getX() > 8.25 + RobotConstants.CENTER_LINE_MARGIN;
+                    return m_poseEstimator.getFusedPose().getX()
+                        > 8.25 + RobotConstants.CENTER_LINE_MARGIN;
                   } else {
-                    return m_poseEstimator.getFusedPose().getX() < 8.25 - RobotConstants.CENTER_LINE_MARGIN;
+                    return m_poseEstimator.getFusedPose().getX()
+                        < 8.25 - RobotConstants.CENTER_LINE_MARGIN;
                   }
                 })
             .withName("Drive to Note"));
