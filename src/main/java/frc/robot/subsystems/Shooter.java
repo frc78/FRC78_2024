@@ -70,6 +70,7 @@ public class Shooter extends SubsystemBase {
     shooterTOP.setInverted(config.flywheelTopInverted);
     shooterTopConfig.kS = config.flywheelTopFF.kS;
     shooterTopConfig.kV = config.flywheelTopFF.kV;
+    shooterTopConfig.kA = config.flywheelTopFF.kA;
     shooterTopConfig.kP = config.flywheelTopPID.kP;
     shooterTopConfig.kI = config.flywheelTopPID.kI;
     shooterTopConfig.kD = config.flywheelTopPID.kD;
@@ -80,6 +81,7 @@ public class Shooter extends SubsystemBase {
     shooterBOTTOM.setInverted(config.flywheelBottomInverted);
     shooterBottomConfig.kS = config.flywheelBottomFF.kS;
     shooterBottomConfig.kV = config.flywheelBottomFF.kV;
+    shooterBottomConfig.kA = config.flywheelBottomFF.kA;
     shooterBottomConfig.kP = config.flywheelBottomPID.kP;
     shooterBottomConfig.kI = config.flywheelBottomPID.kI;
     shooterBottomConfig.kD = config.flywheelBottomPID.kD;
@@ -134,12 +136,18 @@ public class Shooter extends SubsystemBase {
 
   private void setPIDReferenceTOP(double setPoint) {
     shooterTOP.setControl(
-        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kFF));
+        shooterTopVV
+            .withVelocity(setPoint / 60)
+            .withEnableFOC(true)
+            .withFeedForward(config.flywheelTopFF.kFF));
   }
 
   private void setPIDReferenceBOTTOM(double setPoint) {
     shooterBOTTOM.setControl(
-        shooterBottomVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kFF));
+        shooterBottomVV
+            .withVelocity(setPoint / 60)
+            .withEnableFOC(true)
+            .withFeedForward(config.flywheelTopFF.kFF));
   }
 
   private void setPIDReferenceBOTH(double setPoint) {
