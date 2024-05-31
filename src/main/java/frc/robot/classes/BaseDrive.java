@@ -47,10 +47,9 @@ public class BaseDrive {
     double speed = trigger * motionLimits.maxSpeed;
     double angularSpeed = trigger * motionLimits.maxAngularSpeed;
 
-    double x = xLimiter.calculate(Util.modifyJoystick(xSupplier.getAsDouble()) * speed);
-    double y = yLimiter.calculate(Util.modifyJoystick(ySupplier.getAsDouble()) * speed);
-    double rot =
-        thetaLimiter.calculate(Util.modifyJoystick(rotSupplier.getAsDouble()) * angularSpeed);
+    double x = Util.modifyJoystick(xSupplier.getAsDouble()) * speed;
+    double y = Util.modifyJoystick(ySupplier.getAsDouble()) * speed;
+    double rot = Util.modifyJoystick(rotSupplier.getAsDouble()) * angularSpeed;
 
     return new ChassisSpeeds(x, y, rot);
   }

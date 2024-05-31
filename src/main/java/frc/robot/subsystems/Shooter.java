@@ -18,6 +18,7 @@ import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Structs.FFConstants;
@@ -69,6 +70,7 @@ public class Shooter extends SubsystemBase {
     shooterTOP.setInverted(config.flywheelTopInverted);
     shooterTopConfig.kS = config.flywheelTopFF.kS;
     shooterTopConfig.kV = config.flywheelTopFF.kV;
+    shooterTopConfig.kA = config.flywheelTopFF.kA;
     shooterTopConfig.kP = config.flywheelTopPID.kP;
     shooterTopConfig.kI = config.flywheelTopPID.kI;
     shooterTopConfig.kD = config.flywheelTopPID.kD;
@@ -79,6 +81,7 @@ public class Shooter extends SubsystemBase {
     shooterBOTTOM.setInverted(config.flywheelBottomInverted);
     shooterBottomConfig.kS = config.flywheelBottomFF.kS;
     shooterBottomConfig.kV = config.flywheelBottomFF.kV;
+    shooterBottomConfig.kA = config.flywheelBottomFF.kA;
     shooterBottomConfig.kP = config.flywheelBottomPID.kP;
     shooterBottomConfig.kI = config.flywheelBottomPID.kI;
     shooterBottomConfig.kD = config.flywheelBottomPID.kD;
@@ -100,33 +103,31 @@ public class Shooter extends SubsystemBase {
   }
 
   private void configureMotorsBeforeSysId() {
-    shooterTOP.getVelocity().setUpdateFrequency(1000);
-    shooterTOP.getMotorVoltage().setUpdateFrequency(1000);
-    shooterTOP.getPosition().setUpdateFrequency(1000);
-    shooterBOTTOM.getVelocity().setUpdateFrequency(1000);
-    shooterBOTTOM.getMotorVoltage().setUpdateFrequency(1000);
-    shooterBOTTOM.getPosition().setUpdateFrequency(1000);
+    shooterTOP.getMotorVoltage().setUpdateFrequency(50);
+    shooterTOP.getPosition().setUpdateFrequency(50);
+    shooterBOTTOM.getMotorVoltage().setUpdateFrequency(50);
+    shooterBOTTOM.getPosition().setUpdateFrequency(50);
   }
 
   public void configureMotorsAfterSysId() {
-    shooterTOP.getVelocity().setUpdateFrequency(50);
     shooterTOP.getMotorVoltage().setUpdateFrequency(0);
     shooterTOP.getPosition().setUpdateFrequency(0);
-    shooterBOTTOM.getVelocity().setUpdateFrequency(50);
     shooterBOTTOM.getMotorVoltage().setUpdateFrequency(0);
     shooterBOTTOM.getPosition().setUpdateFrequency(0);
   }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return runOnce(this::configureMotorsBeforeSysId)
-        .andThen(sysIdRoutine.quasistatic(direction))
-        .andThen(runOnce(this::configureMotorsAfterSysId));
-  }
-
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return runOnce(this::configureMotorsBeforeSysId)
-        .andThen(sysIdRoutine.dynamic(direction))
-        .andThen(runOnce(this::configureMotorsAfterSysId));
+  public Command sysIdRoutine() {
+    return Commands.sequence(
+        runOnce(this::configureMotorsBeforeSysId),
+        Commands.waitSeconds(1),
+        sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
+        Commands.waitSeconds(1),
+        sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
+        Commands.waitSeconds(1),
+        sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
+        Commands.waitSeconds(1),
+        sysIdRoutine.quasistatic(SysIdRoutine.Direction.kReverse),
+        runOnce(this::configureMotorsAfterSysId));
   }
 
   public boolean isAtSpeed(double threshold) {
@@ -135,12 +136,18 @@ public class Shooter extends SubsystemBase {
 
   private void setPIDReferenceTOP(double setPoint) {
     shooterTOP.setControl(
-        shooterTopVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kFF));
+        shooterTopVV
+            .withVelocity(setPoint / 60)
+            .withEnableFOC(true)
+            .withFeedForward(config.flywheelTopFF.kFF));
   }
 
   private void setPIDReferenceBOTTOM(double setPoint) {
     shooterBOTTOM.setControl(
-        shooterBottomVV.withVelocity(setPoint / 60).withFeedForward(config.flywheelTopFF.kFF));
+        shooterBottomVV
+            .withVelocity(setPoint / 60)
+            .withEnableFOC(true)
+            .withFeedForward(config.flywheelTopFF.kFF));
   }
 
   private void setPIDReferenceBOTH(double setPoint) {
@@ -162,7 +169,7 @@ public class Shooter extends SubsystemBase {
                 this.setPIDReferenceBOTH(setPoint);
               }
             })
-        .withName("Set Speed - Shooter");
+        .withName("Set Speed [" + setPoint + "]");
   }
 
   public void setSpeed(double setPoint) {
