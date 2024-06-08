@@ -18,17 +18,17 @@ import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** Add your docs here. */
 public class PoseEstimator {
+
   private final Chassis chassis;
 
   private final SwerveDrivePoseEstimator swervePoseEstimator;
   private Transform2d vel;
   private Pose2d lastPose;
-  private final List<PhotonPoseEstimator> visionPoseEstimators;
+  private final List<NamedPhotonPoseEstimator> visionPoseEstimators;
   private final Pigeon2 pigeon;
 
   private final Matrix<N3, N1> singleTagStdDevs;
@@ -40,7 +40,7 @@ public class PoseEstimator {
       Chassis chassis,
       SwerveDriveKinematics kinematics,
       AprilTagFieldLayout aprilTagFieldLayout,
-      List<PhotonPoseEstimator> visionPoseEstimators,
+      List<NamedPhotonPoseEstimator> visionPoseEstimators,
       Pigeon2 pigeon,
       Matrix<N3, N1> stateStdDevs,
       Matrix<N3, N1> visionStdDevs,
@@ -70,8 +70,8 @@ public class PoseEstimator {
   }
 
   public void update() {
-    for (int i = 0; i < visionPoseEstimators.size(); i++) {
-      Optional<EstimatedRobotPose> estimatedPoseOptional = visionPoseEstimators.get(i).update();
+    for (NamedPhotonPoseEstimator poseEstimator : visionPoseEstimators) {
+      Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update();
 
       if (estimatedPoseOptional.isPresent()) {
         EstimatedRobotPose estimatedRobotPose = estimatedPoseOptional.get();
@@ -82,7 +82,7 @@ public class PoseEstimator {
         swervePoseEstimator.addVisionMeasurement(
             estPose, estimatedRobotPose.timestampSeconds, estStdDevs);
 
-        Logger.recordOutput("AT Estimate " + i, estPose);
+        Logger.recordOutput(poseEstimator.getName() + "Estimate", estPose);
       }
     }
 
@@ -115,15 +115,21 @@ public class PoseEstimator {
     double avgDist = 0;
     for (var tgt : targetsUsed) {
       var tagPose = aprilTagFieldLayout.getTagPose(tgt.getFiducialId());
-      if (tagPose.isEmpty()) continue;
+      if (tagPose.isEmpty()) {
+        continue;
+      }
       numTags++;
       avgDist +=
           tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
     }
-    if (numTags == 0) return estStdDevs;
+    if (numTags == 0) {
+      return estStdDevs;
+    }
     avgDist /= numTags;
     // Decrease std devs if multiple targets are visible
-    if (numTags > 1) estStdDevs = multiTagStdDevs;
+    if (numTags > 1) {
+      estStdDevs = multiTagStdDevs;
+    }
     // Increase std devs based on (average) distance
     // if (numTags == 1 && avgDist > 4)
     //   estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);

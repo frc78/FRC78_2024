@@ -45,6 +45,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
 import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.NamedPhotonPoseEstimator;
 import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
 import frc.robot.subsystems.chassis.SwerveModule;
@@ -55,6 +56,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
+
   public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
@@ -95,25 +97,28 @@ class CompetitionRobotContainer {
     PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
     PhotonCamera portCam = new PhotonCamera(RobotConstants.PORT_CAM_NAME);
 
-    PhotonPoseEstimator sternCamPE =
-        new PhotonPoseEstimator(
+    NamedPhotonPoseEstimator sternCamPE =
+        new NamedPhotonPoseEstimator(
             Constants.APRIL_TAG_FIELD_LAYOUT,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             sternCam,
-            RobotConstants.STERN_CAM_POSE);
+            RobotConstants.STERN_CAM_POSE,
+            RobotConstants.STERN_CAM_NAME);
 
-    PhotonPoseEstimator starboardCamPE =
-        new PhotonPoseEstimator(
+    NamedPhotonPoseEstimator starboardCamPE =
+        new NamedPhotonPoseEstimator(
             Constants.APRIL_TAG_FIELD_LAYOUT,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             starboardCam,
-            RobotConstants.STARBOARD_CAM_POSE);
-    PhotonPoseEstimator portCamPE =
-        new PhotonPoseEstimator(
+            RobotConstants.STARBOARD_CAM_POSE,
+            RobotConstants.STARBOARD_CAM_NAME);
+    NamedPhotonPoseEstimator portCamPE =
+        new NamedPhotonPoseEstimator(
             Constants.APRIL_TAG_FIELD_LAYOUT,
             PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             portCam,
-            RobotConstants.PORT_CAM_POSE);
+            RobotConstants.PORT_CAM_POSE,
+            RobotConstants.PORT_CAM_NAME);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
     m_poseEstimator =
