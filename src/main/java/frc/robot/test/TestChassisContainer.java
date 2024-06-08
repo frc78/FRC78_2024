@@ -18,7 +18,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.classes.BaseDrive;
-import frc.robot.commands.*;
+import frc.robot.commands.AlignToPose;
+import frc.robot.commands.DriveToNote;
+import frc.robot.commands.FieldOrientedDrive;
+import frc.robot.commands.FieldOrientedWithCardinal;
+import frc.robot.commands.OrbitalTarget;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.chassis.Chassis;
 import frc.robot.subsystems.chassis.NamedPhotonPoseEstimator;
@@ -31,6 +35,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 class TestChassisContainer {
+
   public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
@@ -61,11 +66,10 @@ class TestChassisContainer {
 
     NamedPhotonPoseEstimator poseEstimator =
         new NamedPhotonPoseEstimator(
-            new PhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                camera,
-                RobotConstants.CAM1_OFFSET),
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            camera,
+            RobotConstants.CAM1_OFFSET,
             RobotConstants.AT_CAMERA_NAME);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);

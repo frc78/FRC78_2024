@@ -56,6 +56,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
+
   public final Chassis m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
@@ -98,28 +99,25 @@ class CompetitionRobotContainer {
 
     NamedPhotonPoseEstimator sternCamPE =
         new NamedPhotonPoseEstimator(
-            new PhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                sternCam,
-                RobotConstants.STERN_CAM_POSE),
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            sternCam,
+            RobotConstants.STERN_CAM_POSE,
             RobotConstants.STERN_CAM_NAME);
 
     NamedPhotonPoseEstimator starboardCamPE =
         new NamedPhotonPoseEstimator(
-            new PhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                starboardCam,
-                RobotConstants.STARBOARD_CAM_POSE),
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            starboardCam,
+            RobotConstants.STARBOARD_CAM_POSE,
             RobotConstants.STARBOARD_CAM_NAME);
     NamedPhotonPoseEstimator portCamPE =
         new NamedPhotonPoseEstimator(
-            new PhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                portCam,
-                RobotConstants.PORT_CAM_POSE),
+            Constants.APRIL_TAG_FIELD_LAYOUT,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            portCam,
+            RobotConstants.PORT_CAM_POSE,
             RobotConstants.PORT_CAM_NAME);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);

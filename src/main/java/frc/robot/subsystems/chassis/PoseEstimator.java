@@ -22,6 +22,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 /** Add your docs here. */
 public class PoseEstimator {
+
   private final Chassis chassis;
 
   private final SwerveDrivePoseEstimator swervePoseEstimator;
@@ -70,8 +71,7 @@ public class PoseEstimator {
 
   public void update() {
     for (NamedPhotonPoseEstimator poseEstimator : visionPoseEstimators) {
-      Optional<EstimatedRobotPose> estimatedPoseOptional =
-          poseEstimator.getPoseEstimator().update();
+      Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update();
 
       if (estimatedPoseOptional.isPresent()) {
         EstimatedRobotPose estimatedRobotPose = estimatedPoseOptional.get();
@@ -115,15 +115,21 @@ public class PoseEstimator {
     double avgDist = 0;
     for (var tgt : targetsUsed) {
       var tagPose = aprilTagFieldLayout.getTagPose(tgt.getFiducialId());
-      if (tagPose.isEmpty()) continue;
+      if (tagPose.isEmpty()) {
+        continue;
+      }
       numTags++;
       avgDist +=
           tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
     }
-    if (numTags == 0) return estStdDevs;
+    if (numTags == 0) {
+      return estStdDevs;
+    }
     avgDist /= numTags;
     // Decrease std devs if multiple targets are visible
-    if (numTags > 1) estStdDevs = multiTagStdDevs;
+    if (numTags > 1) {
+      estStdDevs = multiTagStdDevs;
+    }
     // Increase std devs based on (average) distance
     // if (numTags == 1 && avgDist > 4)
     //   estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
