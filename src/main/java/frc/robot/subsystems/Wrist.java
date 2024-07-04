@@ -4,54 +4,53 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.reduxrobotics.sensors.canandmag.Canandmag;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
 
-  private CANSparkMax wristNeo;
-  private AbsoluteEncoder encoder;
+  private TalonFX motor;
+  private final PositionVoltage m_positionVoltage = new PositionVoltage(0).withSlot(0);
+  private Canandmag encoder;
   private double stowPos = 55;
   private double target = 0;
 
   /** Creates a new Wrist. */
   public Wrist(int WRIST_ID, float WRIST_HIGH_LIM, float WRIST_LOW_LIM) {
-    wristNeo = new CANSparkMax(WRIST_ID, MotorType.kBrushless);
+    motor = new TalonFX(WRIST_ID, "RIZZLER");
 
-    wristNeo.restoreFactoryDefaults();
+    TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    wristNeo.setIdleMode(IdleMode.kBrake);
+    motorConfiguration.Feedback.SensorToMechanismRatio = 108;
 
-    encoder = wristNeo.getAbsoluteEncoder(Type.kDutyCycle);
-    encoder.setPositionConversionFactor(360);
-    wristNeo.getPIDController().setFeedbackDevice(encoder);
-    wristNeo.getPIDController().setPositionPIDWrappingEnabled(true);
-    wristNeo.getPIDController().setPositionPIDWrappingMinInput(0);
-    wristNeo.getPIDController().setPositionPIDWrappingMaxInput(360);
-    wristNeo.getPIDController().setP(.03);
+    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-    encoder.setInverted(true);
-    encoder.setZeroOffset(0);
+    encoder = new Canandmag(1);
+    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+    motorConfiguration.Slot0.kP = .03;
 
-    wristNeo.setSoftLimit(SoftLimitDirection.kForward, WRIST_HIGH_LIM);
-    wristNeo.setSoftLimit(SoftLimitDirection.kReverse, WRIST_LOW_LIM);
+    Canandmag.Settings settings = new Canandmag.Settings();
+    settings.setInvertDirection(true);
 
-    wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
-    wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = WRIST_LOW_LIM;
+    motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = WRIST_HIGH_LIM;
 
-    Util.setRevStatusRates(wristNeo, 10, 20, 32767, 32767, 32767, 20, 32767, 32767);
+    motor.getPosition().setUpdateFrequency(50);
+    motor.optimizeBusUtilization();
+
+    motor.getConfigurator().apply(motorConfiguration);
 
     SmartDashboard.putData(this);
     SmartDashboard.putData(enableBrakeMode());
@@ -60,31 +59,13 @@ public class Wrist extends SubsystemBase {
 
   public Command setToTargetCmd(double target) {
     this.target = target;
-    return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition))
+    return runOnce(() -> motor.setControl(m_positionVoltage.withPosition(target)))
         .withName("setGoal[" + target + "]");
   }
 
   public void setToTarget(double target) {
     this.target = target;
-    wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-  }
-
-  public Command incrementUp() {
-    return runOnce(
-            () -> {
-              target++;
-              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-            })
-        .withName("Increment Up");
-  }
-
-  public Command incrementDown() {
-    return runOnce(
-            () -> {
-              target--;
-              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-            })
-        .withName("IncrementDown");
+    motor.setControl(m_positionVoltage.withPosition(target));
   }
 
   public Command stow() {
@@ -92,14 +73,16 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command enableCoastMode() {
-    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kCoast))
+    MotorOutputConfigs config = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast);
+    return Commands.runOnce(() -> motor.getConfigurator().apply(config))
         .andThen(new PrintCommand("Coast Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Coast");
   }
 
   public Command enableBrakeMode() {
-    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kBrake))
+    MotorOutputConfigs config = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake);
+    return Commands.runOnce(() -> motor.getConfigurator().apply(config))
         .andThen(new PrintCommand("Brake Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Brake");
