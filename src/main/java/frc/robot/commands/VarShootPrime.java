@@ -98,11 +98,15 @@ public class VarShootPrime extends Command {
 
   // Source? It was revealed to me by a wise tree in a dream
   // JK this https://en.wikipedia.org/wiki/Projectile_motion
-  private double calcTheta(double g, double l, double h, double v) {
-    double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
-    double numerator = (v * v) - Math.sqrt(sqrt);
-    double denominator = g * l;
+  // private double calcTheta(double g, double l, double h, double v) {
+  //   double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
+  //   double numerator = (v * v) - Math.sqrt(sqrt);
+  //   double denominator = g * l;
 
-    return Math.atan(numerator / denominator);
+  //   return Math.atan(numerator / denominator);
+  // }
+
+  private double calcTheta(double g, double l, double h, double v) {
+    double nominator = 
   }
 }
