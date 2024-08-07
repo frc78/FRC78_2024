@@ -55,6 +55,12 @@ public class Wrist extends SubsystemBase {
     SmartDashboard.putData(this);
     SmartDashboard.putData(enableBrakeMode());
     SmartDashboard.putData(enableCoastMode());
+
+    // Read the current position of the absolute encoder (redux encoder)
+    double abspos = encoder.getAbsPosition();
+
+    // Set the talon internal encoder to absolute encoder position
+    motor.setPosition(abspos);
   }
 
   public Command setToTargetCmd(double target) {
@@ -96,5 +102,6 @@ public class Wrist extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
+    Logger.recordOutput("Wrist Abs Enc Pos", encoder.getAbsPosition());
   }
 }
