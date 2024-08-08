@@ -16,8 +16,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.Notifier;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,12 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Structs.MotionLimits;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
-
-public class Chassis extends SwerveDrivetrain {
+public class Chassis extends SubsystemBase {
   private final SwerveModule[] modules = new SwerveModule[4];
 
   private final SwerveDriveKinematics kinematics;
@@ -41,7 +34,8 @@ public class Chassis extends SwerveDrivetrain {
 
   private NetworkTable table;
 
-  public Chassis(SwerveDrivetrainConstants driveTrainConstants, SwerveDriveKinematics kinematics, MotionLimits motionLimits, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+  public Chassis(
+      SwerveModule[] modules, SwerveDriveKinematics kinematics, MotionLimits motionLimits) {
     // It reads the number of modules from the RobotConstants
     System.arraycopy(modules, 0, this.modules, 0, modules.length);
     this.kinematics = kinematics;
@@ -52,8 +46,7 @@ public class Chassis extends SwerveDrivetrain {
     SmartDashboard.putData(enableCoastMode());
 
     table = NetworkTableInstance.getDefault().getTable("limelight");
-        super(driveTrainConstants, OdometryUpdateFrequency, modules);
-    }
+  }
 
   public void setBrake(Boolean y) {
     for (SwerveModule module : modules) {
