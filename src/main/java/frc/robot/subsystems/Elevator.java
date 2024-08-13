@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -102,7 +103,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean elevatorIsStowed() {
-    return zeroed && encoder.getPosition() <= .5;
+    return zeroed && leader.getPosition().getValue() <= .5;
   }
 
   public boolean elevIsAtPos() {
@@ -116,9 +117,9 @@ public class Elevator extends SubsystemBase {
   private Command configureMotorsAfterZeroing() {
     return runOnce(
             () -> {
-              encoder.setPosition(0);
+              leader.setPosition(0);
               profiledPid.setGoal(0);
-              leader.enableSoftLimit(SoftLimitDirection.kForward, true);
+              leader.enableSoftLimit(limitdire.kForward, true);
               leader.enableSoftLimit(SoftLimitDirection.kReverse, true);
               leader.setSoftLimit(SoftLimitDirection.kForward, 16.4f);
               leader.setSoftLimit(SoftLimitDirection.kReverse, 0);
@@ -140,7 +141,7 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(
             () ->
                 profiledPid.setGoal(
-                    encoder.getPosition() + manualSpeed.times(kDt).in(InchesPerSecond)))
+                    leader.getPosition().getValue() + manualSpeed.times(kDt).in(InchesPerSecond)))
         .withName("Move Elevator Up");
   }
 
@@ -149,7 +150,7 @@ public class Elevator extends SubsystemBase {
     return Commands.runOnce(
             () ->
                 profiledPid.setGoal(
-                    encoder.getPosition() - manualSpeed.times(kDt).in(InchesPerSecond)))
+                    leader.getPosition().getValue() - manualSpeed.times(kDt).in(InchesPerSecond)))
         .withName("Move Elevator Down");
   }
 
@@ -178,7 +179,7 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     Logger.recordOutput("Elevator/limit pressed", reverseLimitSwitch.isPressed());
     Logger.recordOutput("Elevator/zeroed", zeroed);
-    Logger.recordOutput("Elevator/position", encoder.getPosition());
+    Logger.recordOutput("Elevator/position", leader.getPosition().getValue());
     Logger.recordOutput("Elevator/reverse limit reached", leader.getFault(FaultID.kSoftLimitRev));
     Logger.recordOutput("Elevator/forward limit reached", leader.getFault(FaultID.kSoftLimitFwd));
     Logger.recordOutput("Elevator/PIDoutput", profiledPid.getPositionError());
@@ -188,7 +189,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public double getElevatorPos() {
-    return encoder.getPosition();
+    return leader.getPosition().getValue();
   }
 
   /** Moves elevator to target as long as elevator is zeroed */
@@ -202,7 +203,7 @@ public class Elevator extends SubsystemBase {
                 () -> {
                   if (!zeroed) return;
                   appliedOutput =
-                      profiledPid.calculate(Units.inchesToMeters(encoder.getPosition()))
+                      profiledPid.calculate(Units.inchesToMeters(leader.getPosition().getValue()))
                           + feedforward.calculate(
                               MetersPerSecond.of(profiledPid.getSetpoint().velocity)
                                   .in(InchesPerSecond));
