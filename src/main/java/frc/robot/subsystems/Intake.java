@@ -21,7 +21,7 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake(int intakeTopId, int intakeBottomId, double intakeSpeed, double outtakeSpeed) {
-    intakeTop = new TalonFX(intakeBottomId, "RIZZLER");
+    intakeTop = new TalonFX(intakeTopId, "RIZZLER");
     intakeBottom = new TalonFX(intakeBottomId, "RIZZLER");
 
     TalonFXConfiguration intakeTopConfiguration = new TalonFXConfiguration();
