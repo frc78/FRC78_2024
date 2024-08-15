@@ -9,10 +9,15 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Second;
 
 import com.ctre.phoenix.motorcontrol.*;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.ReverseLimitValue;
+
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -32,6 +37,8 @@ public class Elevator extends SubsystemBase {
   private TalonFX leader;
   private TalonFX follower;
 
+  MotionMagicVoltage control = new MotionMagicVoltage(0);
+
   // private SparkLimitSwitch reverseLimitSwitch;
   private boolean zeroed = false;
 
@@ -47,38 +54,32 @@ public class Elevator extends SubsystemBase {
   private static final double kDt = 0.02;
   private double appliedOutput = 0;
 
-  private final Measure<Velocity<Distance>> manualSpeed = InchesPerSecond.of(1);
-
-  private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kS, kG, kV, kA);
-  private final ProfiledPIDController profiledPid =
-      new ProfiledPIDController(
-          180,
-          0,
-          0,
-          new TrapezoidProfile.Constraints(
-              InchesPerSecond.of(15), InchesPerSecond.per(Second).of(80)),
-          kDt);
-
   public Elevator() {
-    leader = new TalonFX(11);
-    follower = new TalonFX(12);
+    leader = new TalonFX(11, "*");
+    follower = new TalonFX(12, "*");
 
     TalonFXConfiguration configs = new TalonFXConfiguration();
     configs.Feedback.SensorToMechanismRatio = (1.29 * Math.PI) / 25;
     configs.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
     configs.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+    configs.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 0;
     configs.Slot0.kP = 1;
     configs.Slot0.kI = 0;
     configs.Slot0.kD = 10;
     configs.Slot0.kV = 2;
+    configs.Slot0.kS = 0.070936;
+    configs.Slot0.kV = 0.79005;
+    configs.Slot0.kA = 0.086892;
+    configs.Slot0.kG = 0.088056;
+    configs.MotionMagic.MotionMagicAcceleration = 80f;
+    configs.MotionMagic.MotionMagicCruiseVelocity = 15f;
+    configs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     leader.getConfigurator().apply(configs);
-    follower.getConfigurator().apply(configs);
+    follower.setControl(new Follower(11, true));
 
     leader.setNeutralMode(NeutralModeValue.Brake);
     follower.setNeutralMode(NeutralModeValue.Brake);
-
-    profiledPid.setTolerance(Units.inchesToMeters(0.1));
 
     // reverseLimitSwitch = leader.getReverseLimitSwitch(Type.kNormallyOpen);
 
@@ -98,7 +99,6 @@ public class Elevator extends SubsystemBase {
     this.setDefaultCommand(setToTarget(0));
     SmartDashboard.putData(enableCoastMode());
     SmartDashboard.putData(enableBrakeMode());
-    SmartDashboard.putData("Elevator Profile", profiledPid);
     SmartDashboard.putData(this);
   }
 
@@ -107,22 +107,24 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean elevIsAtPos() {
-    return profiledPid.atGoal();
+    var actualPos = leader.getPosition().getValue();
+    var targetPos = control.Position;
+    
+    return Math.abs(actualPos - targetPos) <= 0.1f;
   }
 
   private Command lowerElevatorUntilLimitReached() {
-    return run(() -> leader.set(-.1)).until(() -> reverseLimitSwitch.isPressed());
+    return run(() -> leader.set(-.1)).until(() -> leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround);
   }
 
   private Command configureMotorsAfterZeroing() {
     return runOnce(
             () -> {
+              var limitConfigs = new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true).withForwardSoftLimitThreshold(17f).withReverseSoftLimitEnable(true).withReverseSoftLimitThreshold(0);
+
+              leader.getConfigurator().apply(limitConfigs);
+
               leader.setPosition(0);
-              profiledPid.setGoal(0);
-              leader.enableSoftLimit(limitdire.kForward, true);
-              leader.enableSoftLimit(SoftLimitDirection.kReverse, true);
-              leader.setSoftLimit(SoftLimitDirection.kForward, 16.4f);
-              leader.setSoftLimit(SoftLimitDirection.kReverse, 0);
               zeroed = true;
               this.setDefaultCommand(setToTarget(0));
             })
@@ -134,24 +136,6 @@ public class Elevator extends SubsystemBase {
         .andThen(configureMotorsAfterZeroing())
         .withInterruptBehavior(Command.InterruptionBehavior.kCancelIncoming)
         .withName("Zero Elevator");
-  }
-
-  /** Manually move elevator up by gradually moving the setpoint. */
-  public Command moveElevatorUp() {
-    return Commands.runOnce(
-            () ->
-                profiledPid.setGoal(
-                    leader.getPosition().getValue() + manualSpeed.times(kDt).in(InchesPerSecond)))
-        .withName("Move Elevator Up");
-  }
-
-  /** Manually move elevator down by gradually moving the setpoint. */
-  public Command moveElevatorDown() {
-    return Commands.runOnce(
-            () ->
-                profiledPid.setGoal(
-                    leader.getPosition().getValue() - manualSpeed.times(kDt).in(InchesPerSecond)))
-        .withName("Move Elevator Down");
   }
 
   public Command enableCoastMode() {
@@ -177,15 +161,9 @@ public class Elevator extends SubsystemBase {
   }
 
   public void periodic() {
-    Logger.recordOutput("Elevator/limit pressed", reverseLimitSwitch.isPressed());
+    Logger.recordOutput("Elevator/limit pressed", leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround);
     Logger.recordOutput("Elevator/zeroed", zeroed);
     Logger.recordOutput("Elevator/position", leader.getPosition().getValue());
-    Logger.recordOutput("Elevator/reverse limit reached", leader.getFault(FaultID.kSoftLimitRev));
-    Logger.recordOutput("Elevator/forward limit reached", leader.getFault(FaultID.kSoftLimitFwd));
-    Logger.recordOutput("Elevator/PIDoutput", profiledPid.getPositionError());
-    Logger.recordOutput("Elevator/Profile Velocity", profiledPid.getSetpoint().velocity);
-    Logger.recordOutput("Elevator/AppliedVoltage", appliedOutput);
-    Logger.recordOutput("Elevator/Goal", profiledPid.getSetpoint().position);
   }
 
   public double getElevatorPos() {
@@ -194,21 +172,11 @@ public class Elevator extends SubsystemBase {
 
   /** Moves elevator to target as long as elevator is zeroed */
   public Command setToTarget(double target) {
-    return runOnce(
-            () -> {
-              profiledPid.setGoal(Units.inchesToMeters(target));
-            })
-        .andThen(
-            run(
-                () -> {
-                  if (!zeroed) return;
-                  appliedOutput =
-                      profiledPid.calculate(Units.inchesToMeters(leader.getPosition().getValue()))
-                          + feedforward.calculate(
-                              MetersPerSecond.of(profiledPid.getSetpoint().velocity)
-                                  .in(InchesPerSecond));
-                  elevFalconMotor1.setVoltage(appliedOutput);
-                }))
-        .withName("setTo[" + target + "]");
+    return runOnce(() -> {
+      if (zeroed) {
+        control.Position = target;
+        leader.setControl(control);
+      }
+    }).withName("setTo[" + target + "]");
   }
 }
