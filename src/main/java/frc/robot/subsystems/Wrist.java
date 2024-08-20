@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -27,19 +28,22 @@ public class Wrist extends SubsystemBase {
 
   /** Creates a new Wrist. */
   public Wrist(int WRIST_ID, float WRIST_HIGH_LIM, float WRIST_LOW_LIM) {
-    motor = new TalonFX(WRIST_ID, "RIZZLER");
+    motor = new TalonFX(WRIST_ID, "*");
 
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 108;
+    motorConfiguration.Feedback.SensorToMechanismRatio = 108.0 / 360;
 
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
     encoder = new Canandmag(1);
+    Canandmag.Settings settings = new Canandmag.Settings();
+    settings.setInvertDirection(true);
+    encoder.getInternalSettingsManager().setSettings(settings, -1);
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
     motorConfiguration.Slot0.kP = .03;
 
-    Canandmag.Settings settings = new Canandmag.Settings();
     settings.setInvertDirection(true);
 
     motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
@@ -48,6 +52,7 @@ public class Wrist extends SubsystemBase {
     motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = WRIST_HIGH_LIM;
 
     motor.getPosition().setUpdateFrequency(50);
+    motor.getRotorPosition().setUpdateFrequency(50);
     motor.optimizeBusUtilization();
 
     motor.getConfigurator().apply(motorConfiguration);
@@ -103,5 +108,6 @@ public class Wrist extends SubsystemBase {
     // This method will be called once per scheduler run
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
     Logger.recordOutput("Wrist Abs Enc Pos", encoder.getAbsPosition());
+    Logger.recordOutput("Wrist Motor Position", motor.getPosition().getValue());
   }
 }
