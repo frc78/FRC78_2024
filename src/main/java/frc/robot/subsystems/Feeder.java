@@ -23,7 +23,7 @@ public class Feeder extends SubsystemBase {
 
   /** Creates a new Feed. */
   public Feeder(int feedID) {
-    feedMotor = new TalonFX(feedID);
+    feedMotor = new TalonFX(feedID, "*");
     feedMotor.getForwardLimit().setUpdateFrequency(100);
 
     feedMotor.optimizeBusUtilization();
