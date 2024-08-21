@@ -5,6 +5,7 @@
 package frc.robot.competition;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -34,6 +35,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
+    CanandEventLoop.getInstance();
     CommandScheduler.getInstance()
         .onCommandInitialize(
             (command) -> {

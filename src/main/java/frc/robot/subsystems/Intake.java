@@ -4,34 +4,42 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.classes.Util;
 
 public class Intake extends SubsystemBase {
 
-  private CANSparkMax intakeTop;
-  private CANSparkMax intakeBottom;
+  private TalonFX intakeTop;
+  private TalonFX intakeBottom;
 
   private double intakeSpeed;
   private double outtakeSpeed;
 
   /** Creates a new Intake. */
   public Intake(int intakeTopId, int intakeBottomId, double intakeSpeed, double outtakeSpeed) {
-    intakeTop = new CANSparkMax(intakeTopId, MotorType.kBrushless);
-    intakeBottom = new CANSparkMax(intakeBottomId, MotorType.kBrushless);
+    intakeTop = new TalonFX(intakeTopId, "*");
+    intakeBottom = new TalonFX(intakeBottomId, "*");
 
-    intakeTop.restoreFactoryDefaults();
-    intakeBottom.restoreFactoryDefaults();
+    TalonFXConfiguration intakeTopConfiguration = new TalonFXConfiguration();
+    TalonFXConfiguration intakeBottomConfiguration = new TalonFXConfiguration();
 
-    Util.setRevStatusRates(intakeTop, 500, 32767, 32767, 32767, 32767, 32767, 32767, 32767);
-    Util.setRevStatusRates(intakeBottom, 500, 32767, 32767, 32767, 32767, 32767, 32767, 32767);
+    intakeTopConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    intakeBottomConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+    intakeTop.getConfigurator().apply(intakeTopConfiguration);
+    intakeBottom.getConfigurator().apply(intakeBottomConfiguration);
 
     this.intakeSpeed = intakeSpeed;
     this.outtakeSpeed = outtakeSpeed;
+
+    intakeTop.getDutyCycle().setUpdateFrequency(50);
+    intakeBottom.getDutyCycle().setUpdateFrequency(50);
+    intakeTop.optimizeBusUtilization();
+    intakeBottom.optimizeBusUtilization();
 
     SmartDashboard.putData(this);
   }
