@@ -16,6 +16,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +27,13 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.Structs.MotionLimits;
+import frc.robot.classes.TunerConstants;
+
 import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 public class Chassis extends SubsystemBase {
   private final SwerveModule[] modules = new SwerveModule[4];
@@ -33,6 +42,19 @@ public class Chassis extends SubsystemBase {
   private final MotionLimits motionLimits;
 
   private NetworkTable table;
+
+  private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
+  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+
+  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+                                                               // driving in open loop
+  private final SwerveRequest.ApplyChassisSpeeds applySpeeds = new SwerveRequest.ApplyChassisSpeeds();
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
   public Chassis(
       SwerveModule[] modules, SwerveDriveKinematics kinematics, MotionLimits motionLimits) {
@@ -55,19 +77,11 @@ public class Chassis extends SubsystemBase {
   }
 
   public SwerveModulePosition[] getPositions() {
-    SwerveModulePosition[] currentSwervePositions = new SwerveModulePosition[4];
-    for (int i = 0; i < modules.length; i++) {
-      currentSwervePositions[i] = modules[i].getPosition();
-    }
-    return currentSwervePositions;
+    return drivetrain.getPositions();
   }
 
   public SwerveModuleState[] getStates() {
-    SwerveModuleState[] currentSwerveStates = new SwerveModuleState[4];
-    for (int i = 0; i < modules.length; i++) {
-      currentSwerveStates[i] = modules[i].getState();
-    }
-    return currentSwerveStates;
+    return drivetrain.getStates();
   }
 
   // There is probably a better way to feed this into the AutoBuilder, but this is
@@ -77,30 +91,11 @@ public class Chassis extends SubsystemBase {
   }
 
   public void driveRobotRelative(ChassisSpeeds speeds) {
-    ChassisSpeeds discretizedSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(discretizedSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, motionLimits.maxSpeed);
+    drivetrain.applyRequest(() -> applySpeeds.withSpeeds(speeds));
 
-    for (int i = 0; i < modules.length; i++) {
-      modules[i].setState(states[i]);
-    }
-
-    SwerveModuleState[] realStates = {
-      modules[0].getRealState(),
-      modules[1].getRealState(),
-      modules[2].getRealState(),
-      modules[3].getRealState()
-    };
-    SwerveModuleState[] optimizedStates = {
-      modules[0].getOptimizedState(),
-      modules[1].getOptimizedState(),
-      modules[2].getOptimizedState(),
-      modules[3].getOptimizedState()
-    };
-
-    Logger.recordOutput("Setting States", states);
-    Logger.recordOutput("Optimized States", optimizedStates);
-    Logger.recordOutput("Real States", realStates);
+    // Logger.recordOutput("Setting States", states);
+    // Logger.recordOutput("Optimized States", optimizedStates);
+    // Logger.recordOutput("Real States", realStates);
   }
 
   public Command lockWheels() {

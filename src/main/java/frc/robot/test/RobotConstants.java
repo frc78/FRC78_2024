@@ -17,7 +17,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import frc.robot.classes.ModuleConfig;
+import frc.robot.classes.ModuleConfigNeo;
 import frc.robot.classes.Structs;
 import frc.robot.classes.Structs.ClosedLoopParameters;
 import frc.robot.classes.Structs.FFConstants;
@@ -103,8 +103,8 @@ class RobotConstants {
     new FFConstants(0, 0, 0)
   };
 
-  public static final ModuleConfig MODULE_CONFIG =
-      new ModuleConfig(
+  public static final ModuleConfigNeo MODULE_CONFIG =
+      new ModuleConfigNeo(
           new ClosedLoopParameters(0.15, 0, 0, 1 / DRIVE_WHEEL_FREESPEED),
           new ClosedLoopParameters(20, 0, 1, 1 / STEER_FREESPEED),
           RobotConstants.DRIVE_ENC_TO_METERS,
