@@ -27,7 +27,7 @@ import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import frc.robot.classes.ModuleConfig;
+import frc.robot.classes.ModuleConfigNeo;
 import frc.robot.classes.Structs.FFConstants;
 import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
@@ -35,7 +35,7 @@ import org.littletonrobotics.junction.Logger;
 /** Neo implementation of SwerveModule */
 public class NeoModule implements SwerveModule {
 
-  protected ModuleConfig config;
+  protected ModuleConfigNeo config;
 
   protected int driveID;
   protected int steerID;
@@ -52,7 +52,7 @@ public class NeoModule implements SwerveModule {
   private SwerveModuleState realState;
   private SwerveModuleState optimizedState;
 
-  public NeoModule(int driveID, int steerID, ModuleConfig config, FFConstants ffConstants) {
+  public NeoModule(int driveID, int steerID, ModuleConfigNeo config, FFConstants ffConstants) {
     this.config = config;
 
     this.driveID = driveID;

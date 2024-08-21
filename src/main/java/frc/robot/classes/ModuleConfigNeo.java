@@ -8,7 +8,7 @@ import com.revrobotics.CANSparkBase;
 import frc.robot.classes.Structs.ClosedLoopParameters;
 
 /** Add your docs here. */
-public class ModuleConfig {
+public class ModuleConfigNeo {
 
   public final ClosedLoopParameters driveClosedLoopParameters;
   public final ClosedLoopParameters steerClosedLoopParameters;
@@ -29,7 +29,7 @@ public class ModuleConfig {
   public final CANSparkBase.IdleMode driveIdleMode;
   public final CANSparkBase.IdleMode steerIdleMode;
 
-  public ModuleConfig(
+  public ModuleConfigNeo(
       ClosedLoopParameters driveClosedLoopParameters,
       ClosedLoopParameters steerClosedLoopParameters,
       double drivePositionConversionFactor,

@@ -42,6 +42,7 @@ public interface SwerveModule {
   /** Logs the motor position, velocity, and voltage data for SysId */
   void logMotor(SysIdRoutineLog log);
 
+  // Why these duplicate methods rubbish
   void enableBrakeMode();
 
   void enableCoastMode();
