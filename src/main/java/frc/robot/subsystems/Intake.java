@@ -30,8 +30,16 @@ public class Intake extends SubsystemBase {
     intakeTopConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakeBottomConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+    intakeTop.getConfigurator().apply(intakeTopConfiguration);
+    intakeBottom.getConfigurator().apply(intakeBottomConfiguration);
+
     this.intakeSpeed = intakeSpeed;
     this.outtakeSpeed = outtakeSpeed;
+
+    intakeTop.getDutyCycle().setUpdateFrequency(50);
+    intakeBottom.getDutyCycle().setUpdateFrequency(50);
+    intakeTop.optimizeBusUtilization();
+    intakeBottom.optimizeBusUtilization();
 
     SmartDashboard.putData(this);
   }
