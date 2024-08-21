@@ -27,7 +27,7 @@ public class Intake extends SubsystemBase {
     TalonFXConfiguration intakeTopConfiguration = new TalonFXConfiguration();
     TalonFXConfiguration intakeBottomConfiguration = new TalonFXConfiguration();
 
-    intakeTopConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    intakeTopConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     intakeBottomConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
     this.intakeSpeed = intakeSpeed;
