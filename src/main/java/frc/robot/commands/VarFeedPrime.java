@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,7 +18,7 @@ import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.chassis.PoseEstimator;
-import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarFeedPrime extends Command {
@@ -29,7 +31,7 @@ public class VarFeedPrime extends Command {
   // Translation of where the note exits in the XZ plane (side view)
   private final Translation2d shooterXZTrans;
 
-  private final DoubleSupplier wristAngle;
+  private final Supplier<Measure<Angle>> wristAngle;
   private final double MPS_RPM;
   private final double distCoeff;
 
@@ -39,7 +41,7 @@ public class VarFeedPrime extends Command {
       Elevator elevator,
       PoseEstimator poseEstimator,
       Translation2d shooterXZTrans,
-      DoubleSupplier wristAngle,
+      Supplier<Measure<Angle>> wristAngle,
       double MPS_RPM,
       double distCoeff) {
     this.shooter = shooter;
@@ -78,10 +80,10 @@ public class VarFeedPrime extends Command {
     // always done from (0, 0) so we use this as our offset
     heightToTarget = -heightToTarget;
 
-    double theta = Math.toRadians(wristAngle.getAsDouble());
+    double theta = wristAngle.get().in(Radians);
     double calcVel = calcVel(Constants.GRAVITY, distanceToTarget, heightToTarget, theta);
     // Safety for NaN, probably should put this in the setSpeed() itself though
-    double vel = calcVel == Double.NaN ? 0 : calcVel;
+    double vel = Double.isNaN(calcVel) ? 0 : calcVel;
 
     Logger.recordOutput("VarFeedPrime theta", theta);
     Logger.recordOutput("VarFeedPrime h", heightToTarget);
