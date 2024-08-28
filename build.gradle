@@ -2,7 +2,6 @@ plugins {
     id "java"
     id "edu.wpi.first.GradleRIO" version "2024.3.2"
     id "com.diffplug.spotless" version "6.24.0"
-    id "com.github.spotbugs" version "6.0.8"
 }
 
 java {
@@ -133,21 +132,5 @@ spotless {
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()
-    }
-}
-
-spotbugs {
-    excludeFilter = file("$projectDir/exclude.xml")
-}
-
-spotbugsMain {
-    reports {
-        html {
-            required = true
-            stylesheet = 'fancy-hist.xsl'
-        }
-        xml {
-            required = true
-        }
     }
 }

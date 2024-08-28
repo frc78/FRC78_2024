@@ -7,7 +7,6 @@ package frc.robot.competition;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -103,9 +102,6 @@ class RobotConstants {
 
   public static final double NOMINAL_VOLTAGE = 12;
 
-  public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
-  public static final IdleMode STEER_IDLE = IdleMode.kBrake;
-
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
@@ -131,9 +127,7 @@ class RobotConstants {
           RobotConstants.STEER_ENC_PID_MAX,
           RobotConstants.DRIVE_CURRENT_LIMIT,
           RobotConstants.STEER_CURRENT_LIMIT,
-          RobotConstants.NOMINAL_VOLTAGE,
-          RobotConstants.DRIVE_IDLE,
-          RobotConstants.STEER_IDLE);
+          RobotConstants.NOMINAL_VOLTAGE);
 
   // INTAKE
   public static final int INTAKE_TOP_ID = 10;

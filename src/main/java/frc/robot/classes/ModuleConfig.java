@@ -4,7 +4,6 @@
 
 package frc.robot.classes;
 
-import com.revrobotics.CANSparkBase;
 import frc.robot.classes.Structs.ClosedLoopParameters;
 
 /** Add your docs here. */
@@ -26,8 +25,6 @@ public class ModuleConfig {
   public final int driveCurrentLimit;
   public final int steerCurrentLimit;
   public final double nominalVoltage;
-  public final CANSparkBase.IdleMode driveIdleMode;
-  public final CANSparkBase.IdleMode steerIdleMode;
 
   public ModuleConfig(
       ClosedLoopParameters driveClosedLoopParameters,
@@ -43,9 +40,7 @@ public class ModuleConfig {
       double steerEncoderPidMax,
       int driveCurrentLimit,
       int steerCurrentLimit,
-      double nominalVoltage,
-      CANSparkBase.IdleMode driveIdleMode,
-      CANSparkBase.IdleMode steerIdleMode) {
+      double nominalVoltage) {
     this.driveClosedLoopParameters = driveClosedLoopParameters;
     this.steerClosedLoopParameters = steerClosedLoopParameters;
     this.drivePositionConversionFactor = drivePositionConversionFactor;
@@ -60,7 +55,5 @@ public class ModuleConfig {
     this.driveCurrentLimit = driveCurrentLimit;
     this.steerCurrentLimit = steerCurrentLimit;
     this.nominalVoltage = nominalVoltage;
-    this.driveIdleMode = driveIdleMode;
-    this.steerIdleMode = steerIdleMode;
   }
 }

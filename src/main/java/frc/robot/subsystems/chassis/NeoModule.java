@@ -8,16 +8,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.SparkPIDController.ArbFFUnits;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -29,7 +19,6 @@ import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import frc.robot.classes.ModuleConfig;
 import frc.robot.classes.Structs.FFConstants;
-import frc.robot.classes.Util;
 import org.littletonrobotics.junction.Logger;
 
 /** Neo implementation of SwerveModule */
@@ -39,14 +28,8 @@ public class NeoModule implements SwerveModule {
 
   protected int driveID;
   protected int steerID;
-  protected CANSparkMax drive;
-  protected CANSparkMax steer;
 
-  protected SparkPIDController drivePID;
-  protected SparkPIDController steerPID;
   protected SimpleMotorFeedforward driveFF;
-  private RelativeEncoder driveEnc;
-  private AbsoluteEncoder steerEnc;
 
   private SwerveModuleState settingState;
   private SwerveModuleState realState;
@@ -57,13 +40,7 @@ public class NeoModule implements SwerveModule {
 
     this.driveID = driveID;
     this.steerID = steerID;
-    drive = new CANSparkMax(this.driveID, MotorType.kBrushless);
-    steer = new CANSparkMax(this.steerID, MotorType.kBrushless);
 
-    driveEnc = drive.getEncoder();
-    steerEnc = steer.getAbsoluteEncoder(Type.kDutyCycle);
-    drivePID = drive.getPIDController();
-    steerPID = steer.getPIDController();
     driveFF = new SimpleMotorFeedforward(ffConstants.kS, ffConstants.kV, ffConstants.kA);
 
     settingState = new SwerveModuleState();
@@ -78,82 +55,37 @@ public class NeoModule implements SwerveModule {
   public void initialize() {
     // Factory reset, so we get the SPARKS MAX to a known state before configuring
     // them. This is useful in case a SPARK MAX is swapped out
-    drive.restoreFactoryDefaults();
-    steer.restoreFactoryDefaults();
-    drivePID.setFeedbackDevice(driveEnc);
-    steerPID.setFeedbackDevice(steerEnc);
 
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
     // but we want meters and meters per second to use with WPILib's swerve APIs.
-    driveEnc.setPositionConversionFactor(config.drivePositionConversionFactor);
-    driveEnc.setVelocityConversionFactor(config.driveVelocityConversionFactor);
 
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve
     // APIs.
-    steerEnc.setPositionConversionFactor(config.steerPositionConversionFactor);
-    steerEnc.setVelocityConversionFactor(config.steerVelocityConversionFactor);
 
     // Invert the turning encoder, since the output shaft rotates in the opposite
     // direction of the steering motor in the MAXSwerve Module.
-    steerEnc.setInverted(config.steerEncoderInverted);
-    steer.setInverted(config.steerMotorInverted);
-    drive.setInverted(config.driveMotorInverted);
 
     // Enable PID wrap around for the turning motor. This will allow the PID
     // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
     // to 10 degrees will go through 0 rather than the other direction which is a
     // longer route.
-    steerPID.setPositionPIDWrappingEnabled(true);
-    steerPID.setPositionPIDWrappingMinInput(config.steerEncoderPidMin);
-    steerPID.setPositionPIDWrappingMaxInput(config.steerEncoderPidMax);
 
     // Set the PID gains for the driving motor
-    drivePID.setP(config.driveClosedLoopParameters.kP);
-    drivePID.setI(config.driveClosedLoopParameters.kI);
-    drivePID.setD(config.driveClosedLoopParameters.kD);
-    drivePID.setFF(config.driveClosedLoopParameters.kF);
 
     // Set the PID gains for the turning motor
-    steerPID.setP(config.steerClosedLoopParameters.kP);
-    steerPID.setI(config.steerClosedLoopParameters.kI);
-    steerPID.setD(config.steerClosedLoopParameters.kD);
-    steerPID.setFF(config.steerClosedLoopParameters.kF);
-
-    drive.setSmartCurrentLimit(config.driveCurrentLimit);
-    steer.setSmartCurrentLimit(config.steerCurrentLimit);
-
-    drive.enableVoltageCompensation(config.nominalVoltage);
-    steer.enableVoltageCompensation(config.nominalVoltage);
-
-    drive.setIdleMode(config.driveIdleMode);
-    steer.setIdleMode(config.steerIdleMode);
-
-    Util.setRevStatusRates(steer, 10, 20, 32767, 32767, 32767, 100, 32767, 32767);
-    Util.setRevStatusRates(drive, 10, 20, 20, 32767, 32767, 32767, 32767, 32767);
-
-    settingState.angle = Rotation2d.fromRotations(steerEnc.getPosition());
-    driveEnc.setPosition(0);
   }
 
   @Override
-  public void setBrake(Boolean y) {
-    if (y) {
-      drive.setIdleMode(IdleMode.kBrake);
-      steer.setIdleMode(IdleMode.kBrake);
-    } else {
-      drive.setIdleMode(IdleMode.kCoast);
-      steer.setIdleMode(IdleMode.kCoast);
-    }
-  }
+  public void setBrake(Boolean y) {}
 
   /**
    * @return The velocity of the drive encoder, in meters per second
    */
   @Override
   public double getDriveVelocity() {
-    return driveEnc.getVelocity();
+    return 0;
   }
 
   /**
@@ -161,7 +93,7 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public double getDrivePosition() {
-    return driveEnc.getPosition();
+    return 0;
   }
 
   /**
@@ -170,7 +102,7 @@ public class NeoModule implements SwerveModule {
    */
   @Override
   public Rotation2d getSteerPosition() {
-    return Rotation2d.fromRotations(steerEnc.getPosition());
+    return Rotation2d.fromRotations(0);
   }
 
   /**
@@ -217,14 +149,6 @@ public class NeoModule implements SwerveModule {
     Logger.recordOutput("Swerve speed modifier", speedModifier);
 
     // Sets the PID goals to the desired states
-    drivePID.setReference(
-        optimizedState.speedMetersPerSecond,
-        CANSparkMax.ControlType.kVelocity,
-        0,
-        driveFF.calculate(optimizedState.speedMetersPerSecond),
-        ArbFFUnits.kVoltage);
-    steerPID.setReference(optimizedState.angle.getRotations(), CANSparkMax.ControlType.kPosition);
-
     settingState = state;
     realState.speedMetersPerSecond = getDriveVelocity();
     realState.angle = getSteerPosition();
@@ -235,10 +159,7 @@ public class NeoModule implements SwerveModule {
         optimizedState.angle.getRotations() - realState.angle.getRotations());
   }
 
-  public void openLoopDiffDrive(double voltage) {
-    steerPID.setReference(0, ControlType.kPosition);
-    drive.setVoltage(voltage);
-  }
+  public void openLoopDiffDrive(double voltage) {}
 
   /*
    * Mutate these each time we log so that we aren't creating objects constantly
@@ -255,22 +176,15 @@ public class NeoModule implements SwerveModule {
             /* getAppliedOutput returns the duty cycle which is from [-1, +1].
             We multiply this by the voltage going into the spark max,
             called the bus voltage to receive the output voltage */
-            mutableAppliedVoltage.mut_replace(
-                drive.getAppliedOutput() * drive.getBusVoltage(), Volts))
+            mutableAppliedVoltage.mut_replace(0, Volts))
         // the drive encoder has the necessary position and velocity conversion factors already set
-        .linearVelocity(mutableVelocity.mut_replace(driveEnc.getVelocity(), MetersPerSecond))
-        .linearPosition(mutableDistance.mut_replace(driveEnc.getPosition(), Meters));
+        .linearVelocity(mutableVelocity.mut_replace(0, MetersPerSecond))
+        .linearPosition(mutableDistance.mut_replace(0, Meters));
   }
 
   @Override
-  public void enableBrakeMode() {
-    drive.setIdleMode(CANSparkBase.IdleMode.kBrake);
-    steer.setIdleMode(CANSparkBase.IdleMode.kBrake);
-  }
+  public void enableBrakeMode() {}
 
   @Override
-  public void enableCoastMode() {
-    drive.setIdleMode(CANSparkBase.IdleMode.kCoast);
-    steer.setIdleMode(CANSparkBase.IdleMode.kCoast);
-  }
+  public void enableCoastMode() {}
 }
