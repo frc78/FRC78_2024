@@ -6,7 +6,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -21,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -36,7 +40,7 @@ public class Wrist extends SubsystemBase {
 
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 108.0 / 360;
+    motorConfiguration.Feedback.SensorToMechanismRatio = 375;
 
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -47,7 +51,7 @@ public class Wrist extends SubsystemBase {
     encoder.getInternalSettingsManager().setSettings(settings, -1);
 
     motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
-    motorConfiguration.Slot0.kP = .03;
+    motorConfiguration.Slot0.kP = 500;
 
     motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
     motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = WRIST_LOW_LIM.in(Rotations);
@@ -55,8 +59,10 @@ public class Wrist extends SubsystemBase {
     motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = WRIST_HIGH_LIM.in(Rotations);
     motor.getConfigurator().apply(motorConfiguration);
 
-    motor.getPosition().setUpdateFrequency(50);
-    motor.getRotorPosition().setUpdateFrequency(50);
+    motor.getPosition().setUpdateFrequency(10);
+    motor.getMotorVoltage().setUpdateFrequency(10);
+    motor.getVelocity().setUpdateFrequency(10);
+    motor.getClosedLoopError().setUpdateFrequency(10);
     motor.optimizeBusUtilization();
 
     SmartDashboard.putData(this);
@@ -95,6 +101,32 @@ public class Wrist extends SubsystemBase {
         .andThen(new PrintCommand("Brake Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Brake");
+  }
+
+  private final SysIdRoutine sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null,
+              Volts.of(4),
+              Seconds.of(5),
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> motor.setVoltage(volts.magnitude()), null, this, "wrist"));
+
+  public Command sysId() {
+    return Commands.sequence(
+        sysIdRoutine
+            .quasistatic(SysIdRoutine.Direction.kReverse)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()),
+        sysIdRoutine
+            .quasistatic(SysIdRoutine.Direction.kForward)
+            .until(() -> motor.getFault_ForwardSoftLimit().getValue()),
+        sysIdRoutine
+            .dynamic(SysIdRoutine.Direction.kReverse)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()),
+        sysIdRoutine
+            .dynamic(SysIdRoutine.Direction.kForward)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()));
   }
 
   @Override
