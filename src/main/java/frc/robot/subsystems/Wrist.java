@@ -63,7 +63,6 @@ public class Wrist extends SubsystemBase {
     motor.getMotorVoltage().setUpdateFrequency(10);
     motor.getVelocity().setUpdateFrequency(10);
     motor.getClosedLoopError().setUpdateFrequency(10);
-    motor.optimizeBusUtilization();
 
     SmartDashboard.putData(this);
     SmartDashboard.putData(enableBrakeMode());
@@ -76,7 +75,9 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command setToTargetCmd(Measure<Angle> target) {
-    return runOnce(() -> setToTarget(target)).withName("setGoal[" + target + "]");
+    return runOnce(() -> setToTarget(target))
+        .withName("setGoal[" + target + "]")
+        .andThen(Commands.idle());
   }
 
   public void setToTarget(Measure<Angle> target) {
