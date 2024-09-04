@@ -15,15 +15,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.chassis.PoseEstimator;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarFeedPrime extends Command {
   private Shooter shooter;
   private Elevator elevator;
-  private PoseEstimator poseEstimator;
   private Translation2d plopTranslation;
+  private Supplier<Pose2d> poseSupplier;
   // private NetworkTableEntry lInput;
 
   // Translation of where the note exits in the XZ plane (side view)
@@ -37,14 +37,13 @@ public class VarFeedPrime extends Command {
   public VarFeedPrime(
       Shooter shooter,
       Elevator elevator,
-      PoseEstimator poseEstimator,
+      Supplier<Pose2d> poseSupplier,
       Translation2d shooterXZTrans,
       DoubleSupplier wristAngle,
       double MPS_RPM,
       double distCoeff) {
     this.shooter = shooter;
     this.elevator = elevator;
-    this.poseEstimator = poseEstimator;
     this.shooterXZTrans = shooterXZTrans;
     this.wristAngle = wristAngle;
     this.MPS_RPM = MPS_RPM;
@@ -65,7 +64,7 @@ public class VarFeedPrime extends Command {
 
   @Override
   public void execute() {
-    Pose2d pose = poseEstimator.getFusedPose();
+    Pose2d pose = poseSupplier.get();
 
     // Distance and height to speaker
     double distanceToTarget =

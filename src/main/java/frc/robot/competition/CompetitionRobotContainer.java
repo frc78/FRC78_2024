@@ -5,6 +5,8 @@
 package frc.robot.competition;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -25,15 +27,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.classes.BaseDrive;
+import frc.robot.classes.TunerConstants;
 import frc.robot.commands.AlignToNote;
-import frc.robot.commands.AlignToPose;
-import frc.robot.commands.DriveToAprilTag;
-import frc.robot.commands.FieldOrientedDrive;
 import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.VarFeedPrime;
 import frc.robot.commands.VarShootPrime;
@@ -44,12 +43,9 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
-import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import frc.robot.subsystems.chassis.NamedPhotonPoseEstimator;
-import frc.robot.subsystems.chassis.NeoModule;
 import frc.robot.subsystems.chassis.PoseEstimator;
-import frc.robot.subsystems.chassis.SwerveModule;
-import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
@@ -57,7 +53,7 @@ import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
 
-  public final Chassis m_chassis;
+  public final CommandSwerveDrivetrain m_chassis;
   private final BaseDrive m_baseDrive;
   public final PoseEstimator m_poseEstimator;
   private final Intake m_intake;
@@ -72,26 +68,14 @@ class CompetitionRobotContainer {
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
   private final Command AmpSetUp;
+  private final SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
+  private final SwerveDriveBrake brakeMode = new SwerveDriveBrake();
 
   CompetitionRobotContainer() {
 
-    NeoModule frontLeft =
-        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
-
-    NeoModule frontRight =
-        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
-
-    NeoModule backLeft =
-        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
-
-    NeoModule backRight =
-        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
-
-    SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
-
     SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
 
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
+    m_chassis = TunerConstants.DriveTrain;
 
     PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
     PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
@@ -121,17 +105,6 @@ class CompetitionRobotContainer {
             RobotConstants.PORT_CAM_NAME);
 
     Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
-    m_poseEstimator =
-        new PoseEstimator(
-            m_chassis,
-            swerveDriveKinematics,
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            List.of(sternCamPE, starboardCamPE, portCamPE),
-            pigeon,
-            RobotConstants.STATE_STD_DEVS,
-            RobotConstants.VISION_STD_DEVS,
-            RobotConstants.SINGLE_TAG_STD_DEVS,
-            RobotConstants.MULTI_TAG_STD_DEVS);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -146,7 +119,7 @@ class CompetitionRobotContainer {
     PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
-        new FieldOrientedDrive(m_chassis, m_poseEstimator, m_baseDrive::calculateChassisSpeeds));
+        m_chassis.applyRequest(() -> drive.withSpeeds(m_baseDrive.calculateChassisSpeeds())));
 
     m_intake =
         new Intake(
@@ -250,8 +223,12 @@ class CompetitionRobotContainer {
     AutoBuilder.configureHolonomic(
         m_poseEstimator::getFusedPose, // Robot pose supplier
         m_poseEstimator::resetPose, // Method to reset odometry
-        m_chassis::getRealChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
+        m_chassis::getEstimatedVelocitey, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds) ->
+            m_chassis.applyRequest(
+                () ->
+                    drive.withSpeeds(
+                        speeds)), // Method that will drive the robot given ROBOT RELATIVE
         // ChassisSpeeds
         RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,
         () -> {
@@ -356,7 +333,7 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 Units.degreesToRadians(0))); // was zero changed in b80 before wk4
 
-    m_driveController.povDown().whileTrue(m_chassis.lockWheels());
+    m_driveController.povDown().whileTrue(m_chassis.applyRequest(() -> brakeMode));
 
     m_driveController
         .a()
@@ -389,30 +366,30 @@ class CompetitionRobotContainer {
                 RobotConstants.ROTATION_FF,
                 0));
 
-    m_driveController
-        .rightStick()
-        // Disable for now
-        .and(() -> false)
-        .whileTrue(
-            new AlignToPose(
-                    m_chassis,
-                    Constants.AMP_TRANSFORM,
-                    m_poseEstimator,
-                    RobotConstants.TRANSLATION_PID,
-                    RobotConstants.ROTATION_PID,
-                    RobotConstants.MOTION_LIMITS)
-                .alongWith(m_chassis.enableAprilTags())
-                .andThen(
-                    m_Elevator
-                        .setToTarget(16.3)
-                        .alongWith(
-                            new SequentialCommandGroup(
-                                m_Wrist.setToTargetCmd(0),
-                                new DriveToAprilTag(m_chassis),
-                                m_Wrist.setToTargetCmd(23),
-                                Commands.waitSeconds(.2),
-                                m_feeder.outtake()))))
-        .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
+    // m_driveController
+    //     .rightStick()
+    //     // Disable for now
+    //     .and(() -> false)
+    //     .whileTrue(
+    //         new AlignToPose(
+    //                 m_chassis,
+    //                 Constants.AMP_TRANSFORM,
+    //                 m_poseEstimator,
+    //                 RobotConstants.TRANSLATION_PID,
+    //                 RobotConstants.ROTATION_PID,
+    //                 RobotConstants.MOTION_LIMITS)
+    //             .alongWith(m_chassis.enableAprilTags())
+    //             .andThen(
+    //                 m_Elevator
+    //                     .setToTarget(16.3)
+    //                     .alongWith(
+    //                         new SequentialCommandGroup(
+    //                             m_Wrist.setToTargetCmd(0),
+    //                             new DriveToAprilTag(m_chassis),
+    //                             m_Wrist.setToTargetCmd(23),
+    //                             Commands.waitSeconds(.2),
+    //                             m_feeder.outtake()))))
+    //     .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()

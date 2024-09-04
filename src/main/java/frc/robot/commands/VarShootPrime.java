@@ -17,14 +17,14 @@ import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
-import frc.robot.subsystems.chassis.PoseEstimator;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarShootPrime extends Command {
   private Wrist wrist;
   private Elevator elevator;
-  private PoseEstimator poseEstimator;
+  private Supplier<Pose2d> poseSupplier;
   private Translation2d speakerTranslation;
 
   // Translation of where the note exits in the XZ plane (side view)
@@ -40,7 +40,7 @@ public class VarShootPrime extends Command {
   public VarShootPrime(
       Wrist wrist,
       Elevator elevator,
-      PoseEstimator poseEstimator,
+      Supplier<Pose2d> poseSupplier,
       Translation2d shooterXZTrans,
       DoubleSupplier shooterVel,
       Range distRange,
@@ -49,7 +49,7 @@ public class VarShootPrime extends Command {
       double defaultAngle) {
     this.wrist = wrist;
     this.elevator = elevator;
-    this.poseEstimator = poseEstimator;
+    this.poseSupplier = poseSupplier;
     this.shooterXZTrans = shooterXZTrans;
     this.shooterVel = shooterVel;
     this.distRange = distRange;
@@ -72,7 +72,7 @@ public class VarShootPrime extends Command {
 
   @Override
   public void execute() {
-    Pose2d pose = poseEstimator.getFusedPose();
+    Pose2d pose = poseSupplier.get();
 
     // Distance and height to speaker
     double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();

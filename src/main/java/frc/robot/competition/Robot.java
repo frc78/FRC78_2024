@@ -5,7 +5,6 @@
 package frc.robot.competition;
 
 import com.ctre.phoenix6.SignalLogger;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -90,8 +89,8 @@ public class Robot extends LoggedRobot {
     SignalLogger.start();
     m_robotContainer = new CompetitionRobotContainer();
 
-    Notifier poseNotifier = new Notifier(m_robotContainer.m_poseEstimator::update);
-    poseNotifier.startPeriodic(.02);
+    // Notifier poseNotifier = new Notifier(m_robotContainer.m_chassis::update);
+    // poseNotifier.startPeriodic(.02); // TODO do we need?
   }
 
   @Override
@@ -122,7 +121,8 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void autonomousExit() {
-    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
+    // m_robotContainer.m_chassis.applyRequest(() -> new SwerveRequest.ApplyChassisSpeeds(new
+    // ChassisSpeeds())); TODO we probably dont need this. also ive gotten lazy with writing
   }
 
   @Override
@@ -137,7 +137,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopExit() {
-    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
+    // m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds()); // the built in
   }
 
   @Override

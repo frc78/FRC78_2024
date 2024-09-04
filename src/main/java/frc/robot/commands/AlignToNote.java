@@ -1,16 +1,17 @@
 package frc.robot.commands;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.chassis.Chassis;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import java.util.function.Supplier;
 
 public class AlignToNote extends Command {
-  private final Chassis chassis;
+  private final CommandSwerveDrivetrain chassis;
   private Supplier<ChassisSpeeds> speedsSupplier;
 
   NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Fisheye");
@@ -18,9 +19,11 @@ public class AlignToNote extends Command {
 
   // private final PIDController translationController = new PIDController(0.07, 0, 0);
   private final PIDController rotationController = new PIDController(0.15, 0, 0.0015);
+  private final SwerveRequest.ApplyChassisSpeeds applyChassisSpeeds =
+      new SwerveRequest.ApplyChassisSpeeds();
 
   /** Creates a new FieldOrientedDrive. */
-  public AlignToNote(Chassis chassis, Supplier<ChassisSpeeds> speedsSupplier) {
+  public AlignToNote(CommandSwerveDrivetrain chassis, Supplier<ChassisSpeeds> speedsSupplier) {
     this.chassis = chassis;
     this.speedsSupplier = speedsSupplier;
 
@@ -48,6 +51,6 @@ public class AlignToNote extends Command {
 
     align.omegaRadiansPerSecond = rotation;
 
-    chassis.driveRobotRelative(align);
+    chassis.applyRequest(() -> applyChassisSpeeds.withSpeeds(align));
   }
 }
