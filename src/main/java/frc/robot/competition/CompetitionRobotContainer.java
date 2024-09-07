@@ -75,7 +75,13 @@ class CompetitionRobotContainer {
 
     SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
 
-    m_chassis = TunerConstants.DriveTrain;
+    m_chassis =
+        new CommandSwerveDrivetrain(
+            TunerConstants.DrivetrainConstants,
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight);
 
     PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
     PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
