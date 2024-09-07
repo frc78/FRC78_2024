@@ -60,8 +60,8 @@ public class Shooter extends SubsystemBase {
   /** Creates a new Shooter. */
   public Shooter(ShooterConfig config) {
     this.config = config;
-    shooterTOP = new TalonFX(config.flywheelTopID);
-    shooterBOTTOM = new TalonFX(config.flywheelBottomID);
+    shooterTOP = new TalonFX(config.flywheelTopID, "*");
+    shooterBOTTOM = new TalonFX(config.flywheelBottomID, "*");
 
     shooterTOP.getConfigurator().apply(new TalonFXConfiguration());
     shooterBOTTOM.getConfigurator().apply(new TalonFXConfiguration());

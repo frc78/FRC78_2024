@@ -4,6 +4,8 @@
 
 package frc.robot.competition;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -23,7 +25,6 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -114,7 +115,10 @@ class CompetitionRobotContainer {
     m_feedback = new Feedback(RobotConstants.CANDLE_ID);
 
     AmpSetUp =
-        (m_Wrist.setToTargetCmd(19).alongWith(m_Elevator.setToTarget(13.9)).withName("Amp Set Up"));
+        (m_Wrist
+            .setToTargetCmd(Degrees.of(19))
+            .alongWith(m_Elevator.setToTarget(13.9))
+            .withName("Amp Set Up"));
 
     NamedCommands.registerCommand("Intake", pickUpNote());
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
@@ -341,21 +345,12 @@ class CompetitionRobotContainer {
                 .withName("Feed"))
         .onFalse(m_Shooter.setSpeedCmd(0).alongWith(m_Wrist.stow()).withName("Feed End"));
 
-    m_testController.x().whileTrue(m_feedback.rainbows());
-    m_testController.b().whileTrue(m_feedback.setColor(Color.kBlue));
-    m_testController
-        .y()
-        .whileTrue(
-            pickUpNote()
-                .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(2, 0, 0)))
-                .withTimeout(2));
-
     // Amp position
     m_manipController
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(20)
+                .setToTargetCmd(Degrees.of(20))
                 .alongWith(m_Elevator.setToTarget(16.3))
                 .withName("Amp Set-Up"))
         .onFalse(m_Wrist.stow());
@@ -370,16 +365,18 @@ class CompetitionRobotContainer {
 
     m_manipController.rightTrigger(0.5).whileTrue(m_feeder.shoot());
 
-    m_testController.a().onTrue(m_Wrist.incrementUp());
+    m_testController.rightBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(20)));
 
-    m_testController.b().onTrue(m_Wrist.incrementDown());
+    m_testController.a().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(30)));
 
-    // The routine automatically stops the motors at the end of the command
+    m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
+
     // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
     // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
     // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
     // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
+    sysIdController.y().whileTrue(m_Wrist.sysId());
 
     RobotModeTriggers.teleop()
         .onTrue(m_Elevator.enableBrakeMode().andThen(m_Wrist.enableBrakeMode()));
@@ -392,7 +389,7 @@ class CompetitionRobotContainer {
   public Command pickUpNote() {
     return m_feeder
         .intake()
-        .deadlineWith(m_intake.intakeCommand(), m_Wrist.setToTargetCmd(55))
+        .deadlineWith(m_intake.intakeCommand(), m_Wrist.stow())
         .withName("Pick Up Note");
   }
 

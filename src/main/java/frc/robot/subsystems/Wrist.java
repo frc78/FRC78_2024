@@ -4,87 +4,84 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.SignalLogger;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.reduxrobotics.sensors.canandmag.Canandmag;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.classes.Util;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
 
-  private CANSparkMax wristNeo;
-  private AbsoluteEncoder encoder;
-  private double stowPos = 55;
-  private double target = 0;
+  private TalonFX motor;
+  private final PositionVoltage m_positionVoltage = new PositionVoltage(0).withSlot(0);
+  private Canandmag encoder;
+  private Measure<Angle> stowPos = Degrees.of(55);
 
   /** Creates a new Wrist. */
-  public Wrist(int WRIST_ID, float WRIST_HIGH_LIM, float WRIST_LOW_LIM) {
-    wristNeo = new CANSparkMax(WRIST_ID, MotorType.kBrushless);
+  public Wrist(int WRIST_ID, Measure<Angle> WRIST_HIGH_LIM, Measure<Angle> WRIST_LOW_LIM) {
+    motor = new TalonFX(WRIST_ID, "*");
 
-    wristNeo.restoreFactoryDefaults();
+    TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    wristNeo.setIdleMode(IdleMode.kBrake);
+    motorConfiguration.Feedback.SensorToMechanismRatio = 375;
 
-    encoder = wristNeo.getAbsoluteEncoder(Type.kDutyCycle);
-    encoder.setPositionConversionFactor(360);
-    wristNeo.getPIDController().setFeedbackDevice(encoder);
-    wristNeo.getPIDController().setPositionPIDWrappingEnabled(true);
-    wristNeo.getPIDController().setPositionPIDWrappingMinInput(0);
-    wristNeo.getPIDController().setPositionPIDWrappingMaxInput(360);
-    wristNeo.getPIDController().setP(.03);
+    motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    encoder.setInverted(true);
-    encoder.setZeroOffset(0);
+    encoder = new Canandmag(1);
+    Canandmag.Settings settings = new Canandmag.Settings();
+    settings.setInvertDirection(true);
+    encoder.getInternalSettingsManager().setSettings(settings, -1);
 
-    wristNeo.setSoftLimit(SoftLimitDirection.kForward, WRIST_HIGH_LIM);
-    wristNeo.setSoftLimit(SoftLimitDirection.kReverse, WRIST_LOW_LIM);
+    motorConfiguration.ClosedLoopGeneral.ContinuousWrap = true;
+    motorConfiguration.Slot0.kP = 500;
 
-    wristNeo.enableSoftLimit(SoftLimitDirection.kForward, true);
-    wristNeo.enableSoftLimit(SoftLimitDirection.kReverse, true);
+    motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    motorConfiguration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = WRIST_LOW_LIM.in(Rotations);
+    motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    motorConfiguration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = WRIST_HIGH_LIM.in(Rotations);
+    motor.getConfigurator().apply(motorConfiguration);
 
-    Util.setRevStatusRates(wristNeo, 10, 20, 32767, 32767, 32767, 20, 32767, 32767);
+    motor.getPosition().setUpdateFrequency(10);
+    motor.getMotorVoltage().setUpdateFrequency(10);
+    motor.getVelocity().setUpdateFrequency(10);
+    motor.getClosedLoopError().setUpdateFrequency(10);
 
     SmartDashboard.putData(this);
     SmartDashboard.putData(enableBrakeMode());
     SmartDashboard.putData(enableCoastMode());
+
+    // Set the talon internal encoder to absolute encoder position
+    motor.setPosition(encoder.getAbsPosition());
+
+    setDefaultCommand(stow().andThen(Commands.idle()));
   }
 
-  public Command setToTargetCmd(double target) {
-    this.target = target;
-    return runOnce(() -> wristNeo.getPIDController().setReference(target, ControlType.kPosition))
-        .withName("setGoal[" + target + "]");
+  public Command setToTargetCmd(Measure<Angle> target) {
+    return runOnce(() -> setToTarget(target))
+        .withName("setGoal[" + target + "]")
+        .andThen(Commands.idle());
   }
 
-  public void setToTarget(double target) {
-    this.target = target;
-    wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-  }
-
-  public Command incrementUp() {
-    return runOnce(
-            () -> {
-              target++;
-              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-            })
-        .withName("Increment Up");
-  }
-
-  public Command incrementDown() {
-    return runOnce(
-            () -> {
-              target--;
-              wristNeo.getPIDController().setReference(target, ControlType.kPosition);
-            })
-        .withName("IncrementDown");
+  public void setToTarget(Measure<Angle> target) {
+    motor.setControl(m_positionVoltage.withPosition(target.in(Rotations)));
   }
 
   public Command stow() {
@@ -92,26 +89,52 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command enableCoastMode() {
-    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kCoast))
+    MotorOutputConfigs config = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast);
+    return Commands.runOnce(() -> motor.getConfigurator().apply(config))
         .andThen(new PrintCommand("Coast Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Coast");
   }
 
   public Command enableBrakeMode() {
-    return Commands.runOnce(() -> wristNeo.setIdleMode(IdleMode.kBrake))
+    MotorOutputConfigs config = new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake);
+    return Commands.runOnce(() -> motor.getConfigurator().apply(config))
         .andThen(new PrintCommand("Brake Mode Set On Wrist"))
         .ignoringDisable(true)
         .withName("Enable Wrist Brake");
   }
 
-  public boolean isAtTarget() {
-    return Math.abs(target - encoder.getPosition()) < 2;
+  private final SysIdRoutine sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null,
+              Volts.of(4),
+              Seconds.of(5),
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> motor.setVoltage(volts.magnitude()), null, this, "wrist"));
+
+  public Command sysId() {
+    return Commands.sequence(
+        sysIdRoutine
+            .quasistatic(SysIdRoutine.Direction.kReverse)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()),
+        sysIdRoutine
+            .quasistatic(SysIdRoutine.Direction.kForward)
+            .until(() -> motor.getFault_ForwardSoftLimit().getValue()),
+        sysIdRoutine
+            .dynamic(SysIdRoutine.Direction.kReverse)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()),
+        sysIdRoutine
+            .dynamic(SysIdRoutine.Direction.kForward)
+            .until(() -> motor.getFault_ReverseSoftLimit().getValue()));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
+    Logger.recordOutput("Wrist Abs Enc Pos", encoder.getAbsPosition());
+    Logger.recordOutput("Wrist Motor Position", motor.getPosition().getValue());
   }
 }

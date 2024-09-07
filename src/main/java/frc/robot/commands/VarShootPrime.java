@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Angle;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,7 +35,7 @@ public class VarShootPrime extends Command {
   private final Range distRange; // Range of distance from min distance to max distance
   private final double heightLengthCoeff;
   private final double RPM_MPS;
-  private final double defaultAngle;
+  private final Measure<Angle> defaultAngle;
 
   /** Creates a new VarShootPrime. */
   public VarShootPrime(
@@ -45,7 +47,7 @@ public class VarShootPrime extends Command {
       Range distRange,
       double thetaCoeff,
       double RPM_MPS,
-      double defaultAngle) {
+      Measure<Angle> defaultAngle) {
     this.wrist = wrist;
     this.elevator = elevator;
     this.chassis = chassis;
@@ -82,11 +84,9 @@ public class VarShootPrime extends Command {
     // Calculate velocity based on lerping within the velocity range based on the distance range
     // double v = Util.lerp(Util.clamp(h, distRange) / distRange.getRange(), velRange);
     double v = shooterVel.getAsDouble() * RPM_MPS;
-    double theta = calcTheta(Constants.GRAVITY, l, h, v);
-    if (theta == Double.NaN) theta = defaultAngle;
-    theta = Units.radiansToDegrees(theta);
+    Measure<Angle> theta = calcTheta(Constants.GRAVITY, l, h, v);
     double modify = Util.lerp(l, distRange) * heightLengthCoeff;
-    theta += modify;
+    theta = theta.plus(Degrees.of(modify));
     Logger.recordOutput("VarShootPrime theta", theta);
     Logger.recordOutput("VarShootPrime modify", modify);
     Logger.recordOutput("VarShootPrime h", h);
@@ -98,11 +98,11 @@ public class VarShootPrime extends Command {
 
   // Source? It was revealed to me by a wise tree in a dream
   // JK this https://en.wikipedia.org/wiki/Projectile_motion
-  private double calcTheta(double g, double l, double h, double v) {
+  private Measure<Angle> calcTheta(double g, double l, double h, double v) {
     double sqrt = Math.pow(v, 4) - (g * ((g * l * l) + (2 * h * v * v)));
     double numerator = (v * v) - Math.sqrt(sqrt);
     double denominator = g * l;
 
-    return Math.atan(numerator / denominator);
+    return Radians.of(Math.atan(numerator / denominator));
   }
 }

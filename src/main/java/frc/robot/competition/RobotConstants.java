@@ -4,6 +4,8 @@
 
 package frc.robot.competition;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -117,18 +119,17 @@ class RobotConstants {
   // Wrist Constants
   public static final int WRIST_ID = 13;
 
-  public static final float WRIST_HIGH_LIM = 55;
-  public static final float WRIST_LOW_LIM = 0;
+  public static final Measure<Angle> WRIST_HIGH_LIM = Degrees.of(55);
+  public static final Measure<Angle> WRIST_LOW_LIM = Degrees.of(0);
 
-  public static final double WRIST_PLOP_ANGLE = 1; // one degree (too lazy to do whole unit thing)
+  public static final Measure<Angle> WRIST_PLOP_ANGLE =
+      Degrees.of(1); // one degree (too lazy to do whole unit thing)
 
   // CANDLE //
   public static final int CANDLE_ID = 1;
 
   // TODO auto stuff, but what for and is it needed?
   public static final double AUTO_SHOOT_SPEED = 4000;
-  public static final double AUTO_WRIST_SETPOINT = 0;
-  public static final double WRIST_W2_TARGET = 35;
   public static final double CENTER_LINE_MARGIN = 0;
 
   // AUTO WRIST

@@ -5,8 +5,8 @@
 package frc.robot.competition;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.reduxrobotics.canand.CanandEventLoop;
 import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -30,6 +30,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotInit() {
 
+    CanandEventLoop.getInstance();
     CommandScheduler.getInstance()
         .onCommandInitialize(
             (command) -> {
@@ -47,7 +48,6 @@ public class Robot extends LoggedRobot {
     PortForwarder.add(5800, "limelight.local", 5800);
     PortForwarder.add(1181, "photonvision.local", 1181);
     if (isReal()) {
-      DataLogManager.start();
       Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
       Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
       new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
@@ -64,8 +64,7 @@ public class Robot extends LoggedRobot {
 
     Logger.start();
     // CTRE logger
-    SignalLogger.setPath("/U/ctre-logs/");
-    SignalLogger.start();
+    SignalLogger.setPath("/u/ctre-logs/");
     m_robotContainer = new CompetitionRobotContainer();
   }
 
