@@ -4,7 +4,6 @@
 
 package frc.robot.classes;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.XboxController;
 import java.util.function.DoubleSupplier;
@@ -20,9 +19,10 @@ public class BaseDrive {
   private final DoubleSupplier rotSupplier;
   private final DoubleSupplier lTriggerSupplier;
   private final DoubleSupplier rTriggerSupplier;
-  private final SlewRateLimiter xLimiter;
-  private final SlewRateLimiter yLimiter;
-  private final SlewRateLimiter thetaLimiter;
+
+  // private final SlewRateLimiter xLimiter;
+  // private final SlewRateLimiter yLimiter;
+  // private final SlewRateLimiter thetaLimiter;
 
   public BaseDrive(
       XboxController controller, Structs.MotionLimits motionLimits, Structs.RateLimits rateLimits) {
@@ -33,9 +33,9 @@ public class BaseDrive {
     this.lTriggerSupplier = controller::getLeftTriggerAxis;
     this.rTriggerSupplier = controller::getRightTriggerAxis;
 
-    xLimiter = new SlewRateLimiter(rateLimits.translationRateLimit);
-    yLimiter = new SlewRateLimiter(rateLimits.translationRateLimit);
-    thetaLimiter = new SlewRateLimiter(rateLimits.rotationRateLimit);
+    // xLimiter = new SlewRateLimiter(rateLimits.translationRateLimit);
+    // yLimiter = new SlewRateLimiter(rateLimits.translationRateLimit);
+    // thetaLimiter = new SlewRateLimiter(rateLimits.rotationRateLimit);
   }
 
   public ChassisSpeeds calculateChassisSpeeds() {

@@ -6,6 +6,7 @@ package frc.robot.competition;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -27,9 +28,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.TunerConstants;
 import frc.robot.commands.AlignToNote;
@@ -64,7 +67,7 @@ class CompetitionRobotContainer {
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
   private final Command AmpSetUp;
-  private final SwerveRequest.ApplyChassisSpeeds drive = new SwerveRequest.ApplyChassisSpeeds();
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
   private final SwerveDriveBrake brakeMode = new SwerveDriveBrake();
   private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle =
       new SwerveRequest.FieldCentricFacingAngle();
@@ -95,7 +98,14 @@ class CompetitionRobotContainer {
     PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
-        m_chassis.applyRequest(() -> drive.withSpeeds(m_baseDrive.calculateChassisSpeeds())));
+        m_chassis.applyRequest(
+            () -> {
+              ChassisSpeeds speeds = m_baseDrive.calculateChassisSpeeds();
+              return drive
+                  .withVelocityX(speeds.vxMetersPerSecond)
+                  .withVelocityY(speeds.vyMetersPerSecond)
+                  .withRotationalRate(speeds.omegaRadiansPerSecond);
+            }));
 
     m_intake =
         new Intake(
@@ -235,6 +245,8 @@ class CompetitionRobotContainer {
         .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
 
+    m_driveController.start().onTrue(Commands.runOnce(() -> m_chassis.getPigeon2().reset()));
+
     m_driveController
         .rightBumper()
         .whileTrue(
@@ -371,10 +383,36 @@ class CompetitionRobotContainer {
 
     m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
 
-    // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    sysIdController
+        .pov(0)
+        .whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SignalLogger.start()),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineRotation),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineRotation),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineRotation),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineRotation),
+                Commands.runOnce(() -> SignalLogger.stop())));
+    sysIdController
+        .pov(90)
+        .whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SignalLogger.start()),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineTranslation),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineTranslation),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineTranslation),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineTranslation),
+                Commands.runOnce(() -> SignalLogger.stop())));
+    sysIdController
+        .pov(180)
+        .whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> SignalLogger.start()),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineSteer),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineSteer),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineSteer),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineSteer),
+                Commands.runOnce(() -> SignalLogger.stop())));
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
     sysIdController.b().whileTrue(m_Elevator.runSysId());

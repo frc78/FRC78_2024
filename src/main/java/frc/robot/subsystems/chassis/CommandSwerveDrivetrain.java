@@ -1,5 +1,9 @@
 package frc.robot.subsystems.chassis;
 
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
@@ -19,6 +23,7 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.classes.TunerConstants;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -42,6 +47,43 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   private final SwerveRequest.ApplyChassisSpeeds AutoRequest =
       new SwerveRequest.ApplyChassisSpeeds();
 
+  private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization =
+      new SwerveRequest.SysIdSwerveTranslation();
+  private final SwerveRequest.SysIdSwerveRotation RotationCharacterization =
+      new SwerveRequest.SysIdSwerveRotation();
+  private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization =
+      new SwerveRequest.SysIdSwerveSteerGains();
+
+  /* Use one of these sysidroutines for your particular test */
+  public SysIdRoutine SysIdRoutineTranslation =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null,
+              Volts.of(4),
+              Seconds.of(6),
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> setControl(TranslationCharacterization.withVolts(volts)), null, this));
+
+  public final SysIdRoutine SysIdRoutineRotation =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null,
+              Volts.of(4),
+              null,
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> setControl(RotationCharacterization.withVolts(volts)), null, this));
+  public final SysIdRoutine SysIdRoutineSteer =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null,
+              Volts.of(7),
+              null,
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> setControl(SteerCharacterization.withVolts(volts)), null, this));
+
   public CommandSwerveDrivetrain(
       SwerveDrivetrainConstants driveTrainConstants,
       AprilTagFieldLayout aprilTagFieldLayout,
@@ -56,6 +98,14 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
   public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
     return run(() -> this.setControl(requestSupplier.get()));
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction, SysIdRoutine routine) {
+    return routine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction, SysIdRoutine routine) {
+    return routine.dynamic(direction);
   }
 
   private void startSimThread() {

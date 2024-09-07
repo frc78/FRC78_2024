@@ -23,8 +23,38 @@ public class TunerConstants {
       new Slot0Configs().withKP(100).withKI(0).withKD(0.2).withKS(0).withKV(1.5).withKA(0);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-  private static final Slot0Configs driveGains =
-      new Slot0Configs().withKP(3).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
+  private static final Slot0Configs driveGainsLU =
+      new Slot0Configs()
+          .withKP(0.15011)
+          .withKI(0)
+          .withKD(0)
+          .withKS(0.24173)
+          .withKV(0.11631)
+          .withKA(0.015198);
+  private static final Slot0Configs driveGainsRU =
+      new Slot0Configs()
+          .withKP(0.14552)
+          .withKI(0)
+          .withKD(0)
+          .withKS(0.1886)
+          .withKV(0.11867)
+          .withKA(0.012731);
+  private static final Slot0Configs driveGainsLD =
+      new Slot0Configs()
+          .withKP(0.14508)
+          .withKI(0)
+          .withKD(0)
+          .withKS(0.17463)
+          .withKV(0.11784)
+          .withKA(0.01535);
+  private static final Slot0Configs driveGainsRD =
+      new Slot0Configs()
+          .withKP(0.14255)
+          .withKI(0)
+          .withKD(0)
+          .withKS(0.19298)
+          .withKV(0.11813)
+          .withKA(0.016767);
 
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
@@ -55,20 +85,20 @@ public class TunerConstants {
 
   // Theoretical free speed (m/s) at 12v applied output;
   // This needs to be tuned to your individual robot
-  public static final double kSpeedAt12VoltsMps = 11.92;
+  public static final double kSpeedAt12VoltsMps = 5.21;
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
-  private static final double kCoupleRatio = 3.125;
+  private static final double kCoupleRatio = 3.5714285714285716;
 
-  private static final double kDriveGearRatio = 6.74603174603;
+  private static final double kDriveGearRatio = 6.122448979591837;
   private static final double kSteerGearRatio = 21.428571428571427;
-  private static final double kWheelRadiusInches = 4;
+  private static final double kWheelRadiusInches = 2;
 
   private static final boolean kInvertLeftSide = false;
   private static final boolean kInvertRightSide = true;
 
-  private static final String kCANbusName = "Demo Bot CANivore";
+  private static final String kCANbusName = "*";
   private static final int kPigeonId = 0;
 
   // These are only used for simulation
@@ -91,7 +121,6 @@ public class TunerConstants {
           .withWheelRadius(kWheelRadiusInches)
           .withSlipCurrent(kSlipCurrentA)
           .withSteerMotorGains(steerGains)
-          .withDriveMotorGains(driveGains)
           .withSteerMotorClosedLoopOutput(steerClosedLoopOutput)
           .withDriveMotorClosedLoopOutput(driveClosedLoopOutput)
           .withSpeedAt12VoltsMps(kSpeedAt12VoltsMps)
@@ -154,7 +183,8 @@ public class TunerConstants {
               Units.inchesToMeters(kFrontLeftXPosInches),
               Units.inchesToMeters(kFrontLeftYPosInches),
               kInvertLeftSide)
-          .withSteerMotorInverted(kFrontLeftSteerInvert);
+          .withSteerMotorInverted(kFrontLeftSteerInvert)
+          .withDriveMotorGains(driveGainsLU);
   public static final SwerveModuleConstants FrontRight =
       ConstantCreator.createModuleConstants(
               kFrontRightSteerMotorId,
@@ -164,7 +194,8 @@ public class TunerConstants {
               Units.inchesToMeters(kFrontRightXPosInches),
               Units.inchesToMeters(kFrontRightYPosInches),
               kInvertRightSide)
-          .withSteerMotorInverted(kFrontRightSteerInvert);
+          .withSteerMotorInverted(kFrontRightSteerInvert)
+          .withDriveMotorGains(driveGainsRU);
   public static final SwerveModuleConstants BackLeft =
       ConstantCreator.createModuleConstants(
               kBackLeftSteerMotorId,
@@ -174,7 +205,8 @@ public class TunerConstants {
               Units.inchesToMeters(kBackLeftXPosInches),
               Units.inchesToMeters(kBackLeftYPosInches),
               kInvertLeftSide)
-          .withSteerMotorInverted(kBackLeftSteerInvert);
+          .withSteerMotorInverted(kBackLeftSteerInvert)
+          .withDriveMotorGains(driveGainsLD);
   public static final SwerveModuleConstants BackRight =
       ConstantCreator.createModuleConstants(
               kBackRightSteerMotorId,
@@ -184,5 +216,6 @@ public class TunerConstants {
               Units.inchesToMeters(kBackRightXPosInches),
               Units.inchesToMeters(kBackRightYPosInches),
               kInvertRightSide)
-          .withSteerMotorInverted(kBackRightSteerInvert);
+          .withSteerMotorInverted(kBackRightSteerInvert)
+          .withDriveMotorGains(driveGainsRD);
 }
