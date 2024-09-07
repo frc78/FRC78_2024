@@ -8,14 +8,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import frc.robot.classes.ModuleConfigNeo;
@@ -29,31 +22,6 @@ class RobotConstants {
   public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
 
   public static final double ROBOT_RADIUS = Math.hypot(WHEEL_WIDTH / 2.0, WHEEL_WIDTH / 2.0);
-
-  public static final int PIGEON_ID = 0;
-
-  public static final String STERN_CAM_NAME = "SternCam";
-  public static final String STARBOARD_CAM_NAME = "StarboardCam";
-  public static final String PORT_CAM_NAME = "PortCam";
-  public static final Transform3d STERN_CAM_POSE =
-      new Transform3d(
-          new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
-          new Rotation3d(Math.PI, Math.toRadians(-30), Math.PI));
-
-  public static final Transform3d STARBOARD_CAM_POSE =
-      new Transform3d(
-          new Translation3d(4.465, -10.205, 21.274).times(Units.inchesToMeters(1)),
-          new Rotation3d(Math.PI, Math.toRadians(-25), Math.toRadians(-30)));
-
-  public static final Transform3d PORT_CAM_POSE =
-      new Transform3d(
-          new Translation3d(4.465, 10.205, 21.274).times(Units.inchesToMeters(1)),
-          new Rotation3d(0, Math.toRadians(-25), Math.toRadians(30)));
-
-  public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
-  public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
-  public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
-  public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
   public static final MotionLimits MOTION_LIMITS = new MotionLimits(5.6, 3 /*TODO */, 12, 18);
 

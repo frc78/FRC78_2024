@@ -4,9 +4,6 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.*;
-
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,15 +12,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarFeedPrime extends Command {
   private Shooter shooter;
   private Elevator elevator;
+  private CommandSwerveDrivetrain chassis;
   private Translation2d plopTranslation;
-  private Supplier<Pose2d> poseSupplier;
   // private NetworkTableEntry lInput;
 
   // Translation of where the note exits in the XZ plane (side view)
@@ -37,13 +34,14 @@ public class VarFeedPrime extends Command {
   public VarFeedPrime(
       Shooter shooter,
       Elevator elevator,
-      Supplier<Pose2d> poseSupplier,
+      CommandSwerveDrivetrain chassis,
       Translation2d shooterXZTrans,
       DoubleSupplier wristAngle,
       double MPS_RPM,
       double distCoeff) {
     this.shooter = shooter;
     this.elevator = elevator;
+    this.chassis = chassis;
     this.shooterXZTrans = shooterXZTrans;
     this.wristAngle = wristAngle;
     this.MPS_RPM = MPS_RPM;
@@ -64,11 +62,10 @@ public class VarFeedPrime extends Command {
 
   @Override
   public void execute() {
-    Pose2d pose = poseSupplier.get();
-
     // Distance and height to speaker
     double distanceToTarget =
-        pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
+        chassis.getState().Pose.getTranslation().getDistance(plopTranslation)
+            - shooterXZTrans.getX();
     distanceToTarget *= distCoeff;
     // double distanceToTarget = lInput.getDouble(3);
 
