@@ -511,6 +511,7 @@ class CompetitionRobotContainer {
     // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
+    sysIdController.b().whileTrue(m_Elevator.runSysId());
 
     RobotModeTriggers.teleop()
         .onTrue(
