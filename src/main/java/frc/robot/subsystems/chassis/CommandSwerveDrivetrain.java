@@ -44,18 +44,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   /* Keep track if we've ever applied the operator perspective before or not */
   private boolean hasAppliedOperatorPerspective = false;
 
-  private final SwerveRequest.ApplyChassisSpeeds AutoRequest =
+  private final SwerveRequest.ApplyChassisSpeeds autoRequest =
       new SwerveRequest.ApplyChassisSpeeds();
 
-  private final SwerveRequest.SysIdSwerveTranslation TranslationCharacterization =
+  private final SwerveRequest.SysIdSwerveTranslation translationCharacterization =
       new SwerveRequest.SysIdSwerveTranslation();
-  private final SwerveRequest.SysIdSwerveRotation RotationCharacterization =
+  private final SwerveRequest.SysIdSwerveRotation rotationCharacterization =
       new SwerveRequest.SysIdSwerveRotation();
-  private final SwerveRequest.SysIdSwerveSteerGains SteerCharacterization =
+  private final SwerveRequest.SysIdSwerveSteerGains steerCharacterization =
       new SwerveRequest.SysIdSwerveSteerGains();
 
   /* Use one of these sysidroutines for your particular test */
-  public SysIdRoutine SysIdRoutineTranslation =
+  public SysIdRoutine sysIdRoutineTranslation =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null,
@@ -63,9 +63,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
               Seconds.of(6),
               (state) -> SignalLogger.writeString("state", state.toString())),
           new SysIdRoutine.Mechanism(
-              (volts) -> setControl(TranslationCharacterization.withVolts(volts)), null, this));
+              (volts) -> setControl(translationCharacterization.withVolts(volts)), null, this));
 
-  public final SysIdRoutine SysIdRoutineRotation =
+  public final SysIdRoutine sysIdRoutineRotation =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null,
@@ -73,8 +73,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
               null,
               (state) -> SignalLogger.writeString("state", state.toString())),
           new SysIdRoutine.Mechanism(
-              (volts) -> setControl(RotationCharacterization.withVolts(volts)), null, this));
-  public final SysIdRoutine SysIdRoutineSteer =
+              (volts) -> setControl(rotationCharacterization.withVolts(volts)), null, this));
+  public final SysIdRoutine sysIdRoutineSteer =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null,
@@ -82,7 +82,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
               null,
               (state) -> SignalLogger.writeString("state", state.toString())),
           new SysIdRoutine.Mechanism(
-              (volts) -> setControl(SteerCharacterization.withVolts(volts)), null, this));
+              (volts) -> setControl(steerCharacterization.withVolts(volts)), null, this));
 
   public CommandSwerveDrivetrain(
       SwerveDrivetrainConstants driveTrainConstants,
@@ -137,7 +137,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         this::getEstimatedVelocitey,
         (speeds) ->
             this.setControl(
-                AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+                autoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
         new HolonomicPathFollowerConfig(
             new PIDConstants(10, 0, 0),
             new PIDConstants(10, 0, 0),

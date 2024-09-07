@@ -388,30 +388,30 @@ class CompetitionRobotContainer {
         .whileTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineRotation),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineRotation),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineRotation),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineRotation),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineRotation),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineRotation),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineRotation),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineRotation),
                 Commands.runOnce(() -> SignalLogger.stop())));
     sysIdController
         .pov(90)
         .whileTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineTranslation),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineTranslation),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineTranslation),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineTranslation),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineTranslation),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineTranslation),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineTranslation),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineTranslation),
                 Commands.runOnce(() -> SignalLogger.stop())));
     sysIdController
         .pov(180)
         .whileTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.SysIdRoutineSteer),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.SysIdRoutineSteer),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.SysIdRoutineSteer),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.SysIdRoutineSteer),
+                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineSteer),
+                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineSteer),
+                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineSteer),
+                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineSteer),
                 Commands.runOnce(() -> SignalLogger.stop())));
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
