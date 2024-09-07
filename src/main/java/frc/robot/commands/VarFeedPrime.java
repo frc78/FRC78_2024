@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
@@ -15,6 +17,7 @@ import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarFeedPrime extends Command {
