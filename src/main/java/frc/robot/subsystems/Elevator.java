@@ -15,7 +15,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.ReverseLimitValue;
-
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
 import org.littletonrobotics.junction.Logger;
 
 public class Elevator extends SubsystemBase {
@@ -165,7 +163,8 @@ public class Elevator extends SubsystemBase {
                 control.Position = target;
                 leader.setControl(control);
               }
-            }).andThen(Commands.idle())
+            })
+        .andThen(Commands.idle())
         .withName("setTo[" + target + "]");
   }
 
@@ -173,27 +172,33 @@ public class Elevator extends SubsystemBase {
   private final VoltageOut m_voltReq = new VoltageOut(0.0);
 
   private final SysIdRoutine m_sysIdRoutine =
-    new SysIdRoutine(
-        new SysIdRoutine.Config(
-          null,        // Use default ramp rate (1 V/s)
-          Units.Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
-          null,        // Use default timeout (10 s)
-                        // Log state with Phoenix SignalLogger class
-          (state) -> SignalLogger.writeString("state", state.toString())
-        ),
-        new SysIdRoutine.Mechanism(
-          (volts) -> leader.setControl(m_voltReq.withOutput(volts.in(Units.Volts))),
-          null,
-          this
-        )
-    );
+      new SysIdRoutine(
+          new SysIdRoutine.Config(
+              null, // Use default ramp rate (1 V/s)
+              Units.Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+              null, // Use default timeout (10 s)
+              // Log state with Phoenix SignalLogger class
+              (state) -> SignalLogger.writeString("state", state.toString())),
+          new SysIdRoutine.Mechanism(
+              (volts) -> leader.setControl(m_voltReq.withOutput(volts.in(Units.Volts))),
+              null,
+              this));
 
   public Command runSysId() {
-    return Commands.sequence(runOnce(SignalLogger::start),
-    m_sysIdRoutine.quasistatic(Direction.kForward).until(() -> leader.getFault_ForwardSoftLimit().getValue()), 
-    m_sysIdRoutine.quasistatic(Direction.kReverse).until(() -> leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround), 
-    m_sysIdRoutine.dynamic(Direction.kForward).until(() -> leader.getFault_ForwardSoftLimit().getValue()), 
-    m_sysIdRoutine.dynamic(Direction.kReverse).until(() -> leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround),
-    runOnce(SignalLogger::stop));
+    return Commands.sequence(
+        runOnce(SignalLogger::start),
+        m_sysIdRoutine
+            .quasistatic(Direction.kForward)
+            .until(() -> leader.getFault_ForwardSoftLimit().getValue()),
+        m_sysIdRoutine
+            .quasistatic(Direction.kReverse)
+            .until(() -> leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround),
+        m_sysIdRoutine
+            .dynamic(Direction.kForward)
+            .until(() -> leader.getFault_ForwardSoftLimit().getValue()),
+        m_sysIdRoutine
+            .dynamic(Direction.kReverse)
+            .until(() -> leader.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround),
+        runOnce(SignalLogger::stop));
   }
 }
