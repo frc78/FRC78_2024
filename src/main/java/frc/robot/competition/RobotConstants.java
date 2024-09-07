@@ -7,11 +7,9 @@ package frc.robot.competition;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import frc.robot.classes.ModuleConfigNeo;
 import frc.robot.classes.Structs.*;
 import frc.robot.subsystems.Shooter.ShooterConfig;
 
@@ -71,9 +69,6 @@ class RobotConstants {
 
   public static final double NOMINAL_VOLTAGE = 12;
 
-  public static final IdleMode DRIVE_IDLE = IdleMode.kBrake;
-  public static final IdleMode STEER_IDLE = IdleMode.kBrake;
-
   public static final double STEER_ENC_PID_MIN = 0.0;
   public static final double STEER_ENC_PID_MAX = STEER_ENC_POS_TO_METERS; // TODO
 
@@ -83,25 +78,6 @@ class RobotConstants {
     new FFConstants(0.25259, 2.0883, 0.35247),
     new FFConstants(0.055245, 2.1739, 0.73292)
   };
-
-  public static final ModuleConfigNeo MODULE_CONFIG =
-      new ModuleConfigNeo(
-          new ClosedLoopParameters(0.1, 0, 0, 0),
-          new ClosedLoopParameters(20, 0, 1, 1 / STEER_FREESPEED),
-          RobotConstants.DRIVE_ENC_TO_METERS,
-          RobotConstants.DRIVE_ENC_VEL_TO_METERS_PER_SECOND,
-          RobotConstants.STEER_ENC_POS_TO_METERS,
-          RobotConstants.STEER_ENC_VEL_TO_METERS,
-          RobotConstants.DRIVE_INVERTED,
-          RobotConstants.STEER_INVERTED,
-          RobotConstants.STEER_ENC_INVERTED,
-          RobotConstants.STEER_ENC_PID_MIN,
-          RobotConstants.STEER_ENC_PID_MAX,
-          RobotConstants.DRIVE_CURRENT_LIMIT,
-          RobotConstants.STEER_CURRENT_LIMIT,
-          RobotConstants.NOMINAL_VOLTAGE,
-          RobotConstants.DRIVE_IDLE,
-          RobotConstants.STEER_IDLE);
 
   // INTAKE
   public static final int INTAKE_TOP_ID = 10;
