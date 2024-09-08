@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
@@ -19,14 +18,14 @@ import frc.robot.classes.Util;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Wrist;
-import frc.robot.subsystems.chassis.PoseEstimator;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarShootPrime extends Command {
   private Wrist wrist;
   private Elevator elevator;
-  private PoseEstimator poseEstimator;
+  private CommandSwerveDrivetrain chassis;
   private Translation2d speakerTranslation;
 
   // Translation of where the note exits in the XZ plane (side view)
@@ -42,7 +41,7 @@ public class VarShootPrime extends Command {
   public VarShootPrime(
       Wrist wrist,
       Elevator elevator,
-      PoseEstimator poseEstimator,
+      CommandSwerveDrivetrain chassis,
       Translation2d shooterXZTrans,
       DoubleSupplier shooterVel,
       Range distRange,
@@ -51,7 +50,7 @@ public class VarShootPrime extends Command {
       Measure<Angle> defaultAngle) {
     this.wrist = wrist;
     this.elevator = elevator;
-    this.poseEstimator = poseEstimator;
+    this.chassis = chassis;
     this.shooterXZTrans = shooterXZTrans;
     this.shooterVel = shooterVel;
     this.distRange = distRange;
@@ -74,10 +73,11 @@ public class VarShootPrime extends Command {
 
   @Override
   public void execute() {
-    Pose2d pose = poseEstimator.getFusedPose();
 
     // Distance and height to speaker
-    double l = pose.getTranslation().getDistance(speakerTranslation) - shooterXZTrans.getX();
+    double l =
+        chassis.getState().Pose.getTranslation().getDistance(speakerTranslation)
+            - shooterXZTrans.getX();
     double h =
         (Constants.SPEAKER_HEIGHT.in(Meters) - shooterXZTrans.getY())
             - Units.inchesToMeters(elevator.getElevatorPos());

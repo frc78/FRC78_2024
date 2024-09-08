@@ -4,9 +4,8 @@
 
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Radians;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Angle;
@@ -17,14 +16,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.Constants;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.chassis.PoseEstimator;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class VarFeedPrime extends Command {
   private Shooter shooter;
   private Elevator elevator;
-  private PoseEstimator poseEstimator;
+  private CommandSwerveDrivetrain chassis;
   private Translation2d plopTranslation;
   // private NetworkTableEntry lInput;
 
@@ -39,14 +38,14 @@ public class VarFeedPrime extends Command {
   public VarFeedPrime(
       Shooter shooter,
       Elevator elevator,
-      PoseEstimator poseEstimator,
+      CommandSwerveDrivetrain chassis,
       Translation2d shooterXZTrans,
       Supplier<Measure<Angle>> wristAngle,
       double MPS_RPM,
       double distCoeff) {
     this.shooter = shooter;
     this.elevator = elevator;
-    this.poseEstimator = poseEstimator;
+    this.chassis = chassis;
     this.shooterXZTrans = shooterXZTrans;
     this.wristAngle = wristAngle;
     this.MPS_RPM = MPS_RPM;
@@ -67,11 +66,10 @@ public class VarFeedPrime extends Command {
 
   @Override
   public void execute() {
-    Pose2d pose = poseEstimator.getFusedPose();
-
     // Distance and height to speaker
     double distanceToTarget =
-        pose.getTranslation().getDistance(plopTranslation) - shooterXZTrans.getX();
+        chassis.getState().Pose.getTranslation().getDistance(plopTranslation)
+            - shooterXZTrans.getX();
     distanceToTarget *= distCoeff;
     // double distanceToTarget = lInput.getDouble(3);
 

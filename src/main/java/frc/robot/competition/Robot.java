@@ -6,10 +6,8 @@ package frc.robot.competition;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.reduxrobotics.canand.CanandEventLoop;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -68,14 +66,12 @@ public class Robot extends LoggedRobot {
     // CTRE logger
     SignalLogger.setPath("/u/ctre-logs/");
     m_robotContainer = new CompetitionRobotContainer();
-
-    Notifier poseNotifier = new Notifier(m_robotContainer.m_poseEstimator::update);
-    poseNotifier.startPeriodic(.02);
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.m_vision.updateVisionMeasurements();
   }
 
   @Override
@@ -100,9 +96,7 @@ public class Robot extends LoggedRobot {
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {
-    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
-  }
+  public void autonomousExit() {}
 
   @Override
   public void teleopInit() {
@@ -115,9 +109,7 @@ public class Robot extends LoggedRobot {
   public void teleopPeriodic() {}
 
   @Override
-  public void teleopExit() {
-    m_robotContainer.m_chassis.driveRobotRelative(new ChassisSpeeds());
-  }
+  public void teleopExit() {}
 
   @Override
   public void testInit() {

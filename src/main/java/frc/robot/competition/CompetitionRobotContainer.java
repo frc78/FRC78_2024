@@ -5,37 +5,35 @@
 package frc.robot.competition;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.classes.BaseDrive;
+import frc.robot.classes.TunerConstants;
 import frc.robot.commands.AlignToNote;
-import frc.robot.commands.AlignToPose;
-import frc.robot.commands.DriveToAprilTag;
-import frc.robot.commands.FieldOrientedDrive;
-import frc.robot.commands.FieldOrientedWithCardinal;
 import frc.robot.commands.VarFeedPrime;
 import frc.robot.commands.VarShootPrime;
 import frc.robot.constants.Constants;
@@ -45,22 +43,16 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Wrist;
-import frc.robot.subsystems.chassis.Chassis;
-import frc.robot.subsystems.chassis.NamedPhotonPoseEstimator;
-import frc.robot.subsystems.chassis.NeoModule;
-import frc.robot.subsystems.chassis.PoseEstimator;
-import frc.robot.subsystems.chassis.SwerveModule;
-import java.util.List;
+import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
+import frc.robot.subsystems.chassis.Vision;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
-import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
 
 class CompetitionRobotContainer {
 
-  public final Chassis m_chassis;
+  public final CommandSwerveDrivetrain m_chassis;
   private final BaseDrive m_baseDrive;
-  public final PoseEstimator m_poseEstimator;
+  public final Vision m_vision;
   private final Intake m_intake;
   private final Elevator m_Elevator;
   public final Shooter m_Shooter;
@@ -73,66 +65,23 @@ class CompetitionRobotContainer {
   private final CommandXboxController sysIdController;
   private final SendableChooser<Command> autoChooser;
   private final Command AmpSetUp;
+  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric();
+  private final SwerveDriveBrake brakeMode = new SwerveDriveBrake();
+  private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngle =
+      new SwerveRequest.FieldCentricFacingAngle();
 
   CompetitionRobotContainer() {
 
-    NeoModule frontLeft =
-        new NeoModule(1, 2, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[0]);
+    m_chassis =
+        new CommandSwerveDrivetrain(
+            TunerConstants.DrivetrainConstants,
+            AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo),
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
+            TunerConstants.BackRight);
 
-    NeoModule frontRight =
-        new NeoModule(3, 4, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[1]);
-
-    NeoModule backLeft =
-        new NeoModule(5, 6, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[2]);
-
-    NeoModule backRight =
-        new NeoModule(7, 8, RobotConstants.MODULE_CONFIG, RobotConstants.MODULE_FF[3]);
-
-    SwerveModule[] modules = new SwerveModule[] {frontLeft, frontRight, backLeft, backRight};
-
-    SwerveDriveKinematics swerveDriveKinematics = getSwerveDriveKinematics();
-
-    m_chassis = new Chassis(modules, swerveDriveKinematics, RobotConstants.MOTION_LIMITS);
-
-    PhotonCamera sternCam = new PhotonCamera(RobotConstants.STERN_CAM_NAME);
-    PhotonCamera starboardCam = new PhotonCamera(RobotConstants.STARBOARD_CAM_NAME);
-    PhotonCamera portCam = new PhotonCamera(RobotConstants.PORT_CAM_NAME);
-
-    NamedPhotonPoseEstimator sternCamPE =
-        new NamedPhotonPoseEstimator(
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            sternCam,
-            RobotConstants.STERN_CAM_POSE,
-            RobotConstants.STERN_CAM_NAME);
-
-    NamedPhotonPoseEstimator starboardCamPE =
-        new NamedPhotonPoseEstimator(
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            starboardCam,
-            RobotConstants.STARBOARD_CAM_POSE,
-            RobotConstants.STARBOARD_CAM_NAME);
-    NamedPhotonPoseEstimator portCamPE =
-        new NamedPhotonPoseEstimator(
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            portCam,
-            RobotConstants.PORT_CAM_POSE,
-            RobotConstants.PORT_CAM_NAME);
-
-    Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_ID);
-    m_poseEstimator =
-        new PoseEstimator(
-            m_chassis,
-            swerveDriveKinematics,
-            Constants.APRIL_TAG_FIELD_LAYOUT,
-            List.of(sternCamPE, starboardCamPE, portCamPE),
-            pigeon,
-            RobotConstants.STATE_STD_DEVS,
-            RobotConstants.VISION_STD_DEVS,
-            RobotConstants.SINGLE_TAG_STD_DEVS,
-            RobotConstants.MULTI_TAG_STD_DEVS);
+    m_vision = new Vision(m_chassis);
 
     m_driveController = new CommandXboxController(0);
     m_manipController = new CommandXboxController(1);
@@ -147,7 +96,14 @@ class CompetitionRobotContainer {
     PortForwarder.add(5800, "photonvision.local", 5800);
 
     m_chassis.setDefaultCommand(
-        new FieldOrientedDrive(m_chassis, m_poseEstimator, m_baseDrive::calculateChassisSpeeds));
+        m_chassis.applyRequest(
+            () -> {
+              ChassisSpeeds speeds = m_baseDrive.calculateChassisSpeeds();
+              return drive
+                  .withVelocityX(speeds.vxMetersPerSecond)
+                  .withVelocityY(speeds.vyMetersPerSecond)
+                  .withRotationalRate(speeds.omegaRadiansPerSecond);
+            }));
 
     m_intake =
         new Intake(
@@ -186,51 +142,41 @@ class CompetitionRobotContainer {
     NamedCommands.registerCommand("stow", m_Wrist.stow());
     NamedCommands.registerCommand(
         "Target",
-        new FieldOrientedWithCardinal(
-                m_chassis,
-                m_poseEstimator,
+        m_chassis
+            .applyRequest(
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(Blue) == Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
-                  double angle =
+                  Rotation2d angle =
                       target
-                              .minus(m_poseEstimator.getFusedPose().getTranslation())
-                              .getAngle()
-                              .getRadians()
-                          + Math.PI;
+                          .minus(m_chassis.getState().Pose.getTranslation())
+                          .getAngle()
+                          .plus(Rotation2d.fromRadians(Math.PI));
                   Logger.recordOutput("Aiming angle", angle);
-                  //   angle *=
-                  //       m_poseEstimator.getEstimatedVel().getY()
-                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
-                  return angle;
-                },
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(5)) // was 2 changed in b80 for wk4
-            .withTimeout(1)
+                  return fieldCentricFacingAngle.withTargetDirection(angle);
+                })
+            .withTimeout(2)
             .withName("Target"));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
-    // NamedCommands.registerCommand(
-    //     "DriveToNote",
-    //     pickUpNote()
-    //         .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
-    //         .withTimeout(2)
-    //         .withName("Drive to Note"));
+    NamedCommands.registerCommand(
+        "DriveToNote",
+        pickUpNote()
+            .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
+            .withTimeout(2)
+            .withName("Drive to Note"));
     NamedCommands.registerCommand(
         "DriveToNote",
         pickUpNote()
             .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
             .until(
                 () -> {
-                  if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
-                    return m_poseEstimator.getFusedPose().getX()
+                  if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    return m_chassis.getState().Pose.getX()
                         > 8.25 + RobotConstants.CENTER_LINE_MARGIN;
                   } else {
-                    return m_poseEstimator.getFusedPose().getX()
+                    return m_chassis.getState().Pose.getX()
                         < 8.25 - RobotConstants.CENTER_LINE_MARGIN;
                   }
                 })
@@ -241,7 +187,7 @@ class CompetitionRobotContainer {
         new VarShootPrime(
             m_Wrist,
             m_Elevator,
-            m_poseEstimator,
+            m_chassis,
             RobotConstants.SHOOT_POINT,
             () -> m_Shooter.getVelocity() * 60,
             RobotConstants.DISTANCE_RANGE,
@@ -251,23 +197,6 @@ class CompetitionRobotContainer {
 
     // Need to add and then to stop the feed and shooter
 
-    AutoBuilder.configureHolonomic(
-        m_poseEstimator::getFusedPose, // Robot pose supplier
-        m_poseEstimator::resetPose, // Method to reset odometry
-        m_chassis::getRealChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
-        // ChassisSpeeds
-        RobotConstants.HOLONOMIC_PATH_FOLLOWER_CONFIG,
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        m_chassis // Reference to this subsystem to set requirements
-        );
-
     PPHolonomicDriveController.setRotationTargetOverride(this::getRotationTargetOverride);
 
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -275,20 +204,6 @@ class CompetitionRobotContainer {
     SmartDashboard.putData("AutoMode", autoChooser);
 
     configureBindings();
-  }
-
-  private static SwerveDriveKinematics getSwerveDriveKinematics() {
-    Translation2d frontLeftLocation =
-        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d frontRightLocation =
-        new Translation2d(RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d backLeftLocation =
-        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, RobotConstants.WHEEL_WIDTH / 2.0);
-    Translation2d backRightLocation =
-        new Translation2d(-RobotConstants.WHEEL_WIDTH / 2.0, -RobotConstants.WHEEL_WIDTH / 2.0);
-
-    return new SwerveDriveKinematics(
-        frontLeftLocation, frontRightLocation, backLeftLocation, backRightLocation);
   }
 
   Command shortRumble(XboxController controller, RumbleType rumbleType) {
@@ -321,9 +236,11 @@ class CompetitionRobotContainer {
         .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
 
-    new Trigger(() -> m_Elevator.elevIsAtPos())
+    new Trigger(m_Elevator::elevIsAtPos)
         .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
+
+    m_driveController.start().onTrue(Commands.runOnce(() -> m_chassis.getPigeon2().reset()));
 
     m_driveController
         .rightBumper()
@@ -336,31 +253,22 @@ class CompetitionRobotContainer {
     m_driveController
         .leftBumper()
         .whileTrue(
-            new FieldOrientedWithCardinal(
-                m_chassis,
-                m_poseEstimator,
+            m_chassis.applyRequest(
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-                              == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(Blue) == Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
-                  double angle =
+                  Rotation2d angle =
                       target
-                              .minus(m_poseEstimator.getFusedPose().getTranslation())
-                              .getAngle()
-                              .getRadians()
-                          + Math.PI;
+                          .minus(m_chassis.getState().Pose.getTranslation())
+                          .getAngle()
+                          .plus(Rotation2d.fromRadians(Math.PI));
                   Logger.recordOutput("Aiming angle", angle);
-                  return angle;
-                },
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF,
-                Units.degreesToRadians(0))); // was zero changed in b80 before wk4
+                  return fieldCentricFacingAngle.withTargetDirection(angle);
+                }));
 
-    m_driveController.povDown().whileTrue(m_chassis.lockWheels());
+    m_driveController.povDown().whileTrue(m_chassis.applyRequest(() -> brakeMode));
 
     m_driveController
         .a()
@@ -368,9 +276,7 @@ class CompetitionRobotContainer {
         .or(m_driveController.x())
         .or(m_driveController.y())
         .whileTrue(
-            new FieldOrientedWithCardinal(
-                m_chassis,
-                m_poseEstimator,
+            m_chassis.applyRequest(
                 () -> {
                   double xCardinal =
                       (m_driveController.getHID().getYButton() ? 1 : 0)
@@ -378,45 +284,11 @@ class CompetitionRobotContainer {
                   double yCardinal =
                       (m_driveController.getHID().getBButton() ? 1 : 0)
                           - (m_driveController.getHID().getXButton() ? 1 : 0);
-                  double dir = -Math.atan2(yCardinal, xCardinal);
-                  dir = dir < 0 ? dir + 2 * Math.PI : dir; // TODO
-                  // check
-                  // if
-                  // needed
+                  double angle = -Math.atan2(yCardinal, xCardinal);
 
-                  Logger.recordOutput("goalCardinal", dir);
-                  return dir;
-                },
-                m_baseDrive::calculateChassisSpeeds,
-                RobotConstants.ROTATION_PID,
-                RobotConstants.ROTATION_CONSTRAINTS,
-                RobotConstants.ROTATION_FF,
-                0));
-
-    m_driveController
-        .rightStick()
-        // Disable for now
-        .and(() -> false)
-        .whileTrue(
-            new AlignToPose(
-                    m_chassis,
-                    Constants.AMP_TRANSFORM,
-                    m_poseEstimator,
-                    RobotConstants.TRANSLATION_PID,
-                    RobotConstants.ROTATION_PID,
-                    RobotConstants.MOTION_LIMITS)
-                .alongWith(m_chassis.enableAprilTags())
-                .andThen(
-                    m_Elevator
-                        .setToTarget(16.3)
-                        .alongWith(
-                            new SequentialCommandGroup(
-                                m_Wrist.setToTargetCmd(Degrees.of(0)),
-                                new DriveToAprilTag(m_chassis),
-                                m_Wrist.setToTargetCmd(Degrees.of(23)),
-                                Commands.waitSeconds(.2),
-                                m_feeder.outtake()))))
-        .onFalse(m_Wrist.stow().alongWith(m_chassis.enableNoteDetection()));
+                  Logger.recordOutput("goalCardinal", angle);
+                  return fieldCentricFacingAngle.withTargetDirection(Rotation2d.fromRadians(angle));
+                }));
 
     // Zero the elevator when the robot leaves disabled mode and has not been zeroed
     RobotModeTriggers.disabled()
@@ -439,7 +311,7 @@ class CompetitionRobotContainer {
             new VarFeedPrime(
                     m_Shooter,
                     m_Elevator,
-                    m_poseEstimator,
+                    m_chassis,
                     RobotConstants.SHOOT_POINT,
                     () -> RobotConstants.WRIST_PLOP_ANGLE,
                     1 / RobotConstants.SHOOTER_RPM_TO_MPS,
@@ -453,7 +325,7 @@ class CompetitionRobotContainer {
             new VarFeedPrime(
                 m_Shooter,
                 m_Elevator,
-                m_poseEstimator,
+                m_chassis,
                 RobotConstants.SHOOT_POINT,
                 () -> RobotConstants.WRIST_HIGH_LIM,
                 1 / RobotConstants.SHOOTER_RPM_TO_MPS,
@@ -469,7 +341,7 @@ class CompetitionRobotContainer {
                     new VarShootPrime(
                         m_Wrist,
                         m_Elevator,
-                        m_poseEstimator,
+                        m_chassis,
                         RobotConstants.SHOOT_POINT,
                         () -> m_Shooter.getVelocity() * 60,
                         RobotConstants.DISTANCE_RANGE,
@@ -491,8 +363,6 @@ class CompetitionRobotContainer {
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
-
     m_manipController.rightBumper().whileTrue(pickUpNote());
 
     m_manipController.leftBumper().whileTrue(m_feeder.outtake());
@@ -505,20 +375,17 @@ class CompetitionRobotContainer {
 
     m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
 
-    // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
-    // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
-    // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
-    // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
+    // Swerve Drive SysId Routines use d-pad
+    sysIdController.pov(0).whileTrue(m_chassis.sysIdRotation());
+    sysIdController.pov(90).whileTrue(m_chassis.sysIdTranslation());
+    sysIdController.pov(180).whileTrue(m_chassis.sysIdSteer());
+
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
     sysIdController.b().whileTrue(m_Elevator.runSysId());
 
     RobotModeTriggers.teleop()
-        .onTrue(
-            m_Elevator
-                .enableBrakeMode()
-                .andThen(m_Wrist.enableBrakeMode())
-                .andThen(m_chassis.enableBrakeMode()));
+        .onTrue(m_Elevator.enableBrakeMode().andThen(m_Wrist.enableBrakeMode()));
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
     RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeedCmd(0).ignoringDisable(true));
@@ -538,12 +405,12 @@ class CompetitionRobotContainer {
   public Optional<Rotation2d> getRotationTargetOverride() {
     if (m_feeder.isNoteQueued()) {
       Translation2d target =
-          DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+          DriverStation.getAlliance().orElse(Blue) == Red
               ? Constants.RED_SPEAKER_POSE
               : Constants.BLUE_SPEAKER_POSE;
       Rotation2d angle =
           target
-              .minus(m_poseEstimator.getFusedPose().getTranslation())
+              .minus(m_chassis.getState().Pose.getTranslation())
               .getAngle()
               .plus(Rotation2d.fromDegrees(180));
       Logger.recordOutput("Aiming angle", angle);
