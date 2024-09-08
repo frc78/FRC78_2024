@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
-import frc.robot.constants.Constants;
 import java.util.List;
 import java.util.Optional;
 import org.littletonrobotics.junction.Logger;
@@ -24,15 +23,16 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-/** Add your docs here. */
+/**
+ * This class is responsible for periodically retrieving vision measurements from networktables and
+ * updating the drivetrain with them.
+ */
 public class Vision {
   private final CommandSwerveDrivetrain chassis;
   private static final String STERN_CAM_NAME = "SternCam";
   private static final String STARBOARD_CAM_NAME = "StarboardCam";
   private static final String PORT_CAM_NAME = "PortCam";
 
-  //   public static final Matrix<N3, N1> STATE_STD_DEVS = VecBuilder.fill(0.1, 0.1, 0.1); // TODO
-  //   public static final Matrix<N3, N1> VISION_STD_DEVS = VecBuilder.fill(1, 1, 1.5);
   public static final Matrix<N3, N1> SINGLE_TAG_STD_DEVS = VecBuilder.fill(4, 4, 8);
   public static final Matrix<N3, N1> MULTI_TAG_STD_DEVS = VecBuilder.fill(0.5, 0.5, 1);
 
@@ -50,7 +50,7 @@ public class Vision {
     poseEstimators =
         List.of(
             new NamedPhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
+                aprilTagFieldLayout,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 sternCam,
                 new Transform3d(
@@ -58,7 +58,7 @@ public class Vision {
                     new Rotation3d(Math.PI, Math.toRadians(-30), Math.PI)),
                 STERN_CAM_NAME),
             new NamedPhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
+                aprilTagFieldLayout,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 starboardCam,
                 new Transform3d(
@@ -66,7 +66,7 @@ public class Vision {
                     new Rotation3d(Math.PI, Math.toRadians(-25), Math.toRadians(-30))),
                 STARBOARD_CAM_NAME),
             new NamedPhotonPoseEstimator(
-                Constants.APRIL_TAG_FIELD_LAYOUT,
+                aprilTagFieldLayout,
                 PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 portCam,
                 new Transform3d(
@@ -75,9 +75,12 @@ public class Vision {
                 PORT_CAM_NAME));
   }
 
-  public void init() {}
-
-  public void periodic() {
+  /**
+   * Update the drivetrain with the latest vision measurements.
+   *
+   * <p>This method should be called periodically
+   */
+  public void updateVisionMeasurements() {
     for (NamedPhotonPoseEstimator poseEstimator : poseEstimators) {
       Optional<EstimatedRobotPose> estimatedPoseOptional = poseEstimator.update();
 
@@ -117,11 +120,6 @@ public class Vision {
       estStdDevs = MULTI_TAG_STD_DEVS;
     }
     // Increase std devs based on (average) distance
-    // if (numTags == 1 && avgDist > 4)
-    //   estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-    // else
-    estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-
-    return estStdDevs;
+    return estStdDevs.times(1 + (avgDist * avgDist / 30));
   }
 }

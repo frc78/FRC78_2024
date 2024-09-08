@@ -14,7 +14,6 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -22,8 +21,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.TunerConstants;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -33,6 +34,7 @@ import org.littletonrobotics.junction.Logger;
  * in command-based projects easily.
  */
 public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem {
+
   private static final double kSimLoopPeriod = 0.005; // 5 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
@@ -100,12 +102,34 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     return run(() -> this.setControl(requestSupplier.get()));
   }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction, SysIdRoutine routine) {
-    return routine.quasistatic(direction);
+  public Command sysIdRotation() {
+    return Commands.sequence(
+        Commands.runOnce(SignalLogger::start),
+        sysIdRoutineRotation.quasistatic(Direction.kForward),
+        sysIdRoutineRotation.quasistatic(Direction.kReverse),
+        sysIdRoutineRotation.dynamic(Direction.kForward),
+        sysIdRoutineRotation.dynamic(Direction.kReverse),
+        Commands.runOnce(SignalLogger::stop));
   }
 
-  public Command sysIdDynamic(SysIdRoutine.Direction direction, SysIdRoutine routine) {
-    return routine.dynamic(direction);
+  public Command sysIdTranslation() {
+    return Commands.sequence(
+        Commands.runOnce(SignalLogger::start),
+        sysIdRoutineTranslation.quasistatic(Direction.kForward),
+        sysIdRoutineTranslation.quasistatic(Direction.kReverse),
+        sysIdRoutineTranslation.dynamic(Direction.kForward),
+        sysIdRoutineTranslation.dynamic(Direction.kReverse),
+        Commands.runOnce(SignalLogger::stop));
+  }
+
+  public Command sysIdSteer() {
+    return Commands.sequence(
+        Commands.runOnce(SignalLogger::start),
+        sysIdRoutineSteer.quasistatic(Direction.kForward),
+        sysIdRoutineSteer.quasistatic(Direction.kReverse),
+        sysIdRoutineSteer.dynamic(Direction.kForward),
+        sysIdRoutineSteer.dynamic(Direction.kReverse),
+        Commands.runOnce(SignalLogger::stop));
   }
 
   private void startSimThread() {
@@ -133,31 +157,24 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
     AutoBuilder.configureHolonomic(
         () -> this.getState().Pose, // Supplier of current robot pose
-        this::seedFieldRelative, // Consumer for seeding pose against auto
+        this::seedFieldRelative,
+        // Consumer for seeding pose against auto
         this::getEstimatedVelocitey,
-        (speeds) ->
-            this.setControl(
-                autoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+        (speeds) -> this.setControl(autoRequest.withSpeeds(speeds)),
+        // Consumer of ChassisSpeeds to drive the robot
         new HolonomicPathFollowerConfig(
             new PIDConstants(10, 0, 0),
             new PIDConstants(10, 0, 0),
             TunerConstants.kSpeedAt12VoltsMps,
             driveBaseRadius,
             new ReplanningConfig()),
-        () ->
-            DriverStation.getAlliance().orElse(Alliance.Blue)
-                == Alliance
-                    .Red, // Assume the path needs to be flipped for Red vs Blue, this is normally
-        // the case
+        // mirror when on red
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this); // Subsystem for requirements
   }
 
   public ChassisSpeeds getEstimatedVelocitey() {
     return m_kinematics.toChassisSpeeds(getState().ModuleStates);
-  }
-
-  public Pose2d getEstimatedPose() {
-    return m_odometry.getEstimatedPosition();
   }
 
   @Override

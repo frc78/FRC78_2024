@@ -11,13 +11,13 @@ import frc.robot.subsystems.chassis.CommandSwerveDrivetrain;
 import java.util.function.Supplier;
 
 public class AlignToNote extends Command {
+
   private final CommandSwerveDrivetrain chassis;
   private Supplier<ChassisSpeeds> speedsSupplier;
 
   NetworkTable table = NetworkTableInstance.getDefault().getTable("photonvision/Fisheye");
   NetworkTableEntry yaw = table.getEntry("targetYaw");
 
-  // private final PIDController translationController = new PIDController(0.07, 0, 0);
   private final PIDController rotationController = new PIDController(0.15, 0, 0.0015);
   private final SwerveRequest.ApplyChassisSpeeds applyChassisSpeeds =
       new SwerveRequest.ApplyChassisSpeeds();
@@ -27,7 +27,6 @@ public class AlignToNote extends Command {
     this.chassis = chassis;
     this.speedsSupplier = speedsSupplier;
 
-    // translationController.setSetpoint(0.0);
     rotationController.setSetpoint(0.0);
 
     addRequirements(chassis);
@@ -35,7 +34,6 @@ public class AlignToNote extends Command {
 
   @Override
   public void initialize() {
-    // translationController.reset();
     rotationController.reset();
   }
 
@@ -51,6 +49,6 @@ public class AlignToNote extends Command {
 
     align.omegaRadiansPerSecond = rotation;
 
-    chassis.applyRequest(() -> applyChassisSpeeds.withSpeeds(align));
+    chassis.setControl(applyChassisSpeeds.withSpeeds(align));
   }
 }

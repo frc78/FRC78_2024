@@ -10,11 +10,6 @@ public final class Main {
   private Main() {}
 
   public static void main(String... args) {
-    // if ("TEST".equalsIgnoreCase(System.getenv("FRC_BOT"))) {
-    //   RobotBase.startRobot(frc.robot.test.Robot::new);
-    // } else {
-    //   RobotBase.startRobot(frc.robot.competition.Robot::new);
-    // }
     RobotBase.startRobot(frc.robot.competition.Robot::new);
   }
 }

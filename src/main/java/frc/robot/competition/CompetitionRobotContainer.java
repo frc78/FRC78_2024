@@ -5,8 +5,9 @@
 package frc.robot.competition;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
 
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest.SwerveDriveBrake;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,18 +22,15 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.classes.BaseDrive;
 import frc.robot.classes.TunerConstants;
 import frc.robot.commands.AlignToNote;
@@ -148,7 +146,7 @@ class CompetitionRobotContainer {
             .applyRequest(
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(Blue) == Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
                   Rotation2d angle =
@@ -157,27 +155,24 @@ class CompetitionRobotContainer {
                           .getAngle()
                           .plus(Rotation2d.fromRadians(Math.PI));
                   Logger.recordOutput("Aiming angle", angle);
-                  //   angle *=
-                  //       m_poseEstimator.getEstimatedVel().getY()
-                  //           * RobotConstants.SPEAKER_AIM_VEL_COEFF;
                   return fieldCentricFacingAngle.withTargetDirection(angle);
                 })
             .withTimeout(2)
             .withName("Target"));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
-    // NamedCommands.registerCommand(
-    //     "DriveToNote",
-    //     pickUpNote()
-    //         .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
-    //         .withTimeout(2)
-    //         .withName("Drive to Note"));
+    NamedCommands.registerCommand(
+        "DriveToNote",
+        pickUpNote()
+            .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
+            .withTimeout(2)
+            .withName("Drive to Note"));
     NamedCommands.registerCommand(
         "DriveToNote",
         pickUpNote()
             .deadlineWith(new AlignToNote(m_chassis, () -> new ChassisSpeeds(1.5, 0, 0)))
             .until(
                 () -> {
-                  if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue) {
+                  if (DriverStation.getAlliance().orElse(Blue) == Blue) {
                     return m_chassis.getState().Pose.getX()
                         > 8.25 + RobotConstants.CENTER_LINE_MARGIN;
                   } else {
@@ -241,7 +236,7 @@ class CompetitionRobotContainer {
         .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
 
-    new Trigger(() -> m_Elevator.elevIsAtPos())
+    new Trigger(m_Elevator::elevIsAtPos)
         .and(RobotModeTriggers.teleop())
         .onTrue(shortRumble(m_manipController.getHID(), RumbleType.kBothRumble));
 
@@ -261,8 +256,7 @@ class CompetitionRobotContainer {
             m_chassis.applyRequest(
                 () -> {
                   Translation2d target =
-                      DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-                              == DriverStation.Alliance.Red
+                      DriverStation.getAlliance().orElse(Blue) == Red
                           ? Constants.RED_SPEAKER_POSE
                           : Constants.BLUE_SPEAKER_POSE;
                   Rotation2d angle =
@@ -369,8 +363,6 @@ class CompetitionRobotContainer {
 
     m_manipController.a().whileTrue(m_Elevator.setToTarget(RobotConstants.ELEVATOR_CLIMB_HEIGHT));
 
-    // m_manipController.x().whileTrue(m_Wrist.setToTarget(38)).onFalse(m_Wrist.stow());
-
     m_manipController.rightBumper().whileTrue(pickUpNote());
 
     m_manipController.leftBumper().whileTrue(m_feeder.outtake());
@@ -383,43 +375,17 @@ class CompetitionRobotContainer {
 
     m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
 
-    sysIdController
-        .pov(0)
-        .whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineRotation),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineRotation),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineRotation),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineRotation),
-                Commands.runOnce(() -> SignalLogger.stop())));
-    sysIdController
-        .pov(90)
-        .whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineTranslation),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineTranslation),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineTranslation),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineTranslation),
-                Commands.runOnce(() -> SignalLogger.stop())));
-    sysIdController
-        .pov(180)
-        .whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> SignalLogger.start()),
-                m_chassis.sysIdDynamic(Direction.kForward, m_chassis.sysIdRoutineSteer),
-                m_chassis.sysIdDynamic(Direction.kReverse, m_chassis.sysIdRoutineSteer),
-                m_chassis.sysIdQuasistatic(Direction.kForward, m_chassis.sysIdRoutineSteer),
-                m_chassis.sysIdQuasistatic(Direction.kReverse, m_chassis.sysIdRoutineSteer),
-                Commands.runOnce(() -> SignalLogger.stop())));
+    // Swerve Drive SysId Routines use d-pad
+    sysIdController.pov(0).whileTrue(m_chassis.sysIdRotation());
+    sysIdController.pov(90).whileTrue(m_chassis.sysIdTranslation());
+    sysIdController.pov(180).whileTrue(m_chassis.sysIdSteer());
+
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
     sysIdController.b().whileTrue(m_Elevator.runSysId());
 
     RobotModeTriggers.teleop()
         .onTrue(m_Elevator.enableBrakeMode().andThen(m_Wrist.enableBrakeMode()));
-    // .andThen(m_chassis.enableBrakeMode()));
 
     RobotModeTriggers.disabled().onTrue(m_Wrist.enableCoastMode());
     RobotModeTriggers.autonomous().onFalse(m_Shooter.setSpeedCmd(0).ignoringDisable(true));
@@ -439,7 +405,7 @@ class CompetitionRobotContainer {
   public Optional<Rotation2d> getRotationTargetOverride() {
     if (m_feeder.isNoteQueued()) {
       Translation2d target =
-          DriverStation.getAlliance().get() == DriverStation.Alliance.Red
+          DriverStation.getAlliance().orElse(Blue) == Red
               ? Constants.RED_SPEAKER_POSE
               : Constants.BLUE_SPEAKER_POSE;
       Rotation2d angle =
