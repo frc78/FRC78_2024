@@ -373,6 +373,8 @@ class CompetitionRobotContainer {
 
     m_testController.a().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(30)));
 
+    m_testController.a().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(30)));
+
     m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
 
     // Swerve Drive SysId Routines use d-pad
@@ -380,9 +382,16 @@ class CompetitionRobotContainer {
     sysIdController.pov(90).whileTrue(m_chassis.sysIdTranslation());
     sysIdController.pov(180).whileTrue(m_chassis.sysIdSteer());
 
+    m_testController.leftBumper().whileTrue(m_Wrist.setToTargetCmd(Degrees.of(40)));
+
+    // sysIdController.a().whileTrue(m_chassis.sysIdQuasistatic(Direction.kForward));
+    // sysIdController.b().whileTrue(m_chassis.sysIdDynamic(Direction.kForward));
+    // sysIdController.x().whileTrue(m_chassis.sysIdQuasistatic(Direction.kReverse));
+    // sysIdController.y().whileTrue(m_chassis.sysIdDynamic(Direction.kReverse));
     sysIdController.a().whileTrue(m_Shooter.sysIdRoutine());
     sysIdController.y().whileTrue(m_Wrist.sysId());
     sysIdController.b().whileTrue(m_Elevator.runSysId());
+    sysIdController.y().whileTrue(m_Wrist.sysId());
 
     RobotModeTriggers.teleop()
         .onTrue(m_Elevator.enableBrakeMode().andThen(m_Wrist.enableBrakeMode()));
