@@ -18,6 +18,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -72,6 +73,8 @@ class CompetitionRobotContainer {
 
   CompetitionRobotContainer() {
 
+    fieldCentricFacingAngle.HeadingController.setP(4);
+    fieldCentricFacingAngle.HeadingController.setTolerance(Units.degreesToRadians(2.0));
     m_chassis =
         new CommandSwerveDrivetrain(
             TunerConstants.DrivetrainConstants,
@@ -157,7 +160,8 @@ class CompetitionRobotContainer {
                   Logger.recordOutput("Aiming angle", angle);
                   return fieldCentricFacingAngle.withTargetDirection(angle);
                 })
-            .withTimeout(2)
+            .until(() -> fieldCentricFacingAngle.HeadingController.atSetpoint())
+            .withTimeout(1)
             .withName("Target"));
     NamedCommands.registerCommand("StopShooter", m_Shooter.setSpeedCmd(0));
     NamedCommands.registerCommand(
@@ -356,7 +360,7 @@ class CompetitionRobotContainer {
         .y()
         .whileTrue(
             m_Wrist
-                .setToTargetCmd(Degrees.of(20))
+                .setToTargetCmd(Degrees.of(25))
                 .alongWith(m_Elevator.setToTarget(16.3))
                 .withName("Amp Set-Up"))
         .onFalse(m_Wrist.stow());
