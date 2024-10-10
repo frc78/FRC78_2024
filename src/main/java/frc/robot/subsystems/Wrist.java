@@ -84,8 +84,8 @@ public class Wrist extends SubsystemBase {
 
   public Command setToTargetCmd(Measure<Angle> target) {
     return runOnce(() -> setToTarget(target))
-      .withName("setGoal[" + target + "]")
-      .andThen(Commands.idle());
+        .withName("setGoal[" + target + "]")
+        .andThen(Commands.idle());
   }
 
   public void setToTarget(Measure<Angle> target) {
