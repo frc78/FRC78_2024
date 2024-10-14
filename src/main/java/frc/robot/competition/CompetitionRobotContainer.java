@@ -73,8 +73,11 @@ class CompetitionRobotContainer {
 
   CompetitionRobotContainer() {
 
+    fieldCentricFacingAngle.ForwardReference = SwerveRequest.ForwardReference.RedAlliance;
     fieldCentricFacingAngle.HeadingController.setP(4);
+    fieldCentricFacingAngle.HeadingController.enableContinuousInput(0, Units.degreesToRadians(360));
     fieldCentricFacingAngle.HeadingController.setTolerance(Units.degreesToRadians(2.0));
+
     m_chassis =
         new CommandSwerveDrivetrain(
             TunerConstants.DrivetrainConstants,
