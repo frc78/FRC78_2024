@@ -23,7 +23,7 @@ public class Feedback extends SubsystemBase {
   private CANdle bracelet;
 
   public Feedback(int candleID) {
-    bracelet = new CANdle(candleID);
+    bracelet = new CANdle(candleID, "CANivore");
     CANdleConfiguration config = new CANdleConfiguration();
     config.brightnessScalar = 0.5; // dim the LEDs to half brightness
     bracelet.configAllSettings(config);

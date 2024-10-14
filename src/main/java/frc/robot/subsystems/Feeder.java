@@ -67,7 +67,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public Command outtake() {
-    return startEnd(() -> feedMotor.set(-.85), () -> feedMotor.set(0)).withName("Outtake");
+    return startEnd(() -> feedMotor.set(-.5), () -> feedMotor.set(0)).withName("Outtake");
   }
 
   /**
