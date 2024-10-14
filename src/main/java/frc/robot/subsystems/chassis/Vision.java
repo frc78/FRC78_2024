@@ -43,36 +43,37 @@ public class Vision {
   public Vision(CommandSwerveDrivetrain chassis) {
     this.chassis = chassis;
 
-    PhotonCamera sternCam = new PhotonCamera(STERN_CAM_NAME);
-    PhotonCamera starboardCam = new PhotonCamera(STARBOARD_CAM_NAME);
-    PhotonCamera portCam = new PhotonCamera(PORT_CAM_NAME);
+    NamedPhotonPoseEstimator sternCam =
+        new NamedPhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            new PhotonCamera(STERN_CAM_NAME),
+            new Transform3d(
+                new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
+                new Rotation3d(Math.PI, Math.toRadians(-30), Math.PI)),
+            STERN_CAM_NAME);
+    NamedPhotonPoseEstimator starboardCam =
+        new NamedPhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            new PhotonCamera(STARBOARD_CAM_NAME),
+            new Transform3d(
+                new Translation3d(4.465, -10.205, 21.274).times(Units.inchesToMeters(1)),
+                new Rotation3d(Math.PI, Math.toRadians(-25), Math.toRadians(-30))),
+            STARBOARD_CAM_NAME);
+    NamedPhotonPoseEstimator portCam =
+        new NamedPhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            new PhotonCamera(PORT_CAM_NAME),
+            new Transform3d(
+                new Translation3d(4.465, 10.205, 21.274).times(Units.inchesToMeters(1)),
+                new Rotation3d(0, Math.toRadians(-25), Math.toRadians(30))),
+            PORT_CAM_NAME);
 
-    poseEstimators =
-        List.of(
-            new NamedPhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                sternCam,
-                new Transform3d(
-                    new Translation3d(-4.5, 0, 17.902).times(Units.inchesToMeters(1)),
-                    new Rotation3d(Math.PI, Math.toRadians(-30), Math.PI)),
-                STERN_CAM_NAME),
-            new NamedPhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                starboardCam,
-                new Transform3d(
-                    new Translation3d(4.465, -10.205, 21.274).times(Units.inchesToMeters(1)),
-                    new Rotation3d(Math.PI, Math.toRadians(-25), Math.toRadians(-30))),
-                STARBOARD_CAM_NAME),
-            new NamedPhotonPoseEstimator(
-                aprilTagFieldLayout,
-                PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                portCam,
-                new Transform3d(
-                    new Translation3d(4.465, 10.205, 21.274).times(Units.inchesToMeters(1)),
-                    new Rotation3d(0, Math.toRadians(-25), Math.toRadians(30))),
-                PORT_CAM_NAME));
+    // Uncomment when orange pi is fixed
+    //    poseEstimators = List.of(sternCam, starboardCam, portCam);
+    poseEstimators = List.of(sternCam);
   }
 
   /**
