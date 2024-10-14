@@ -16,6 +16,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.reduxrobotics.canand.CanandDevice;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -28,6 +29,21 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
+
+  /**
+   * {@link CanandDevice#isConnected()} stores a default timestamp of 0 seconds, and compares with
+   * an FPGA timer to determine if the device is connected. This is a problem because the FPGA timer
+   * is reset when the robot code starts, so the difference between the two will be close to 0.
+   *
+   * <p>This class is a workaround to fix the issue by setting the last message timestamp to a very
+   * negative timestamp
+   */
+  private static class AirStrikeCanandMag extends Canandmag {
+    public AirStrikeCanandMag(int deviceID) {
+      super(deviceID);
+      lastMessageTs = -999;
+    }
+  }
 
   private TalonFX motor;
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0).withSlot(0);
@@ -42,12 +58,12 @@ public class Wrist extends SubsystemBase {
 
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 375;
+    motorConfiguration.Feedback.SensorToMechanismRatio = 108;
 
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    encoder = new Canandmag(1);
+    encoder = new AirStrikeCanandMag(1);
     Canandmag.Settings settings = new Canandmag.Settings();
     settings.setInvertDirection(true);
     encoder.getInternalSettingsManager().setSettings(settings, -1);
@@ -70,21 +86,12 @@ public class Wrist extends SubsystemBase {
     SmartDashboard.putData(enableBrakeMode());
     SmartDashboard.putData(enableCoastMode());
 
-    // Set the talon internal encoder to absolute encoder position
-
-    if (encoder.isConnected()) {
-      motor.setPosition(encoder.getAbsPosition());
-      motorSyncedWithEncoder = true;
-    } else {
-      motorSyncedWithEncoder = false;
-    }
-
     setDefaultCommand(stow().andThen(Commands.idle()));
   }
 
   public Command setToTargetCmd(Measure<Angle> target) {
     return runOnce(() -> setToTarget(target))
-        .withName("setGoal[" + target + "]")
+        .withName("Wrist setGoal[" + target + "]")
         .andThen(Commands.idle());
   }
 
@@ -97,7 +104,7 @@ public class Wrist extends SubsystemBase {
   }
 
   public Command stow() {
-    return setToTargetCmd(stowPos).withName("Stow").withName("Stow");
+    return setToTargetCmd(stowPos).withName("Stow");
   }
 
   public Command enableCoastMode() {
@@ -145,11 +152,9 @@ public class Wrist extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (!motorSyncedWithEncoder) {
-      if (encoder.isConnected()) {
-        motor.setPosition(encoder.getAbsPosition());
-        motorSyncedWithEncoder = true;
-      }
+    if (!motorSyncedWithEncoder && encoder.isConnected()) {
+      motor.setPosition(encoder.getAbsPosition());
+      motorSyncedWithEncoder = true;
     }
 
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
