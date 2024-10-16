@@ -34,14 +34,11 @@ public class Wrist extends SubsystemBase {
    * {@link CanandDevice#isConnected()} stores a default timestamp of 0 seconds, and compares with
    * an FPGA timer to determine if the device is connected. This is a problem because the FPGA timer
    * is reset when the robot code starts, so the difference between the two will be close to 0.
-   *
-   * <p>This class is a workaround to fix the issue by setting the last message timestamp to a very
-   * negative timestamp
    */
   private static class AirStrikeCanandMag extends Canandmag {
     public AirStrikeCanandMag(int deviceID) {
       super(deviceID);
-      lastMessageTs = -999;
+      lastMessageTs = Double.NaN;
     }
   }
 
