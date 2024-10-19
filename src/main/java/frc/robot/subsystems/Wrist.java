@@ -30,18 +30,6 @@ import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
 
-  /**
-   * {@link CanandDevice#isConnected()} stores a default timestamp of 0 seconds, and compares with
-   * an FPGA timer to determine if the device is connected. This is a problem because the FPGA timer
-   * is reset when the robot code starts, so the difference between the two will be close to 0.
-   */
-  private static class AirStrikeCanandMag extends Canandmag {
-    public AirStrikeCanandMag(int deviceID) {
-      super(deviceID);
-      lastMessageTs = Double.NaN;
-    }
-  }
-
   private TalonFX motor;
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0).withSlot(0);
   private Canandmag encoder;
@@ -60,7 +48,7 @@ public class Wrist extends SubsystemBase {
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-    encoder = new AirStrikeCanandMag(1);
+    encoder = new Canandmag(1);
     Canandmag.Settings settings = new Canandmag.Settings();
     settings.setInvertDirection(true);
     encoder.getInternalSettingsManager().setSettings(settings, -1);
