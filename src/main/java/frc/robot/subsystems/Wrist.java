@@ -16,7 +16,6 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.reduxrobotics.canand.CanandDevice;
 import com.reduxrobotics.sensors.canandmag.Canandmag;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -142,6 +141,7 @@ public class Wrist extends SubsystemBase {
       motorSyncedWithEncoder = true;
     }
 
+    Logger.recordOutput("Encoder Connected", encoder.isConnected());
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
     Logger.recordOutput("Wrist Abs Enc Pos", encoder.getAbsPosition());
     Logger.recordOutput("Wrist Motor Position", motor.getPosition().getValue());
