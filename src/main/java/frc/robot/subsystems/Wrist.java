@@ -34,13 +34,15 @@ public class Wrist extends SubsystemBase {
   private Canandmag encoder;
   private Measure<Angle> stowPos = Degrees.of(55);
 
+  private boolean motorSyncedWithEncoder = false;
+
   /** Creates a new Wrist. */
   public Wrist(int WRIST_ID, Measure<Angle> WRIST_HIGH_LIM, Measure<Angle> WRIST_LOW_LIM) {
     motor = new TalonFX(WRIST_ID, "*");
 
     TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 375;
+    motorConfiguration.Feedback.SensorToMechanismRatio = 108;
 
     motorConfiguration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     motorConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
@@ -68,24 +70,25 @@ public class Wrist extends SubsystemBase {
     SmartDashboard.putData(enableBrakeMode());
     SmartDashboard.putData(enableCoastMode());
 
-    // Set the talon internal encoder to absolute encoder position
-    motor.setPosition(encoder.getAbsPosition());
-
     setDefaultCommand(stow().andThen(Commands.idle()));
   }
 
   public Command setToTargetCmd(Measure<Angle> target) {
     return runOnce(() -> setToTarget(target))
-        .withName("setGoal[" + target + "]")
+        .withName("Wrist setGoal[" + target + "]")
         .andThen(Commands.idle());
   }
 
   public void setToTarget(Measure<Angle> target) {
-    motor.setControl(m_positionVoltage.withPosition(target.in(Rotations)));
+    if (motorSyncedWithEncoder) {
+      motor.setControl(m_positionVoltage.withPosition(target.in(Rotations)));
+    } else {
+      motor.stopMotor();
+    }
   }
 
   public Command stow() {
-    return setToTargetCmd(stowPos).withName("Stow").withName("Stow");
+    return setToTargetCmd(stowPos).withName("Stow");
   }
 
   public Command enableCoastMode() {
@@ -133,6 +136,12 @@ public class Wrist extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (!motorSyncedWithEncoder && encoder.isConnected()) {
+      motor.setPosition(encoder.getAbsPosition());
+      motorSyncedWithEncoder = true;
+    }
+
+    Logger.recordOutput("Encoder Connected", encoder.isConnected());
     Logger.recordOutput("Wrist Enc Pos", encoder.getPosition());
     Logger.recordOutput("Wrist Abs Enc Pos", encoder.getAbsPosition());
     Logger.recordOutput("Wrist Motor Position", motor.getPosition().getValue());
